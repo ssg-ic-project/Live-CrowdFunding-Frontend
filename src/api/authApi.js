@@ -44,20 +44,20 @@ export const authApi = {
     });
   },
 
-  // 비밀번호 재설정 이메일 전송
-  sendResetPasswordEmail(data) {
-    return api.post("/api/account/reset-password/email", data);
-  },
+  // // 비밀번호 재설정 이메일 전송
+  // sendResetPasswordEmail(data) {
+  //   return api.post("/api/account/reset-password/email", data);
+  // },
 
-  // 비밀번호 재설정 토큰 검증
-  validateResetToken(token) {
-    return api.get(`/api/account/reset-password/validate?token=${token}`);
-  },
+  // // 비밀번호 재설정 토큰 검증
+  // validateResetToken(token) {
+  //   return api.get(`/api/account/reset-password/validate?token=${token}`);
+  // },
 
-  // 비밀번호 재설정
-  resetPassword(data) {
-    return api.post("/api/account/reset-password/confirm", data);
-  },
+  // // 비밀번호 재설정
+  // resetPassword(data) {
+  //   return api.post("/api/account/reset-password/confirm", data);
+  // },
 
   // 네이버 로그인 URL 받기
   getNaverLoginUrl() {
@@ -81,7 +81,7 @@ export const authApi = {
     });
   },
 
-  // 비밀번호 재설정 이메일 발송
+  // 비밀번호 재설정 이메일 발송(중복)
   sendResetPasswordEmail(data) {
     return api.post("/api/account/reset-password/email", data);
   },
