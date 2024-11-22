@@ -1,0 +1,238 @@
+/* AdminSidebar.vue */
+.sidebar {
+    width: 250px;
+    background-color: #2f3a4f;
+    color: white;
+    padding: 1.5rem;
+}
+h3 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+}
+.menu {
+    list-style: none;
+    padding: 0;
+}
+.menu li {
+    margin-bottom: 1rem;
+}
+.menu a {
+    color: #a9b7c6;
+    text-decoration: none;
+}
+.menu a:hover,
+.menu li.active > a {
+    color: white;
+    text-decoration: underline;
+}
+
+/* BannerSlider.vue */
+.banner-slider {
+    position: relative;
+    width: 100%;
+    max-width: 1200px;
+    height: 300px;
+    overflow: hidden;
+    margin: auto;
+}
+.slides {
+    display: flex;
+    transition: transform 0.5s ease;
+    height: 100%;
+}
+.slide-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+.arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    padding: 0.5rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+.left-arrow {
+    left: 0;
+}
+.right-arrow {
+    right: 0;
+}
+.slide-indicator {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+/* BarChart.vue */
+canvas {
+    max-width: 100%;
+    height: 300px;
+}
+
+/* CategoryList.vue */
+.category-list {
+    text-align: center;
+    margin: 2rem auto;
+    max-width: 1200px;
+    padding: 0 20px;
+}
+.categories {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    list-style: none;
+    padding: 0;
+    gap: 1rem;
+}
+.category-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100px;
+    padding: 1rem;
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+.category-item:hover {
+    background-color: var(--primary-color);
+    color: white;
+    transform: translateY(-5px);
+}
+.category-logo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.category-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.category-name {
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+/* Footer.vue */
+.footer {
+    width: 100%;
+    background-color: #2f3a4f;
+    color: white;
+    padding: 1rem 0;
+}
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    box-sizing: border-box;
+}
+.footer-link {
+    color: #ffffff;
+    text-decoration: underline;
+    font-size: 0.875rem;
+}
+.footer-link:hover {
+    color: #a9b7c6;
+}
+
+/* Header.vue */
+.header {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    position: relative;
+    z-index: 2;
+    width: 100%;
+}
+.container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    white-space: nowrap;
+}
+.logo {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    min-width: 100px;
+}
+.logo-image {
+    width: 100px;
+}
+.navigation {
+    flex: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 500px;
+}
+.nav-center {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.nav-item {
+    margin: 0 1rem;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+.nav-item.router-link-active {
+    text-decoration: underline;
+}
+.search-bar {
+    display: flex;
+    align-items: center;
+    margin-left: 1rem;
+}
+.search-input {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-right: 0.5rem;
+    width: 200px;
+}
+.search-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.user-info {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    min-width: 100px;
+}
