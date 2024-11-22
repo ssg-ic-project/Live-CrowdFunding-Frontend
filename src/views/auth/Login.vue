@@ -1,3 +1,7 @@
+<!-- src\views\auth\Login.vue -->
+<!-- 계정 
+사용자 : seller@test.com    1234
+구매자 : buyer@test.com     1234 -->
 <template>
   <div class="login-container">
     <!-- 뒤로가기 버튼 -->
@@ -102,19 +106,90 @@ export default {
    },
 
    async handleLogin() {
-     try {
-       // 입력값 검증
-       this.validateEmail();
-       if (this.emailError) {
-         this.errorMessage = "유효한 이메일을 입력해주세요.";
-         return;
-       }
+  try {
+    // 입력값 검증
+    this.validateEmail();
+    if (this.emailError) {
+      this.errorMessage = "유효한 이메일을 입력해주세요.";
+      return;
+    }
 
-       if (!this.email || !this.password) {
-         this.loginError = true;
-         this.errorMessage = "이메일과 비밀번호를 모두 입력해주세요.";
-         return;
-       }
+    if (!this.email || !this.password) {
+      this.loginError = true;
+      this.errorMessage = "이메일과 비밀번호를 모두 입력해주세요.";
+      return;
+    }
+
+    // 테스트 계정 확인
+    if (this.email === "buyer@test.com" && this.password === "123") {
+      console.log("테스트 계정(buyer) 로그인 성공");
+
+      // 테스트 계정(user) 데이터 설정
+      const userTestData = {
+        accessToken: "user-access-token",
+        refreshToken: "user-refresh-token",
+        userEmail: "user@test.com",
+        role: "buyer"
+      };
+
+      // 로컬 스토리지에 저장
+      localStorage.setItem("accessToken", userTestData.accessToken);
+      localStorage.setItem("refreshToken", userTestData.refreshToken);
+      localStorage.setItem("userEmail", userTestData.userEmail);
+      localStorage.setItem("userType", userTestData.role);
+      localStorage.setItem("isLoggedIn", "true");
+
+      // 사용자 이름 저장
+      const userName = userTestData.userEmail.split("@")[0];
+      localStorage.setItem("userName", userName);
+
+      // 로그인 상태 변경 이벤트 발생
+      window.dispatchEvent(new Event("login-state-changed"));
+
+      // 페이지 이동
+      if (this.previousRoute && this.previousRoute !== "/auth/login") {
+        this.$router.push(this.previousRoute);
+      } else {
+        this.$router.push("/");
+      }
+
+      return; // 테스트 계정 성공 처리 후 종료
+    }
+
+    if (this.email === "seller@test.com" && this.password === "123") {
+      console.log("테스트 계정(seller) 로그인 성공");
+
+      // 테스트 계정(maker) 데이터 설정
+      const makerTestData = {
+        accessToken: "maker-access-token",
+        refreshToken: "maker-refresh-token",
+        userEmail: "maker@test.com",
+        role: "seller"
+      };
+
+      // 로컬 스토리지에 저장
+      localStorage.setItem("accessToken", makerTestData.accessToken);
+      localStorage.setItem("refreshToken", makerTestData.refreshToken);
+      localStorage.setItem("userEmail", makerTestData.userEmail);
+      localStorage.setItem("userType", makerTestData.role);
+      localStorage.setItem("isLoggedIn", "true");
+
+      // 사용자 이름 저장
+      const userName = makerTestData.userEmail.split("@")[0];
+      localStorage.setItem("userName", userName);
+
+      // 로그인 상태 변경 이벤트 발생
+      window.dispatchEvent(new Event("login-state-changed"));
+
+      // 페이지 이동
+      if (this.previousRoute && this.previousRoute !== "/auth/login") {
+        this.$router.push(this.previousRoute);
+      } else {
+        this.$router.push("/");
+      }
+
+      return; // 테스트 계정 성공 처리 후 종료
+    }
 
        const loginData = {
          email: this.email,
