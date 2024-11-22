@@ -130,4 +130,7 @@ registerUser(userData) {
 registerMaker(makerData) {
   return api.post('/api/account/signup/maker', makerData);
 }
+
+
+
 };
