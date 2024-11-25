@@ -241,11 +241,18 @@ export default {
       if (this.canProceed && this.paymentWidget) {
         try {
           //여기에서 orderId get하기!!!
-          const orderId = 2321327788854;
+          // const orderId = 2321327788854;
+
+          const orderId = location.pathname
+              .split('/')
+              .filter(Boolean)
+              .pop();
+
+          console.log("order id 체크: ")
+          console.log(orderId)
 
           //주소
           const currentAddress = this.addingNewAddress ? this.newAddressInput : this.defaultAddress;
-
 
           // 결제 설정 객체
           const paymentConfig = {
@@ -264,8 +271,6 @@ export default {
             //구매자 인증에 성공하면 successUrl로 redirect된다. 여기까지는 아직 결제 요청만 완료된 상태이다.
             //인증된 결제를 승인해줘야 된다.
             //성공 url의 query parameter 값이 결제 요청과 동일하면 결제 승인 API 호출. 카드사로 결제 승인 요청 전달
-
-
 
           };
 
