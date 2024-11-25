@@ -25,6 +25,9 @@ export default{
       paymentKey: '',
       orderId: '',
       amount: '',
+      method: '',
+      deliveryAddress: '',
+      approvedAt: '',
       isLoading: false,
       error: null,
       errorDetail: null,
@@ -40,12 +43,23 @@ export default{
       const requestData = {
         paymentKey: this.paymentKey,
         orderId: this.orderId,
-        amount: this.amount
+        amount: this.amount,
+        method: this.method, //확인
+        deliveryAddress: this.deliveryAddress,
+        approvedAt: this.approvedAt,
+
       }
       try{
         console.log('API 호출 시작')
+        console.log('결제 수단 체크 by yejin1: ', this.method);
+        console.log('승인 시각 체크 by yejin1: ', this.approvedAt);
         const response = await paymentApi.confirm(requestData)
         console.log('성공 응답 데이터: ', response.data)
+
+        // this.method = response.data.method //결제 수단
+        // console.log('결제 수단 체크 by yejin: ', this.method);
+        // this.paymentAt = response.data.approvedAt //승인시각
+        // console.log('승인 시각 체크 by yejin: ', this.paymentAt);
 
         this.success = true
         //성공시 redirect
@@ -72,6 +86,24 @@ export default{
     this.paymentKey = this.$route.query.paymentKey
     this.orderId = this.$route.query.orderId
     this.amount = this.$route.query.amount
+    this.method = this.$route.query.method
+    this.deliveryAddress = this.$route.query.deliveryAddress
+    this.approvedAt = this.$route.query.approvedAt
+
+
+    //체크 용 - 예진
+    console.log("쿼리 파라미터 할당 후 값들:", {
+      method: this.method,
+      approvedAt: this.approvedAt,
+      // URL의 실제 쿼리 파라미터도 함께 확인
+      queryMethod: this.$route.query.method,
+      queryApprovedAt: this.$route.query.approvedAt
+    })
+
+
+    console.log("checking yejin");
+    console.log(this.orderId);
+    console.log(this.deliveryAddress);
 
     //필수 파라미터 검증
     if(!this.paymentKey || !this.orderId || !this.amount){

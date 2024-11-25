@@ -95,16 +95,6 @@ export default {
       addingNewAddress: false,
       newAddressInput: '',
 
-      // 기존 data 유지
-      selectedMethod: 'CARD',
-      paymentMethods: [
-        { value: 'CARD', label: '카드' },
-        { value: 'TRANSFER', label: '계좌이체' },
-        { value: 'VIRTUAL_ACCOUNT', label: '가상계좌' },
-        { value: 'MOBILE_PHONE', label: '휴대폰' },
-        { value: 'CULTURE_GIFT_CERTIFICATE', label: '문화상품권' },
-        { value: 'FOREIGN_EASY_PAY', label: '해외간편결제' }
-      ],
     }
   },
 
@@ -146,10 +136,6 @@ export default {
   },
 
   methods: {
-    selectPaymentMethod(method) {
-      this.selectedMethod = method;
-    },
-
     sout(){
       console.log("눌러라 콘솔😃😃😃")
 
@@ -250,72 +236,42 @@ export default {
       }
     },
 
-    async confirmPayment() {
-      console.log("눌러부러쓴")
+    async confirmPayment() { //결제 요청 메소드
+      console.log("탱큐 포 결제💸")
       if (this.canProceed && this.paymentWidget) {
         try {
-          const orderId = this.generateOrderId();
+          //여기에서 orderId get하기!!!
+          const orderId = 2321327788854;
+
+          //주소
+          const currentAddress = this.addingNewAddress ? this.newAddressInput : this.defaultAddress;
+
 
           // 결제 설정 객체
           const paymentConfig = {
-            method: this.selectedMethod, // 선택된 결제 방식
             orderId: orderId,
+            deliveryAddress: currentAddress,
             orderName: this.product.name,
             customerEmail: "customer123@gmail.com",
             customerName: "김토스",
             amount: this.totalPayment,
-            successUrl: `${window.location.origin}${this.$router.resolve({ name: 'PaymentSuccess' }).href}`,
+            successUrl: `${window.location.origin}${this.$router.resolve({ name: 'PaymentSuccess'
+            }).href}?deliveryAddress=${encodeURIComponent(currentAddress)}`,
             failUrl: `${window.location.origin}${this.$router.resolve({ name: 'PaymentFail' }).href}`
+
+            //구매자는 결제 수단 입력
+            //카드사에서 구매자 인증을 진행한다.
+            //구매자 인증에 성공하면 successUrl로 redirect된다. 여기까지는 아직 결제 요청만 완료된 상태이다.
+            //인증된 결제를 승인해줘야 된다.
+            //성공 url의 query parameter 값이 결제 요청과 동일하면 결제 승인 API 호출. 카드사로 결제 승인 요청 전달
+
+
+
           };
-
-          // 결제 방식별 추가 설정
-          switch (this.selectedMethod) {
-            case 'CARD':
-              paymentConfig.card = {
-                useEscrow: false,
-                flowMode: "DEFAULT",
-                useCardPoint: false,
-                useAppCardOnly: false
-              };
-              break;
-
-            case 'TRANSFER':
-              paymentConfig.transfer = {
-                cashReceipt: { type: "소득공제" },
-                useEscrow: false
-              };
-              break;
-
-            case 'VIRTUAL_ACCOUNT':
-              paymentConfig.virtualAccount = {
-                cashReceipt: { type: "소득공제" },
-                useEscrow: false,
-                validHours: 24
-              };
-              break;
-
-            case 'MOBILE_PHONE':
-              // 휴대폰 결제는 추가 설정 없음
-              break;
-
-            case 'CULTURE_GIFT_CERTIFICATE':
-              // 문화상품권은 추가 설정 없음
-              break;
-
-            case 'FOREIGN_EASY_PAY':
-              paymentConfig.amount = {
-                value: this.totalPayment,
-                currency: "USD"
-              };
-              paymentConfig.foreignEasyPay = {
-                provider: "PAYPAL",
-                country: "KR"
-              };
-              break;
-          }
 
           // 결제 요청
           await this.paymentWidget.requestPayment(paymentConfig);
+
 
         } catch (error) {
           if (error.code === 'USER_CANCEL') {

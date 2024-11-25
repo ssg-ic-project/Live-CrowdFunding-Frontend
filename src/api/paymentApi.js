@@ -4,11 +4,14 @@ export const paymentApi = {
     //
     confirm(data){
         return api.post(
-            "http://localhost:8080/api/confirm",
+            "/api/confirm",
             {
                 paymentKey: data.paymentKey,
                 orderId: data.orderId,
-                amount: data.amount
+                amount: data.amount,
+                method: data.method,
+                deliveryAddress: data.deliveryAddress,
+                approvedAt: data.approvedAt
             },
             {
                 headers:{

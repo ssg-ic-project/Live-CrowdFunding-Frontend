@@ -78,6 +78,7 @@
 
 <script>
 import { authApi } from '@/api'
+import axios from 'axios';
 
 export default {
  name: "Login",
@@ -120,23 +121,23 @@ export default {
          email: this.email,
          password: this.password
        };
-       
+
        console.log('로그인 요청:', loginData);
-       
+
        // API 호출
        const response = await authApi.login(loginData);
        console.log('로그인 응답:', response.data);
 
        // 로그인 성공 처리
        const { accessToken, refreshToken, userEmail, role } = response.data;
-       
+
        // 로컬 스토리지에 저장
        localStorage.setItem("accessToken", accessToken);
        localStorage.setItem("refreshToken", refreshToken);
        localStorage.setItem("userEmail", userEmail);
        localStorage.setItem("userType", role);
        localStorage.setItem("isLoggedIn", "true");
-       
+
        // 사용자 이름 저장
        const userName = userEmail.split('@')[0];
        localStorage.setItem("userName", userName);
@@ -153,7 +154,7 @@ export default {
 
      } catch (error) {
        console.error('로그인 에러:', error);
-       
+
        this.loginError = true;
        if (error.response) {
          switch (error.response.status) {

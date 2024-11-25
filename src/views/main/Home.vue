@@ -57,6 +57,7 @@ import CategoryList from "@/components/CategoryList.vue";
 import ProductItem from "@/components/ProductItem.vue";
 import RankingCard from "@/components/RankingCard.vue";
 import odungImage from "@/assets/image/오둥이하트.png";
+import axios from 'axios';
 
 export default {
   name: "Home",
