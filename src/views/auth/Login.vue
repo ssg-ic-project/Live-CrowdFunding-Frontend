@@ -140,6 +140,7 @@ export default {
       localStorage.setItem("userEmail", userTestData.userEmail);
       localStorage.setItem("userType", userTestData.role);
       localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("userId", 2);
 
       // 사용자 이름 저장
       const userName = userTestData.userEmail.split("@")[0];
@@ -175,6 +176,7 @@ export default {
       localStorage.setItem("userEmail", makerTestData.userEmail);
       localStorage.setItem("userType", makerTestData.role);
       localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("userId", 2);
 
       // 사용자 이름 저장
       const userName = makerTestData.userEmail.split("@")[0];
@@ -255,6 +257,7 @@ export default {
        }
      }
    },
+
    async handleNaverLogin() {
      try {
        const response = await authApi.getNaverLoginUrl();
