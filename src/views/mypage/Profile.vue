@@ -1,44 +1,46 @@
-<!-- src/views/mypage/Profile.vue -->
 <template>
   <div class="profile-page">
     <h2>회원정보 관리</h2>
-    <div class="profile-container">
+    <div v-if="loading" class="loading">
+      데이터를 불러오는 중입니다...
+    </div>
+    <div v-else-if="error" class="error">
+      {{ error }}
+    </div>
+    <div v-else class="profile-container">
       <!-- 기본 정보 표시 -->
       <div v-if="!isEditing" class="user-info">
         <div class="info-group">
           <label>이름</label>
-          <p>{{ user.name }}</p>
+          <p>{{ userData.name }}</p>
         </div>
         <div class="info-group">
           <label>닉네임</label>
-          <p>{{ user.nickname }}</p>
+          <p>{{ userData.nickname }}</p>
         </div>
         <div class="info-group">
           <label>전화번호</label>
-          <p>{{ user.phone }}</p>
+          <p>{{ userData.phone }}</p>
         </div>
         <div class="info-group">
           <label>이메일</label>
-          <p>{{ user.email }}</p>
+          <p>{{ userData.email }}</p>
         </div>
         <div class="info-group">
           <label>주소</label>
-          <p>{{ user.address }}</p>
+          <p>{{ userData.address }}</p>
         </div>
         <div class="info-group">
           <label>상세주소</label>
-          <p>{{ user.addressDetail }}</p>
+          <p>{{ userData.detailAddress }}</p>
         </div>
         <div class="info-group">
           <label>로그인 방법</label>
-          <p>{{ user.loginType }}</p>
+          <p>{{ userData.loginMethod ? '소셜 로그인' : '일반 로그인' }}</p>
         </div>
         <div class="info-group">
           <label>알림수신 동의</label>
-          <div class="notification-preferences">
-            <p>이메일 수신: {{ user.emailNotification ? '동의' : '미동의' }}</p>
-            <p>SMS 수신: {{ user.smsNotification ? '동의' : '미동의' }}</p>
-          </div>
+          <p>{{ userData.notification ? '동의' : '미동의' }}</p>
         </div>
      
         <button @click="startEdit" class="edit-button">수정하기</button>
@@ -68,34 +70,30 @@
       <form v-if="isEditing" @submit.prevent="updateProfile" class="edit-form">
         <div class="input-group">
           <label>이름</label>
-          <p>{{ user.name }}</p>
+          <p>{{ userData.name }}</p>
         </div>
         <div class="input-group">
           <label>닉네임</label>
-          <input type="text" v-model="editUser.nickname" />
+          <input type="text" v-model="editUserData.nickname" />
         </div>
         <div class="input-group">
           <label>전화번호</label>
-          <input type="tel" v-model="editUser.phone" pattern="[0-9]{3}-[0-9]{4}-[0-9]{4}" />
+          <input type="tel" v-model="editUserData.phone" pattern="[0-9]{3}-[0-9]{4}-[0-9]{4}" />
         </div>
         <div class="input-group">
           <label>이메일</label>
-          <p>{{ user.email }}</p>
+          <p>{{ userData.email }}</p>
         </div>
         <div class="input-group">
           <label>주소</label>
           <div class="address-group">
-            <input type="text" v-model="editUser.address" readonly />
+            <input type="text" v-model="editUserData.address" readonly />
             <button type="button" @click="openAddressSearch" class="address-button">주소찾기</button>
           </div>
         </div>
         <div class="input-group">
           <label>상세주소</label>
-          <input type="text" v-model="editUser.addressDetail" />
-        </div>
-        <div class="input-group">
-          <label>로그인 방법</label>
-          <p>{{ user.loginType }}</p>
+          <input type="text" v-model="editUserData.detailAddress" />
         </div>
         <div class="input-group">
           <label>알림수신 동의</label>
@@ -103,18 +101,10 @@
             <div class="checkbox-group">
               <input 
                 type="checkbox" 
-                id="emailNotification" 
-                v-model="editUser.emailNotification"
+                id="notification" 
+                v-model="editUserData.notification"
               />
-              <label for="emailNotification">이메일 수신 동의</label>
-            </div>
-            <div class="checkbox-group">
-              <input 
-                type="checkbox" 
-                id="smsNotification" 
-                v-model="editUser.smsNotification"
-              />
-              <label for="smsNotification">SMS 수신 동의</label>
+              <label for="notification">알림 수신 동의</label>
             </div>
           </div>
         </div>
@@ -128,6 +118,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   name: 'Profile',
   data() {
@@ -135,30 +127,80 @@ export default {
       isEditing: false,
       showPasswordModal: false,
       password: '',
-      user: {
-        name: '홍길동',
-        nickname: '곽용철',
-        phone: '010-1234-5678',
-        email: 'user@example.com',
-        address: '서울특별시 강남구 테헤란로',
-        addressDetail: '123-45',
-        loginType: '일반 로그인',
-        emailNotification: true,
-        smsNotification: false
-      },
-      editUser: {
-        phone: '',
+      loading: true,
+      error: null,
+      userData: null,
+      editUserData: {
         nickname: '',
+        phone: '',
         address: '',
-        addressDetail: '',
-        emailNotification: false,
-        smsNotification: false
+        detailAddress: '',
+        notification: false
       }
     };
   },
+  async created() {
+    await this.fetchUserData();
+  },
   methods: {
-    deleteAccount() {
-      alert('탈퇴되었습니다.');
+    async fetchUserData() {
+      try {
+        const userId = localStorage.getItem('userId');
+        console.log('사용자id' + userId);
+        const response = await axios.get(`/api/user/${userId}`);
+        this.userData = response.data;
+        this.loading = false;
+      } catch (err) {
+        this.error = '사용자 정보를 불러오는데 실패했습니다.';
+        this.loading = false;
+        console.error('Error fetching user data:', err);
+      }
+    },
+    async deleteAccount() {
+  const confirmDelete = confirm('정말로 탈퇴하시겠습니까?');
+  
+  if (confirmDelete) {
+    try {
+      const userId = localStorage.getItem('userId');
+      console.log('사용자id' + userId);
+      await axios.delete(`/api/user/${userId}`);
+      
+      // 로컬 스토리지 클리어
+      localStorage.clear();
+      
+      alert('회원 탈퇴가 완료되었습니다.');
+      
+      // 홈페이지나 로그인 페이지로 리다이렉트
+      this.$router.push('/auth/login');
+      
+      } catch (err) {
+          if (err.response) {
+            switch (err.response.status) {
+              case 400:
+                alert('잘못된 요청입니다.');
+                break;
+              case 401:
+                alert('로그인이 필요합니다.');
+                this.$router.push('/login');
+                break;
+              case 403:
+                alert('권한이 없습니다.');
+                break;
+              case 404:
+                alert('사용자를 찾을 수 없습니다.');
+                break;
+              case 500:
+                alert('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+                break;
+              default:
+                alert('회원 탈퇴에 실패했습니다.');
+            }
+          } else {
+            alert('서버와 통신 중 오류가 발생했습니다.');
+          }
+          console.error('Error deleting account:', err);
+        }
+      }
     },
     startEdit() {
       this.showPasswordModal = true;
@@ -167,43 +209,95 @@ export default {
       this.isEditing = false;
       this.showPasswordModal = false;
       this.password = '';
-      this.editUser = {
-        nickname: this.user.nickname,
-        phone: this.user.phone,
-        address: this.user.address,
-        addressDetail: this.user.addressDetail,
-        emailNotification: this.user.emailNotification,
-        smsNotification: this.user.smsNotification
+      this.editUserData = {
+        nickname: this.userData.nickname,
+        phone: this.userData.phone,
+        address: this.userData.address,
+        detailAddress: this.userData.detailAddress,
+        notification: this.userData.notification
       };
     },
-    verifyPassword() {
+    async verifyPassword() {
       if (this.password) {
-        this.showPasswordModal = false;
-        this.isEditing = true;
-        this.password = '';
-        this.editUser = {
-          nickname: this.user.nickname,
-          phone: this.user.phone,
-          address: this.user.address,
-          addressDetail: this.user.addressDetail,
-          emailNotification: this.user.emailNotification,
-          smsNotification: this.user.smsNotification
-        };
+        try {
+          // 비밀번호 확인 API 호출 필요
+          this.showPasswordModal = false;
+          this.isEditing = true;
+          this.password = '';
+          this.editUserData = {
+            nickname: this.userData.nickname,
+            phone: this.userData.phone,
+            address: this.userData.address,
+            detailAddress: this.userData.detailAddress,
+            notification: this.userData.notification
+          };
+        } catch (err) {
+          alert('비밀번호가 일치하지 않습니다.');
+          console.error('Error verifying password:', err);
+        }
       }
     },
+    validateForm() {
+      if (!this.editUserData.nickname.trim()) {
+        alert('닉네임을 입력해주세요.');
+        return false;
+      }
+      if (!this.editUserData.phone.trim()) {
+        alert('전화번호를 입력해주세요.');
+        return false;
+      }
+      if (!this.editUserData.phone.match(/^\d{3}-\d{4}-\d{4}$/)) {
+        alert('전화번호 형식이 올바르지 않습니다. (예: 010-1234-5678)');
+        return false;
+      }
+      if (!this.editUserData.address.trim()) {
+        alert('주소를 입력해주세요.');
+        return false;
+      }
+      return true;
+    },
     openAddressSearch() {
+      // 주소 검색 API 연동 필요
       alert('주소 검색');
     },
-    updateProfile() {
-      Object.assign(this.user, {
-        phone: this.editUser.phone,
-        address: this.editUser.address,
-        addressDetail: this.editUser.addressDetail,
-        emailNotification: this.editUser.emailNotification,
-        smsNotification: this.editUser.smsNotification
-      });
-      this.isEditing = false;
-      alert('회원정보가 수정되었습니다.');
+    async updateProfile() {
+      if (!this.validateForm()) {
+        return;
+      }
+
+      try {
+        const userId = localStorage.getItem('userId');
+        console.log('사용자정보' + this.editUserData);
+        const response = await axios.put(`/api/user/${userId}`, this.editUserData);
+        if (response.status === 200) {
+          // 성공적으로 업데이트된 경우
+          await this.fetchUserData(); // 최신 데이터로 다시 로드
+          this.isEditing = false;
+          alert('회원정보가 성공적으로 수정되었습니다.');
+        }
+      } catch (err) {
+        if (err.response) {
+          // 서버에서 에러 응답이 온 경우
+          switch (err.response.status) {
+            case 400:
+              alert('잘못된 요청입니다. 입력하신 정보를 확인해주세요.');
+              break;
+            case 401:
+              alert('로그인이 필요합니다.');
+              // 로그인 페이지로 리다이렉트
+              this.$router.push('/login');
+              break;
+            case 403:
+              alert('권한이 없습니다.');
+              break;
+            default:
+              alert('회원정보 수정에 실패했습니다.');
+          }
+        } else {
+          alert('서버와 통신 중 오류가 발생했습니다.');
+        }
+        console.error('Error updating profile:', err);
+      }
     }
   }
 };
