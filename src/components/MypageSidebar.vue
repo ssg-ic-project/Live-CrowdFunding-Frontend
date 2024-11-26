@@ -85,9 +85,6 @@ export default {
 
 
 
-   
-</script>
-
 <style scoped>
 .sidebar {
   width: 250px;

@@ -2,12 +2,26 @@
 import axios from "axios";
 
 const api = axios.create({
+<<<<<<< HEAD
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:8080",
+=======
+  baseURL: import.meta.env.VITE_API_URL,
+    // baseURL: "http://localhost:8080",
+>>>>>>> c21df164b245dca16065d28741f41650ea0743f8
   headers: {
     "Content-Type": "application/json",
   },
   withCredentials: true,
 });
+
+const paymentInstance = axios.create({
+    baseURL: 'http://localhost:4242', //예진 페이먼츠 테스팅용
+    headers:{
+        'Content-Type': 'application/json',
+    },
+});
+
+
 
 // 요청 인터셉터
 api.interceptors.request.use(
