@@ -140,7 +140,7 @@ export default {
       localStorage.setItem("userEmail", userTestData.userEmail);
       localStorage.setItem("userType", userTestData.role);
       localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("userId", 2);
+      localStorage.setItem("userId", 1);
 
       // 사용자 이름 저장
       const userName = userTestData.userEmail.split("@")[0];
