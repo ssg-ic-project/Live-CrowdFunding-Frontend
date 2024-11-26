@@ -94,7 +94,7 @@ export default {
       defaultAddress: '',
       addingNewAddress: false,
       newAddressInput: '',
-
+      orderId: '' //return 된 orderId 가지고 오기
     }
   },
 
@@ -243,10 +243,11 @@ export default {
           //여기에서 orderId get하기!!!
           // const orderId = 2321327788854;
 
-          const orderId = location.pathname
-              .split('/')
-              .filter(Boolean)
-              .pop();
+          // const orderId = location.pathname
+          //     .split('/')
+          //     .filter(Boolean)
+          //     .pop();
+
 
           console.log("order id 체크: ")
           console.log(orderId)
