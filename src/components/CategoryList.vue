@@ -30,19 +30,25 @@ export default {
   data() {
     return {
       categories: [
-        { name: '생활 가전', icon: LifeIcon },
-        { name: '주방 가전', icon: KitchenIcon },
-        { name: '스마트 가전', icon: SmartIcon },
-        { name: 'DIY', icon: DIYIcon },
-        { name: '엔터테이먼트', icon: EntertainmentIcon },
-        { name: '웨어러블', icon: WearableIcon },
-        { name: '주변 기기', icon: PeripheralIcon },
+        { id: 1, name: '생활 가전', icon: LifeIcon },
+        { id: 2, name: '주방 가전', icon: KitchenIcon },
+        { id: 3, name: '스마트 가전', icon: SmartIcon },
+        { id: 4, name: 'DIY', icon: DIYIcon },
+        { id: 5, name: '엔터테이먼트', icon: EntertainmentIcon },
+        { id: 6, name: '웨어러블', icon: WearableIcon },
+        { id: 7, name: '주변 기기', icon: PeripheralIcon },
       ],
     };
   },
   methods: {
     selectCategory(categoryName) {
-      this.$router.push({ name: 'SearchResults', query: { q: categoryName, type: 'category' } });
+      const selectedCategory = this.categories.find(cat => cat.name === categoryName);
+      this.$router.push({ 
+        name: 'CategoryResults', 
+        query: { 
+          categoryId: selectedCategory.id,
+        } 
+      });
     },
   },
 };

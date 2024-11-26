@@ -34,8 +34,8 @@
       </section>
     </div>
 
-    <!-- AI 추천 상품 섹션 -->
-    <section class="ai-recommendation-section" v-if="!isLoading && !error">
+    <!-- AI 추천 상품 섹션 // 구현 가능??! -->
+    <!-- <section class="ai-recommendation-section" v-if="!isLoading && !error">
       <h2>AI 추천 상품</h2>
       <div class="product-grid full-width">
         <ProductItem
@@ -44,7 +44,7 @@
           :product="product"
         />
       </div>
-    </section>
+    </section> -->
 
     <div v-if="isLoading" class="loading">로딩 중...</div>
     <div v-if="error" class="error">{{ error }}</div>
@@ -75,227 +75,49 @@ export default {
     const isLoading = ref(true);
     const error = ref(null);
 
-    const dummyRankingProducts = [
-      {
-        id: 31,
-        image: odungImage,
-        achievement: 92,
-        endDate: "2024-12-05",
-        name: "인기 랭킹 1위 상품",
-        company: "회사EE",
-        price: 110000,
-        totalUsers: 2854,
-        isLive: true,
-      },
-      {
-        id: 32,
-        image: odungImage,
-        achievement: 88,
-        endDate: "2024-11-10",
-        name: "인기 랭킹 2위 상품",
-        company: "회사FF",
-        price: 1800000,
-        totalUsers: 2245,
-        isLive: false,
-      },
-      {
-        id: 33,
-        image: odungImage,
-        achievement: 85,
-        endDate: "2024-12-01",
-        name: "인기 랭킹 3위 상품",
-        company: "회사GG",
-        price: 2300000,
-        totalUsers: 1987,
-        isLive: true,
-      },
-      {
-        id: 34,
-        image: odungImage,
-        achievement: 82,
-        endDate: "2024-10-25",
-        name: "인기 랭킹 4위 상품",
-        company: "회사HH",
-        price: 160000,
-        totalUsers: 1654,
-        isLive: false,
-      },
-      {
-        id: 35,
-        image: odungImage,
-        achievement: 90,
-        endDate: "2024-11-15",
-        name: "인기 랭킹 5위 상품",
-        company: "회사II",
-        price: 300000000,
-        totalUsers: 1432,
-        isLive: true,
-      },
-      
-    ];
+    //여기부터 용빈
+    
+    const fetchMainPageData = async () => {
+      try {
+        const response = await axios.get('/api/project/main');
+        console.log('API Response:', response.data); // 응답 데이터 확인
+        
+        // 라이브 펀딩 프로젝트 데이터 매핑
+        if (response.data.liveFundingProjects) {
+          liveProducts.value = response.data.liveFundingProjects.map(project => ({
+            id: project.id,
+            image: project.url,
+            name: project.productName,
+            achievement: project.percentage,
+            category: project.classification,
+            remainingTime: project.remainingTime,
+            isLive: true
+          }));
+        }
 
-    const dummyLiveProducts = [
-      {
-        id: 1,
-        image: odungImage,
-        achievement: 75,
-        endDate: "2024-12-31",
-        name: "라이브 상품1",
-        company: "회사A",
-        price: 100000,
-        isLive: true,
-      },
-      {
-        id: 2,
-        image: odungImage,
-        achievement: 60,
-        endDate: "2024-11-30",
-        name: "라이브 상품2",
-        company: "회사B",
-        price: 200000,
-        isLive: true,
-      },
-      {
-        id: 3,
-        image: odungImage,
-        achievement: 80,
-        endDate: "2024-10-20",
-        name: "라이브 상품3",
-        company: "회사C",
-        price: 250000,
-        isLive: true,
-      },
-      {
-        id: 4,
-        image: odungImage,
-        achievement: 55,
-        endDate: "2024-09-10",
-        name: "라이브 상품4",
-        company: "회사D",
-        price: 270000,
-        isLive: true,
-      },
-      {
-        id: 5,
-        image: odungImage,
-        achievement: 90,
-        endDate: "2024-12-15",
-        name: "라이브 상품5",
-        company: "회사E",
-        price: 350000,
-        isLive: true,
-      },
-      {
-        id: 6,
-        image: odungImage,
-        achievement: 70,
-        endDate: "2024-11-25",
-        name: "라이브 상품6",
-        company: "회사F",
-        price: 150000,
-        isLive: true,
-      },
-     
-    ];
-
-    const dummyAIRecommendedProducts = [
-      {
-        id: 21,
-        image: odungImage,
-        achievement: 85,
-        endDate: "2024-11-10",
-        name: "AI 추천 상품1",
-        company: "회사U",
-        price: 320000,
-      },
-      {
-        id: 22,
-        image: odungImage,
-        achievement: 75,
-        endDate: "2024-10-18",
-        name: "AI 추천 상품2",
-        company: "회사V",
-        price: 270000,
-      },
-      {
-        id: 23,
-        image: odungImage,
-        achievement: 65,
-        endDate: "2024-11-12",
-        name: "AI 추천 상품3",
-        company: "회사W",
-        price: 230000,
-      },
-      {
-        id: 24,
-        image: odungImage,
-        achievement: 80,
-        endDate: "2024-12-01",
-        name: "AI 추천 상품4",
-        company: "회사X",
-        price: 250000,
-      },
-      {
-        id: 25,
-        image: odungImage,
-        achievement: 70,
-        endDate: "2024-10-22",
-        name: "AI 추천 상품5",
-        company: "회사Y",
-        price: 210000,
-      },
-      {
-        id: 26,
-        image: odungImage,
-        achievement: 90,
-        endDate: "2024-11-30",
-        name: "AI 추천 상품6",
-        company: "회사Z",
-        price: 350000,
-      },
-      {
-        id: 27,
-        image: odungImage,
-        achievement: 68,
-        endDate: "2024-09-28",
-        name: "AI 추천 상품7",
-        company: "회사AA",
-        price: 190000,
-      },
-      {
-        id: 28,
-        image: odungImage,
-        achievement: 82,
-        endDate: "2024-12-12",
-        name: "AI 추천 상품8",
-        company: "회사BB",
-        price: 280000,
-      },
-      {
-        id: 29,
-        image: odungImage,
-        achievement: 77,
-        endDate: "2024-10-10",
-        name: "AI 추천 상품9",
-        company: "회사CC",
-        price: 240000,
-      },
-      {
-        id: 30,
-        image: odungImage,
-        achievement: 73,
-        endDate: "2024-11-25",
-        name: "AI 추천 상품10",
-        company: "회사DD",
-        price: 220000,
-      },
-    ];
+        // 탑 펀딩 프로젝트 데이터 매핑
+        if (response.data.topFundingProjects) {
+          rankingProducts.value = response.data.topFundingProjects.map(project => ({
+            id: project.id,
+            image: project.url,
+            name: project.productName,
+            achievement: project.percentage,
+            category: project.classification,
+            remainingTime: project.remainingTime,
+            ranking: project.ranking,
+            isLive: true
+          }));
+        }
+      } catch (err) {
+        console.error('메인 페이지 데이터 로딩 실패:', err);
+        error.value = err.response?.data?.message || "데이터를 불러오는 중 오류가 발생했습니다.";
+      }
+    };
 
     const fetchData = async () => {
       try {
-        rankingProducts.value = dummyRankingProducts;
-        liveProducts.value = dummyLiveProducts;
-        aiRecommendedProducts.value = dummyAIRecommendedProducts;
+        isLoading.value = true;
+        await fetchMainPageData();
       } catch (err) {
         error.value = "데이터를 불러오는 중 오류가 발생했습니다.";
         console.error(err);

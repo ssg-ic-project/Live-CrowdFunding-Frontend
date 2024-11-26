@@ -1,6 +1,6 @@
 <!-- src/components/RankingCard.vue -->
 <template>
-    <router-link :to="{ name: 'ProductDetail', params: { productId: 1 } }" class="ranking-link">
+    <router-link :to="{ name: 'ProductDetail', params: { productId: product.id } }" class="ranking-link">
       <div class="ranking-card">
         <div class="left-section">
           <div class="rank-badge">{{ rank }}</div>
@@ -12,7 +12,7 @@
         <div class="content">
           <h3 class="title">{{ product.name }}</h3>
           <div class="participants">
-            {{ formatParticipants(product.totalUsers) }}명 참여
+            {{ product.achievement }}% 달성
           </div>
         </div>
       </div>

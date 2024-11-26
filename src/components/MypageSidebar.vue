@@ -83,7 +83,10 @@ export default {
   },
 };
 
-
+axios.get(import.meta.VITE_API_URL).then((response) => {
+  message.value = response.data.category;
+});
+</script>
 
 <style scoped>
 .sidebar {

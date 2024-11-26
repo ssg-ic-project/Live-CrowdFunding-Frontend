@@ -13,6 +13,7 @@ import Category from '../views/main/Category.vue';
 import Live from '../views/main/Live.vue';
 import Schedule from '../views/main/Schedule.vue';
 import WishlistMain from '../views/mypage/Wishlist.vue';
+import CategoryResults from '@/views/main/CategoryResults.vue';
 import SearchResults from '../views/main/SearchResults.vue';
 import ProductDetail from '../views/main/ProductDetail.vue';
 import Terms from '../views/main/Terms.vue'; 
@@ -57,6 +58,7 @@ const routes = [
       { path: 'category', name: 'Category', component: Category },
       { path: 'live', name: 'Live', component: Live },
       { path: 'schedule', name: 'Schedule', component: Schedule },
+      { path: 'categorySearch', name: 'CategoryResults', component: CategoryResults},
       { path: 'search', name: 'SearchResults', component: SearchResults },
       { path: 'product/:productId', name: 'ProductDetail', component: ProductDetail }, 
       { path: 'wishlist', name: 'WishlistMain', component: WishlistMain },

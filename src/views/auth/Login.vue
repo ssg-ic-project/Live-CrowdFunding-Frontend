@@ -82,7 +82,7 @@
 
 <script>
 import { authApi } from '@/api'
-import axios from 'axios';
+import axios from 'axios'
 
 export default {
  name: "Login",
@@ -203,7 +203,12 @@ export default {
        // API 호출
        const response = await authApi.login(loginData);
        console.log('로그인 응답:', response.data);
+       // API 호출
+       const response = await authApi.login(loginData);
+       console.log('로그인 응답:', response.data);
 
+       // 로그인 성공 처리
+       const { accessToken, refreshToken, userEmail, role } = response.data;
        // 로그인 성공 처리
        const { accessToken, refreshToken, userEmail, role } = response.data;
        
@@ -213,11 +218,14 @@ export default {
        localStorage.setItem("userEmail", userEmail);
        localStorage.setItem("userType", role);
        localStorage.setItem("isLoggedIn", "true");
+       localStorage.setItem("userId", response.data.userId);
        
        // 사용자 이름 저장
        const userName = userEmail.split('@')[0];
        localStorage.setItem("userName", userName);
 
+       // 로그인 상태 변경 이벤트 발생
+       window.dispatchEvent(new Event('login-state-changed'));
        // 로그인 상태 변경 이벤트 발생
        window.dispatchEvent(new Event('login-state-changed'));
 
@@ -227,10 +235,41 @@ export default {
        } else {
          this.$router.push("/");
        }
+       // 페이지 이동
+       if (this.previousRoute && this.previousRoute !== '/auth/login') {
+         this.$router.push(this.previousRoute);
+       } else {
+         this.$router.push("/");
+       }
 
      } catch (error) {
        console.error('로그인 에러:', error);
+     } catch (error) {
+       console.error('로그인 에러:', error);
        
+       this.loginError = true;
+       if (error.response) {
+         switch (error.response.status) {
+           case 400:
+             this.errorMessage = "이메일 또는 비밀번호가 올바르지 않습니다.";
+             break;
+           case 401:
+             this.errorMessage = "인증에 실패했습니다.";
+             break;
+           case 404:
+             this.errorMessage = "존재하지 않는 사용자입니다.";
+             break;
+           case 500:
+             this.errorMessage = "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+             break;
+           default:
+             this.errorMessage = "로그인 중 오류가 발생했습니다.";
+         }
+       } else {
+         this.errorMessage = "서버와 통신 중 오류가 발생했습니다.";
+       }
+     }
+   },
        this.loginError = true;
        if (error.response) {
          switch (error.response.status) {
