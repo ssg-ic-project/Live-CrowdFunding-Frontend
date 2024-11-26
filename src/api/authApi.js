@@ -101,36 +101,65 @@ export const authApi = {
       newPassword: data.newPassword,
     });
   },
-     // 이메일 중복 체크
-     checkEmail(email) {
-      return api.get(`/api/account/check-email`, {
-          params: { email }
-      });
+  // 이메일 중복 체크
+  checkEmail(email) {
+    return api.get(`/api/account/check-email`, {
+      params: { email },
+    });
   },
 
   // 인증 코드 발송
   sendVerificationCode(email) {
-      return api.post('/api/account/send-verification', null, {
-          params: { email }
-      });
+    return api.post("/api/account/send-verification", null, {
+      params: { email },
+    });
   },
 
   // 인증 코드 확인
   verifyCode(email, code) {
-      return api.post('/api/account/verify-code', null, {
-          params: { email, code }
-      });
+    return api.post("/api/account/verify-code", null, {
+      params: { email, code },
+    });
   },
-// 일반 회원 가입
-registerUser(userData) {
-  return api.post('/api/account/signup/user', userData);
-},
+  // 일반 회원 가입
+  registerUser(userData) {
+    return api.post("/api/account/signup/user", userData);
+  },
 
-// 메이커 회원 가입
-registerMaker(makerData) {
-  return api.post('/api/account/signup/maker', makerData);
-}
+  // 메이커 회원 가입
+  registerMaker(makerData) {
+    return api.post("/api/account/signup/maker", makerData);
+  },
+  verifyIdCard(formData) {
+    return api.post("/api/account/signup/maker/verify/id-card", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  },
 
+  // 재직증명서 OCR 검증
+  verifyEmploymentCert(formData) {
+    return api.post("/api/account/signup/maker/verify/employment", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  },
 
+  // 사업자등록번호 검증
+  verifyBusinessNumber(businessNumber) {
+    return api.get("/api/account/signup/maker/verify/business", {
+      params: { businessNumber },
+    });
+  },
 
+  // 메이커 회원가입 메서드 수정 (multipart/form-data 지원)
+  registerMaker(makerData) {
+    return api.post("/api/account/signup/maker", makerData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  },
 };

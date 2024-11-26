@@ -161,20 +161,71 @@
           </div>
 
           <!-- 사업자 번호 추가 필드 (메이커 전용) -->
-          <div class="input-group" v-if="userType === 'maker'">
-            <label for="businessNumber">사업자 번호</label>
+          <!-- 주민등록증 업로드 -->
+          <div class="input-group">
+            <label for="idCard">주민등록증</label>
+            <div class="verification-upload">
+              <input
+                type="file"
+                id="idCard"
+                @change="handleIdCardUpload"
+                accept="image/*"
+                required
+              />
+              <span v-if="idCardVerified" class="verification-badge success">
+                ✓ 인증완료
+              </span>
+            </div>
+            <p v-if="idCardError" class="error-message">{{ idCardError }}</p>
+          </div>
+
+          <!-- 재직증명서 업로드 -->
+          <div class="input-group">
+            <label for="employmentCert">재직증명서</label>
+            <div class="verification-upload">
+              <input
+                type="file"
+                id="employmentCert"
+                @change="handleEmploymentCertUpload"
+                accept="image/*"
+                required
+              />
+              <span
+                v-if="employmentCertVerified"
+                class="verification-badge success"
+              >
+                ✓ 인증완료
+              </span>
+            </div>
+            <p v-if="employmentCertError" class="error-message">
+              {{ employmentCertError }}
+            </p>
+          </div>
+
+          <!-- 사업자등록번호 -->
+          <div class="input-group">
+            <label for="businessNumber">사업자등록번호</label>
             <div class="business-verification">
               <input
                 type="text"
                 id="businessNumber"
                 v-model="businessNumber"
-                placeholder="사업자 번호를 입력하세요"
+                :disabled="businessVerified"
+                placeholder="'-' 없이 입력해주세요"
                 required
               />
-              <button @click="verifyBusinessNumber" class="verify-button">
-                사업자 확인
+              <button
+                @click="verifyBusinessNumber"
+                class="verify-button"
+                :class="{ verified: businessVerified }"
+                :disabled="businessVerified || !businessNumber"
+              >
+                {{ businessVerified ? "인증완료" : "인증하기" }}
               </button>
             </div>
+            <p v-if="businessError" class="error-message">
+              {{ businessError }}
+            </p>
           </div>
 
           <!-- 개인정보 수집 동의 -->
@@ -298,6 +349,15 @@ export default {
       emailVerificationError: "", // 이메일 관련 에러 메시지
       showModal: false,
       modalMessage: "",
+      idCardFile: null,
+      employmentCertFile: null,
+      idCardVerified: false,
+      employmentCertVerified: false,
+      businessVerified: false,
+      idCardError: "",
+      employmentCertError: "",
+      businessError: "",
+      verifiedCompanyName: "",
     };
   },
   methods: {
@@ -496,56 +556,152 @@ export default {
 
     // 회원가입 완료
     async completeRegistration() {
-    try {
-        const commonData = {
+      try {
+        // 메이커 회원가입인 경우 추가 검증
+        if (this.userType === "maker") {
+          if (
+            !this.idCardVerified ||
+            !this.employmentCertVerified ||
+            !this.businessVerified
+          ) {
+            this.showModal = true;
+            this.modalMessage = "모든 인증을 완료해주세요.";
+            return;
+          }
+
+          const formData = new FormData();
+          formData.append("idCard", this.idCardFile);
+          formData.append("employmentCert", this.employmentCertFile);
+          formData.append("email", this.email);
+          formData.append("password", this.password);
+          formData.append("name", this.nickname);
+          formData.append("phone", this.phone);
+          formData.append("zipcode", this.postcode);
+          formData.append("address", this.address);
+          formData.append("detailAddress", this.detailAddress);
+          formData.append("businessNumber", this.businessNumber);
+
+          await authApi.registerMaker(formData);
+        } else {
+          // 일반 회원 필수 필드 검증
+          if (!this.birthdate || !this.gender) {
+            this.showModal = true;
+            this.modalMessage = "모든 필수 정보를 입력해주세요.";
+            return;
+          }
+
+          // 일반 회원 데이터 구성
+          const userData = {
             email: this.email,
             password: this.password,
             name: this.nickname,
-            nickname: this.nickname,
             phone: this.phone,
             zipcode: parseInt(this.postcode),
             address: this.address,
             detailAddress: this.detailAddress,
+            gender: this.gender === "male",
+            birth: this.birthdate,
+            categoryIds: this.mapCategoriesToIds(this.interest),
             loginMethod: false,
-            notification: true
-        };
+            notification: true,
+          };
 
-        if (this.userType === "user") {
-            const userData = {
-                ...commonData,
-                gender: this.gender === "male",
-                birth: this.birthdate,
-                categoryIds: this.mapCategoriesToIds(this.interest)
-            };
-
-            await authApi.registerUser(userData);
-        } else {
-            const makerData = {
-                ...commonData,
-                business: this.businessNumber
-            };
-
-            await authApi.registerMaker(makerData);
+          await authApi.registerUser(userData);
         }
 
         this.step = "complete";
-        
-    } catch (error) {
-        console.error('회원가입 에러:', error.response?.data || error);
-        
-        let errorMessage = "회원가입에 실패했습니다.";
-        if (error.response?.data?.message) {
-            errorMessage = error.response.data.message;
-        }
-        
+      } catch (error) {
+        console.error("회원가입 에러:", error.response?.data || error);
         this.showModal = true;
-        this.modalMessage = errorMessage;
-    }
-},
+        this.modalMessage =
+          error.response?.data?.message ||
+          "회원가입 처리 중 오류가 발생했습니다.";
+      }
+    },
 
     // 로그인 페이지로 이동
     goToLogin() {
       this.$router.push("/auth/login");
+    },
+
+    async handleIdCardUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await authApi.verifyIdCard(formData);
+        if (response.data.success) {
+          this.idCardVerified = true;
+          this.idCardFile = file;
+          this.idCardError = "";
+        } else {
+          this.idCardError =
+            response.data.errorMessage || "주민등록증 인증에 실패했습니다.";
+        }
+      } catch (error) {
+        console.error("주민등록증 인증 오류:", error);
+        this.idCardError = "주민등록증 인증 처리 중 오류가 발생했습니다.";
+      }
+    },
+
+    async handleEmploymentCertUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await authApi.verifyEmploymentCert(formData);
+        if (response.data.success) {
+          this.employmentCertVerified = true;
+          this.employmentCertFile = file;
+          this.employmentCertError = "";
+          this.businessNumber = response.data.businessNumber;
+          this.verifiedCompanyName = response.data.companyName;
+        } else {
+          this.employmentCertError =
+            response.data.errorMessage || "재직증명서 인증에 실패했습니다.";
+        }
+      } catch (error) {
+        console.error("재직증명서 인증 오류:", error);
+        this.employmentCertError =
+          "재직증명서 인증 처리 중 오류가 발생했습니다.";
+      }
+    },
+
+    async verifyBusinessNumber() {
+      if (!this.businessNumber) {
+        this.businessError = "사업자등록번호를 입력해주세요.";
+        return;
+      }
+
+      try {
+        const response = await authApi.verifyBusinessNumber(
+          this.businessNumber
+        );
+        if (response.data.success) {
+          this.businessVerified = true;
+          this.businessError = "";
+          // 회사명 일치 여부 확인
+          if (
+            this.verifiedCompanyName &&
+            this.verifiedCompanyName !== response.data.companyName
+          ) {
+            this.businessError = "재직증명서의 회사명과 일치하지 않습니다.";
+            this.businessVerified = false;
+          }
+        } else {
+          this.businessError =
+            response.data.errorMessage || "유효하지 않은 사업자등록번호입니다.";
+        }
+      } catch (error) {
+        console.error("사업자번호 인증 오류:", error);
+        this.businessError = "사업자번호 인증 처리 중 오류가 발생했습니다.";
+      }
     },
   },
 };
@@ -836,6 +992,36 @@ h2 {
 }
 .signup-button:disabled {
   background-color: #cccccc;
+  cursor: not-allowed;
+}
+.verification-upload {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.verification-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.verification-badge.success {
+  background-color: #28a745;
+  color: white;
+}
+
+.business-verification {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.business-verification input {
+  flex: 1;
+}
+
+.verify-button.verified {
+  background-color: #28a745;
   cursor: not-allowed;
 }
 </style>
