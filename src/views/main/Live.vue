@@ -40,7 +40,7 @@
             achievement: vod.percentage,
             isVod: true,
             remainingTime: vod.remainingTime,
-            category: live.classification
+            category: vod.classification
           }"
           :linkTo="{ name: 'Streaming', params: { streamId: vod.projectId } }"
         />

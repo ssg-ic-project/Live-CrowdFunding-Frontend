@@ -1,4 +1,3 @@
-<!-- src/views/main/ProductDetail.vue -->
 <template>
   <div>
     <!-- 로딩 상태 -->
@@ -21,7 +20,6 @@
         <div class="product-image-section">
           <!-- 이미지 슬라이더 -->
           <div class="image-slider" v-if="hasMultipleImages">
-            <!-- 이전 버튼 -->
             <button 
               @click.stop="prevImage" 
               class="slider-button prev-button" 
@@ -30,14 +28,12 @@
               &#10094;
             </button>
             
-            <!-- 현재 이미지 -->
             <img 
-              :src="currentImage" 
-              :alt="`${product.name} 이미지 ${currentImageIndex + 1}`" 
+              :src="currentImage.imageUrl" 
+              :alt="`${product.productName} 이미지 ${currentImageIndex + 1}`" 
               class="product-main-image" 
             />
             
-            <!-- 다음 버튼 -->
             <button 
               @click.stop="nextImage" 
               class="slider-button next-button" 
@@ -50,8 +46,8 @@
           <!-- 단일 이미지 표시 -->
           <div v-else class="single-image">
             <img 
-              :src="product.image" 
-              :alt="product.name" 
+              :src="product.images[0].imageUrl" 
+              :alt="product.productName" 
               class="product-main-image" 
             />
           </div>
@@ -63,7 +59,7 @@
           <div class="top-info">
             <!-- 펀딩 달성률 -->
             <div class="funding-percentage">
-              <span>{{ product.achievement }}% 펀딩 달성</span>
+              <span>{{ product.percentage }}% 펀딩 달성</span>
             </div>
 
             <!-- 카테고리 -->
@@ -88,19 +84,25 @@
           </div>
 
           <!-- 상품명 -->
-          <h1 class="product-name">{{ product.name }}</h1>
+          <h1 class="product-name">{{ product.productName }}</h1>
 
           <!-- 상품 간단 설명 -->
-          <p class="product-description">{{ product.shortDescription }}</p>
+          <p class="product-description">{{ product.summary }}</p>
 
           <!-- 펀딩 정보 -->
           <div class="funding-info">
             <div class="price-info">
-              <span class="funding-price">{{ product.price.toLocaleString() }}원</span>
+              <span class="funding-price">{{ calculateDiscountedPrice }}원</span>
+              <span v-if="product.discountPercentage" class="original-price">
+                {{ product.price.toLocaleString() }}원
+              </span>
+              <span v-if="product.discountPercentage" class="discount-percentage">
+                {{ product.discountPercentage }}% 할인
+              </span>
             </div>
             <div class="funding-stats">
-              <span class="funding-amount">모인 금액: {{ product.fundingAmount.toLocaleString() }}원</span>
-              <span class="funding-participants">참여 인원: {{ product.participants }}명</span>
+              <span class="funding-amount">목표 금액: {{ product.goalAmount.toLocaleString() }}원</span>
+              <span class="funding-likes">관심: {{ product.likeCount }}명</span>
               <span class="funding-days-left">{{ daysLeft }}일 남음</span>
             </div>
           </div>
@@ -126,24 +128,7 @@
               </svg>
             </button>
 
-            <template v-if="product.isLive || product.isVod">
-              <button 
-                class="btn live-btn" 
-                :class="{'live': product.isLive, 'vod': product.isVod}"
-              >
-                <span v-if="product.isLive">LIVE</span>
-                <span v-else>VOD</span>
-              </button>
-              <button @click="goToPayment" class="btn fund-btn">
-                펀딩하기
-              </button>
-            </template>
-
-            <button 
-              v-else
-              @click="goToPayment" 
-              class="btn fund-btn fund-btn-full"
-            >
+            <button @click="goToPayment" class="btn fund-btn fund-btn-full">
               펀딩하기
             </button>
           </div>
@@ -151,37 +136,21 @@
       </div>
 
       <!-- 상세 설명 이미지 -->
-      <div v-if="product.detailImage" class="detailed-image-section">
+      <div v-if="product.contentImage" class="detailed-image-section">
         <img 
-          :src="product.detailImage" 
-          :alt="`${product.name} 상세 이미지`" 
+          :src="product.contentImage" 
+          :alt="`${product.productName} 상세 이미지`" 
           class="product-detail-image" 
         />
-      </div>
-
-      <!-- 많이 본 상품 -->
-      <div class="most-viewed-section" v-if="mostViewedProducts.length">
-        <h2>많이 본 상품</h2>
-        <div class="product-list">
-          <ProductItem
-            v-for="product in mostViewedProducts"
-            :key="product.id"
-            :product="product"
-          />
-        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
+import { ref, computed } from 'vue';
 import ProductItem from '@/components/ProductItem.vue';
-import 상품상세1 from '@/assets/image/상품상세 - 1.png';
-import 상품상세2 from '@/assets/image/상품상세 - 2.jpg';
-import 상품상세3 from '@/assets/image/상품상세 - 3.jpg';
-import 상품상세4 from '@/assets/image/상품상세 - 4.jpg';
-import 내용 from '@/assets/image/세로로 긴 이미지.jpg';
+import axios from 'axios';
 
 export default {
   name: 'ProductDetail',
@@ -191,115 +160,54 @@ export default {
   data() {
     return {
       product: null,
-      daysLeft: 0,
-      isWishlisted: false,
-      mostViewedProducts: [],
       isLoading: true,
       error: false,
       currentImageIndex: 0,
+      isWishlisted: false
     };
   },
   computed: {
     hasMultipleImages() {
-      return this.product && this.product.images && this.product.images.length > 1;
+      return this.product?.images?.length > 1;
     },
     currentImage() {
       if (this.hasMultipleImages) {
         return this.product.images[this.currentImageIndex];
       }
-      return this.product.image;
+      return this.product.images[0];
     },
+    daysLeft() {
+      if (!this.product) return 0;
+      const endDate = new Date(this.product.endAt);
+      const today = new Date();
+      const diffTime = endDate - today;
+      return Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+    },
+    calculateDiscountedPrice() {
+      if (!this.product) return 0;
+      if (!this.product.discountPercentage) return this.product.price.toLocaleString();
+      const discountedPrice = this.product.price * (1 - this.product.discountPercentage / 100);
+      return Math.floor(discountedPrice).toLocaleString();
+    }
   },
-  created() {
-    this.fetchProductDetail();
-    this.fetchMostViewedProducts();
+  async created() {
+    await this.fetchProductDetail();
   },
   methods: {
-    fetchProductDetail() {
-      const productId = this.$route.params.productId;
-      const allProducts = [
-        { 
-          id: 1,
-          image: 상품상세1,
-          detailImage: 내용,
-          images: [상품상세1, 상품상세2, 상품상세3, 상품상세4],
-          achievement: 75,
-          endDate: "2024-12-31",
-          name: "라이브 상품",
-          company: "회사A",
-          price: 100000,
-          shortDescription: "현재 라이브 방송 중인 상품입니다.",
-          fundingAmount: 7500000,
-          participants: 150,
-          isLive: true,
-          isVod: false,
-          category: "생활 가전"
-        },
-        {
-          id: 2,
-          image: 상품상세1,
-          detailImage: 내용,
-          images: [상품상세1, 상품상세2, 상품상세3, 상품상세4],
-          achievement: 85,
-          endDate: "2024-12-31",
-          name: "VOD 상품",
-          company: "회사B",
-          price: 150000,
-          shortDescription: "지난 라이브 방송을 다시 보실 수 있습니다.",
-          fundingAmount: 8500000,
-          participants: 180,
-          isLive: false,
-          isVod: true,
-          category: "주방 가전"
-        },
-        {
-          id: 3,
-          image:상품상세1,
-          detailImage: 내용,
-          images: [상품상세1, 상품상세2, 상품상세3, 상품상세4],
-          achievement: 60,
-          endDate: "2024-12-31",
-          name: "일반 상품",
-          company: "회사C",
-          price: 200000,
-          shortDescription: "일반 펀딩 상품입니다.",
-          fundingAmount: 6000000,
-          participants: 120,
-          isLive: false,
-          isVod: false,
-          category: "스마트 가전"
-        }
-      ];
-
-      const foundProduct = allProducts.find(p => p.id === parseInt(productId));
-
-      if (foundProduct) {
-        this.product = foundProduct;
-        const endDate = new Date(this.product.endDate);
-        const today = new Date();
-        const diffTime = endDate - today;
-        this.daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        const wishlisted = localStorage.getItem(`wishlist_${this.product.id}`);
+    async fetchProductDetail() {
+      try {
+        const productId = this.$route.params.productId;
+        const response = await axios.get(`/api/project/${productId}`);
+        this.product = response.data;
+        const wishlisted = localStorage.getItem(`wishlist_${productId}`);
         this.isWishlisted = wishlisted === 'true';
-        this.isLoading = false;
-      } else {
+      } catch (error) {
+        console.error('상품 정보 로딩 실패:', error);
         this.error = true;
+      } finally {
         this.isLoading = false;
       }
     },
-    fetchMostViewedProducts() {
-  this.mostViewedProducts = Array(5).fill().map((_, index) => ({
-    id: 100 + index,
-    image: 상품상세1,  
-    name: `많이 본 상품 ${index + 1}`,
-    company: `회사${String.fromCharCode(65 + index)}`,
-    price: 150000 + (index * 50000),
-    shortDescription: `많이 본 상품 ${index + 1}의 설명입니다.`,
-    achievement: 60 + (index * 5),
-    endDate: "2024-12-31",
-    isLive: index % 2 === 0
-  }));
-},
     toggleWishlist() {
       this.isWishlisted = !this.isWishlisted;
       localStorage.setItem(`wishlist_${this.product.id}`, this.isWishlisted);
@@ -332,6 +240,7 @@ export default {
   },
 };
 </script>
+
 <style scoped>
 .product-detail-page {
  max-width: 1200px;
