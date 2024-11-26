@@ -85,10 +85,11 @@ export default {
 
 
 
-axios.get(import.meta.VITE_API_URL).then((response) => {
-  console.log(response.data);
-  message.value = response.data.category;
-});
+// axios.get(import.meta.env.VITE_API_URL).then((response) => {
+//   console.log(response.data);
+//   message.value = response.data.category;
+// }
+// );
 </script>
 
 <style scoped>

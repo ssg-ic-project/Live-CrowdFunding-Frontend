@@ -82,6 +82,7 @@
 
 <script>
 import { authApi } from '@/api'
+import axios from 'axios';
 
 export default {
  name: "Login",
