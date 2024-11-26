@@ -25,8 +25,8 @@
                 v-for="category in categories"
                 :key="category.name"
                 :to="{
-                  name: 'SearchResults',
-                  query: { q: category.name, type: 'category' },
+                  name: 'CategoryResults',
+                  query: { categoryId: category.id },
                 }"
                 class="category-item"
               >
@@ -113,13 +113,13 @@ export default {
   data() {
     return {
       categories: [
-        { name: "생활 가전", icon: LifeIcon },
-        { name: "주방 가전", icon: KitchenIcon },
-        { name: "스마트 가전", icon: SmartIcon },
-        { name: "DIY", icon: DIYIcon },
-        { name: "엔터테이먼트", icon: EntertainmentIcon },
-        { name: "웨어러블", icon: WearableIcon },
-        { name: "주변 기기", icon: PeripheralIcon },
+        { id:1 ,name: "생활 가전", icon: LifeIcon },
+        { id:2 ,name: "주방 가전", icon: KitchenIcon },
+        { id:3 ,name: "스마트 가전", icon: SmartIcon },
+        { id:4 ,name: "DIY", icon: DIYIcon },
+        { id:5 ,name: "엔터테이먼트", icon: EntertainmentIcon },
+        { id:6 ,name: "웨어러블", icon: WearableIcon },
+        { id:7 ,name: "주변 기기", icon: PeripheralIcon },
       ],
       isLoggedIn: false,
       searchQuery: "",

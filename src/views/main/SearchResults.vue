@@ -10,8 +10,16 @@
       <div class="product-list">
         <ProductItem
           v-for="(product, index) in liveSearchResults"
-          :key="product.id"
-          :product="{ ...product, image: productImage }"
+          :key="product.projectId"
+          :product="{
+            id: product.projectId,
+            name: product.productName,
+            image: product.imageUrl,
+            achievement: product.percentage,
+            isLive: product.isStreaming,
+            remainingTime: product.remainingTime,
+            category: product.classification
+          }"
           :rank="index + 1"
         />
       </div>
@@ -24,8 +32,16 @@
       <div class="product-list">
         <ProductItem
           v-for="(product, index) in normalSearchResults"
-          :key="product.id"
-          :product="{ ...product, image: productImage }"
+          :key="product.projectId"
+          :product="{
+            id: product.projectId,
+            name: product.productName,
+            image: product.imageUrl,
+            achievement: product.percentage,
+            isLive: product.isStreaming,
+            remainingTime: product.remainingTime,
+            category: product.classification
+          }"
         />
       </div>
     </div>
@@ -49,6 +65,7 @@ import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import ProductItem from '@/components/ProductItem.vue';
 import odungImage from '@/assets/image/오둥이하트.png';
+import axios from 'axios';
 
 export default {
   name: 'SearchResults',
@@ -139,47 +156,43 @@ export default {
       }, 0);
     };
 
-    const updateResults = () => {
-      const type = route.query.type || 'search';
-      resultType.value = type === 'category' ? '카테고리' : '검색 결과';
+    const updateResults = async () => {
+      const keyword = decodeURIComponent(route.query.q || '');
+
+      let response;
+      response = await axios.get('/api/project/search', {
+        params: {
+          keyword: keyword,
+          page: 1,
+          size: 20
+        }
+      });
+
+      console.log(response.data);
+      // API 응답으로 받은 데이터로 결과 업데이트
+      const resultData = response.data.dataList || [];  // PageListResponseDTO의 content 필드 가정
+      allSearchResults.value = resultData;
       
-    
-      allSearchResults.value = [
-        ...Array(20).fill().map((_, i) => ({
-          id: i + 1,
-          achievement: 60 + Math.floor(Math.random() * 40),
-          endDate: "2024-12-31",
-          name: `라이브 상품${i + 1}`,
-          company: `회사${String.fromCharCode(65 + i)}`,
-          price: 100000 + (i * 10000),
-          isLive: true
-        })),
-        ...Array(20).fill().map((_, i) => ({
-          id: i + 21,
-          achievement: 60 + Math.floor(Math.random() * 40),
-          endDate: "2024-12-31",
-          name: `일반 상품${i + 1}`,
-          company: `회사${String.fromCharCode(65 + i + 20)}`,
-          price: 150000 + (i * 10000),
-          isLive: false
-        }))
-      ];
-      
-      liveSearchResults.value = allSearchResults.value.filter(product => product.isLive);
-      normalSearchResults.value = allSearchResults.value.filter(product => !product.isLive);
+      // 라이브/일반 상품 분류
+      liveSearchResults.value = resultData.filter(product => product.isStreaming);
+      normalSearchResults.value = resultData.filter(product => !product.isStreaming);
       
       loadMore();
     };
 
-    watch(() => route.query.q, (newQuery) => {
-      searchQuery.value = newQuery || '';
-      resetResults();
-      updateResults();
-    });
-
-    watch(() => route.query.type, (newType) => {
-      resultType.value = newType === 'category' ? '카테고리' : '검색 결과';
-    });
+    watch(
+      () => ({ 
+        q: route.query.q, 
+        type: route.query.type,
+        categoryId: route.query.categoryId 
+      }),
+      (newQuery) => {
+        searchQuery.value = newQuery.q || '';
+        resetResults();
+        updateResults();
+      },
+      { deep: true }
+    );
 
     onMounted(() => {
       updateResults();

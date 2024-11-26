@@ -1,16 +1,16 @@
 <template>
-  <router-link :to="{ name: 'ProductDetail', params: { productId: 1 } }" class="product-link">
+  <router-link :to="{ name: 'ProductDetail', params: { productId: product.id } }" class="product-link">
     <div class="product-item">
       <div v-if="product.isLive" class="live-badge">LIVE</div>
       <div class="image-container">
-        <img :src="product.image" :alt="product.name" />
+        <img :src="product.url" :alt="product.productName" />
       </div>
       <div class="product-info">
         <div class="achievement">{{ product.achievement }}%</div>
         <h3 class="title">{{ product.name }}</h3>
         <div class="footer">
-          <span class="stats-box price">{{ formatLargePrice(product.price) }}</span>
-          <span class="stats-box days">{{ daysLeft }}일 남음</span>
+          <span class="stats-box category">{{ product.category }}</span>
+          <span class="stats-box days">{{ product.remainingTime }}일 남음</span>
         </div>
       </div>
     </div>
@@ -31,22 +31,8 @@ export default {
     },
   },
   methods: {
-    formatLargePrice(price) {
-      if (price >= 100000000) {
-        return `${(price / 100000000).toFixed(1)}억원+`;
-      } else {
-        return `${Math.floor(price / 10000)}만원+`;
-      }
-    }
   },
   computed: {
-    daysLeft() {
-      const endDate = new Date(this.product.endDate);
-      const today = new Date();
-      const diffTime = endDate - today;
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      return diffDays > 0 ? diffDays : 0;
-    },
   },
 };
 </script>
