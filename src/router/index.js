@@ -105,6 +105,19 @@ const routes = [
       { path: 'reset-password', name: 'ResetPassword', component: () => import('../views/auth/ResetPassword.vue')},
     ],
   },
+
+  {
+    path: '/main',
+    component: MainLayout,
+    children: [
+      // ... 기존 라우트들 ...
+      { path: '/payment', name: 'Payment', component: Payment, props: true },
+      { path: '/success', name: 'PaymentSuccess', component: () => import('../views/main/PaymentSuccess.vue') },
+      { path: '/fail', name: 'PaymentFail', component: () => import('../views/main/PaymentFail.vue') }
+    ]
+  }
+
+
 ];
 
 // 라우터 생성
