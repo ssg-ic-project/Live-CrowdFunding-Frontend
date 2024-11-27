@@ -5,9 +5,9 @@
 </template>
 
 <script>
-import { Chart, LineController, LineElement, PointElement, LinearScale, Title, Tooltip } from 'chart.js';
+import { Chart, LineController, LineElement, PointElement, LinearScale, Title, Tooltip, CategoryScale, Legend, Filler} from 'chart.js';
 
-Chart.register(LineController, LineElement, PointElement, LinearScale, Title, Tooltip);
+Chart.register(LineController, LineElement, PointElement, LinearScale, Title, Tooltip, CategoryScale, Legend, Filler);
 
 export default {
   props: ['data'],
@@ -27,6 +27,19 @@ export default {
             yAlign: 'top', 
           },
         },
+        scales: {                // 스케일 옵션 추가
+          y: {
+            beginAtZero: true,   // y축을 0부터 시작
+          },
+          x: {
+            display: true,
+            title: {
+              display: true,
+            }
+          }
+        }
+/////
+
       },
     });
   },

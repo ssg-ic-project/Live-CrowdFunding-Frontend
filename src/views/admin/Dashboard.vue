@@ -50,6 +50,7 @@
 import LineChart from "@/components/LineChart.vue";
 import BarChart from "@/components/BarChart.vue";
 import {dashboardApi} from '@/api/index.js';
+import { toRaw } from 'vue';
 
 export default {
   name: 'AdminDashboard',
@@ -57,6 +58,7 @@ export default {
     LineChart,
     BarChart,
   },
+
   data() {
     return {
       statsData: {
@@ -77,25 +79,25 @@ export default {
         loading: true,
 
         monthlySignUpData: {
-          labels: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+          labels: [],
           datasets: [
             {
-              label: "일반회원",
-              data: [12, 19, 3, 5, 2, 3, 17, 12, 9, 15, 11, 13],
+              label: "users",
+              data: [],
               borderColor: "blue",
               backgroundColor: "rgba(0, 0, 255, 0.1)",
               fill: true,
             },
             {
-              label: "메이커",
-              data: [2, 4, 6, 8, 5, 6, 9, 5, 7, 3, 8, 10],
+              label: "makers",
+              data: [],
               borderColor: "green",
               backgroundColor: "rgba(0, 255, 0, 0.1)",
               fill: true,
             },
             {
-              label: "총계",
-              data: [14, 23, 9, 13, 7, 9, 26, 17, 16, 18, 19, 23],
+              label: "total",
+              data: [],
               borderColor: "purple",
               backgroundColor: "rgba(128, 0, 128, 0.1)",
               fill: true,
@@ -185,15 +187,90 @@ export default {
   async created() {
     try {
       this.loading = true
-      const response = await dashboardApi.generalStats()
+
+      // 여러 API 호출을 동시에 처리
+      const [generalStatsResponse, newUsersResponse] = await Promise.all([
+        dashboardApi.getStats(),
+        dashboardApi.getNewUsers(),
+
+
+      ]);
+      console.log('New Users Data:', newUsersResponse.data);
+      console.log("chking", newUsersResponse.data.makers);
+      console.log("chking", newUsersResponse.data.users);
+      console.log("chking", newUsersResponse.data.total);
 
       this.statsData =  {
-        dailyRegistrations: response.data.dailyRegistrations,
-        monthlyRegistrations: response.data.monthlyRegistrations,
-        yearlyRegistrations: response.data.yearlyRegistrations,
-        dailyRequests: response.data.dailyRequests,
-        ongoingProjects: response.data.ongoingProjects
-      }
+        dailyRegistrations: generalStatsResponse.data.dailyRegistrations,
+        monthlyRegistrations: generalStatsResponse.data.monthlyRegistrations,
+        yearlyRegistrations: generalStatsResponse.data.yearlyRegistrations,
+        dailyRequests: generalStatsResponse.data.dailyRequests,
+        ongoingProjects: generalStatsResponse.data.ongoingProjects
+      };
+
+      // 상수로 label 매핑 정의
+      const USER_TYPE_LABELS = {
+        GENERAL_USER: 'users',
+        MAKER: 'makers',
+        TOTAL: 'total'
+      };
+
+      // 신규 사용자 통계 데이터 설정
+      this.monthlySignUpData ={
+        labels: newUsersResponse.data.labels,
+        //labels: newUsersResponse.data.makers.map(item => item.month),
+
+        datasets: [
+          {
+            label: USER_TYPE_LABELS.GENERAL_USER,
+            data: newUsersResponse.data.users.map(user => user.count),
+            borderColor: "blue",
+            backgroundColor: "rgba(0, 0, 255, 0.1)",
+            fill: true,
+          },
+          {
+            label: USER_TYPE_LABELS.MAKER,
+            data: newUsersResponse.data.makers.map(maker=> maker.count),
+            borderColor: "green",
+            backgroundColor: "rgba(0, 255, 0, 0.1)",
+            fill: true,
+          },
+          {
+            label: USER_TYPE_LABELS.TOTAL,
+            data: newUsersResponse.data.total.map(total => total.count),
+            borderColor: "purple",
+            backgroundColor: "rgba(128, 0, 128, 0.1)",
+            fill: true,
+          }
+        ]
+      };
+
+      console.log('Transformed Chart Data:', this.monthlySignUpData); // 변
+
+      //
+      // API 응답 데이터 확인
+      console.log('Users data:', newUsersResponse.data.users);
+      console.log('Makers data:', newUsersResponse.data.makers);
+      console.log('Total data:', newUsersResponse.data.total);
+
+// 변환된 데이터 각각 확인
+      const chartData = {
+        labels: newUsersResponse.data.makers.map(item => item.month),
+        datasets: [
+          {
+            label: USER_TYPE_LABELS.GENERAL_USER,
+            data: newUsersResponse.data.users.map(user => user.count),
+            borderColor: "blue",
+            backgroundColor: "rgba(0, 0, 255, 0.1)",
+            fill: true,
+          },
+          // ... 나머지 datasets
+        ]
+      };
+      console.log('Chart data before toRaw:', chartData);
+      //this.monthlySignUpData = toRaw(chartData);
+      console.log('Chart data after toRaw:', this.monthlySignUpData);
+
 
     } catch (error) {
       console.error('Failed to fetch dashboard stats:', error)
@@ -204,7 +281,6 @@ export default {
 
 
   methods: {
-
     logout() {
       localStorage.removeItem('isAdminLoggedIn');
       this.$router.push('/admin/login');
