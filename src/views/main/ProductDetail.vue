@@ -222,13 +222,8 @@ export default {
           return;
         }
 
-        const requestData = {
-          userId: BigInt(userId), // Long 타입에 맞춰 변환
-          projectId: BigInt(this.product.id)
-        };
-
         const response = await axios.post(`/api/liked`, {
-          userId: Number(userId), // 또는 그냥 숫자로 보내도 됨
+          userId: Number(userId),
           projectId: Number(this.product.id)
         });
         

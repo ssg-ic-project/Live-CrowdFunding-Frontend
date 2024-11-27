@@ -65,7 +65,7 @@ export default {
       required: true
     }
   },
-  setup(props) {
+  setup() {
     const projects = ref([]);
     const pageInfo = ref(null);
     const pageSize = ref(12); // 한 페이지당 보여줄 아이템 수
@@ -93,11 +93,22 @@ export default {
 
     const toggleWishlist = async (project) => {
       try {
-        await axios.delete(`/api/likes/${props.userId}/${project.id}`);
-        // 찜 삭제 후 현재 페이지 다시 로드
+        const userId = localStorage.getItem('userId');
+        if (!userId || !project.id) {
+          console.error('사용자 ID 또는 제품 ID가 없습니다');
+          return;
+        }
+
+        await axios.post(`/api/liked`, {
+          userId: Number(userId),
+          projectId: Number(project.id)
+        });
+        
         await fetchWishlist(pageInfo.value.page);
-      } catch (error) {
-        console.error('찜 삭제에 실패했습니다:', error);
+
+      } catch (err) {
+        console.error('찜하기 해제 실패:', err.response?.data || err.message);
+        alert('찜하기 해제 처리 중 오류가 발생했습니다.');
       }
     };
 
