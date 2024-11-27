@@ -16,7 +16,12 @@
     "swiper": "^11.1.14",
     "vue": "^3.5.12",
     "vue-chartjs": "^5.3.2",
-    "vue-router": "^4.4.5"
+    "vue-router": "^4.4.5",
+    "@stomp/stompjs": "^7.0.0",
+    "mediasoup-client": "^3.7.17",
+    "pinia": "^2.2.6",
+    "socket.io-client": "^4.8.1",
+    "sockjs-client": "^1.6.1"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.1.4",
