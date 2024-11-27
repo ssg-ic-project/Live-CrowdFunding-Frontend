@@ -442,20 +442,28 @@ export default {
   methods: {
 
     async handlePayment() {
-     // this.showPaymentTossWidgetModal = true;
       try {
-        // await this.initTossPayments();
-        //
-        // await this.showPaymentModal();
+        //project 데이터 저장
+        const projectData = {
+          selectedPlan: this.selectedPlan,
+          makerId: this.makerId, //로그인한 사용자의 정보 가지고 오기
+          orderName: this.orderName, //project name
+          category: this.category,
+          amount: this.amount,
+          targetAmount: this.targetAmount,
+          summary: this.summary,
+          discount: this.discount,
+          contentImage: this.contentImage
+        }
+
+        sessionStorage.setItem('projectData', JSON.stringify(projectData));
 
         await this.confirmPayment();
 
       } catch (error) {
         console.error('결제 처리 중 오류 발생:', error);
       }
-
     },
-
 
     sout() {
       console.log('checking Yejin')
@@ -645,22 +653,9 @@ export default {
 
 
     async showPaymentModal() {
-
       console.log("탱큐 포 결제💸")
-
       this.showReviewModal = false;
-      // this.showPaymentCompleteModal = true;
     },
-
-    // //결제창 열기
-    // await this.paymentWidget.requestPayment({
-    //   orderId: this.generateOrderId(),
-    //   orderName: "상품명",
-    //   customerName: "고객명",
-    //   amount: this.totalPayment,
-    //   successUrl: `${window.location.origin}/success`,
-    //   failUrl: `${window.location.origin}/fail`
-    // });
 
   async confirmPayment() {
     console.log("탱큐 포 결제💸")
@@ -671,25 +666,14 @@ export default {
         const paymentConfig = {
           orderId: orderId, //토스에서 필요함
           orderName: this.project.name, //토스에서 필요함
-          // selectedPlan:this.pricingPlans.id,
           amount:this.initialPrice,
-          // category: this.project.category,
-          // makerId: 1, //이 부분은 어떻게 가지고 와야하는거지? 로그인된 정보 활용하기
-          // summary: this.project.description,
-          // discount: this.project.discount,
-          // targetAmount: this.project.targetAmount,
-          // contentImage: this.imagePreviews,
           successUrl: `${window.location.origin}${this.$router.resolve({ name: 'PaymentSuccessBF'
           }).href}`,
           failUrl: `${window.location.origin}${this.$router.resolve({ name: 'PaymentFailBF' }).href}`
         };
 
-
           // 결제 요청
           await this.paymentWidget.requestPayment(paymentConfig);
-
-          // 결제 성공시 모달 표시
-          // this.showPaymentCompleteModal = true;
 
 
       }catch(error){
