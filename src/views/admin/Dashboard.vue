@@ -105,30 +105,30 @@ export default {
           ],
         },
         revenueData: {
-          labels: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+          labels: [],
           datasets: [
             {
               label: "수익",
-              data: [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200],
+              data: [],
               borderColor: "orange",
               backgroundColor: "rgba(255, 165, 0, 0.1)",
-              fill: true,
+              // fill: true,
             },
           ],
         },
         topFundingData: {
-          labels: ["펀딩1", "펀딩2", "펀딩3", "펀딩4", "펀딩5", "펀딩6", "펀딩7", "펀딩8", "펀딩9", "펀딩10"],
+          labels: [],
           datasets: [
             {
               label: "구매자 수",
-              data: [25, 20, 15, 18, 22, 27, 30, 35, 28, 19],
+              data: [],
               backgroundColor: "rgba(54, 162, 235, 0.5)",
               borderColor: "rgba(54, 162, 235, 1)",
               borderWidth: 1,
             },
             {
               label: "스트리밍 참가자 수",
-              data: [15, 12, 8, 10, 18, 15, 20, 22, 19, 10],
+              data: [],
               backgroundColor: "rgba(255, 99, 132, 0.5)",
               borderColor: "rgba(255, 99, 132, 1)",
               borderWidth: 1,
@@ -136,25 +136,25 @@ export default {
           ],
         },
         userGrowthData: {
-          labels: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+          labels: [],
           datasets: [
             {
               label: "판매자",
-              data: [5, 10, 6, 12, 7, 15, 9, 18, 11, 13, 10, 17],
+              data: [],
               borderColor: "green",
               backgroundColor: "rgba(0, 255, 0, 0.1)",
               fill: true,
             },
             {
               label: "사용자",
-              data: [20, 22, 25, 27, 29, 32, 34, 36, 39, 41, 43, 45],
+              data: [],
               borderColor: "blue",
               backgroundColor: "rgba(0, 0, 255, 0.1)",
               fill: true,
             },
             {
               label: "전체",
-              data: [25, 32, 31, 39, 36, 47, 43, 54, 50, 54, 53, 62],
+              data: [],
               borderColor: "purple",
               backgroundColor: "rgba(128, 0, 128, 0.1)",
               fill: true,
@@ -162,18 +162,18 @@ export default {
           ],
         },
         categoryFundingData: {
-          labels: ["DIY", "엔터테인먼트", "웨어러블", "주변기기", "생활가전", "주방가전", "스마트기기"],
+          labels: [],
           datasets: [
             {
               label: "펀딩 수",
-              data: [25, 18, 30, 22, 27, 19, 23],
+              data: [],
               backgroundColor: "rgba(54, 162, 235, 0.5)",
               borderColor: "rgba(54, 162, 235, 1)",
               borderWidth: 1,
             },
             {
               label: "펀딩 수익 (만원)",
-              data: [300, 220, 500, 400, 310, 250, 450],
+              data: [],
               backgroundColor: "rgba(255, 206, 86, 0.5)",
               borderColor: "rgba(255, 206, 86, 1)",
               borderWidth: 1,
@@ -189,17 +189,15 @@ export default {
       this.loading = true
 
       // 여러 API 호출을 동시에 처리
-      const [generalStatsResponse, newUsersResponse] = await Promise.all([
+      const [generalStatsResponse, newUsersResponse, revenueResponse, popularFundingResponse, currentUsersResponse, categoryRevenueResponse] = await Promise.all([
         dashboardApi.getStats(),
         dashboardApi.getNewUsers(),
-
+        dashboardApi.getTotalRevenue(),
+        dashboardApi.getPopularFunding(),
+        dashboardApi.getCurrentUsers(),
+        dashboardApi.getCategoryRevenue(),
 
       ]);
-      console.log('New Users Data:', newUsersResponse.data);
-      console.log("chking", newUsersResponse.data.makers);
-      console.log("chking", newUsersResponse.data.users);
-      console.log("chking", newUsersResponse.data.total);
-
       this.statsData =  {
         dailyRegistrations: generalStatsResponse.data.dailyRegistrations,
         monthlyRegistrations: generalStatsResponse.data.monthlyRegistrations,
@@ -245,32 +243,96 @@ export default {
         ]
       };
 
-      console.log('Transformed Chart Data:', this.monthlySignUpData); // 변
-
-      //
-      // API 응답 데이터 확인
-      console.log('Users data:', newUsersResponse.data.users);
-      console.log('Makers data:', newUsersResponse.data.makers);
-      console.log('Total data:', newUsersResponse.data.total);
-
-// 변환된 데이터 각각 확인
-      const chartData = {
-        labels: newUsersResponse.data.makers.map(item => item.month),
+      // 수익 데이터 설정
+      this.revenueData = toRaw({
+        labels: revenueResponse.data.labels,
         datasets: [
           {
-            label: USER_TYPE_LABELS.GENERAL_USER,
-            data: newUsersResponse.data.users.map(user => user.count),
+            label: "수익",
+            data: revenueResponse.data.revenue.map(revenue => revenue.count),  // revenue 데이터 매핑
+            borderColor: "orange",
+            backgroundColor: "rgba(255, 165, 0, 0.1)",
+            fill: true,
+          }
+        ]
+      });
+
+      // 스트리밍 데이터 설정
+      this.topFundingData = toRaw({
+        labels: popularFundingResponse.data.map(project => project.projectName),
+        datasets: [
+          {
+            label: "구매자 수",
+            data: popularFundingResponse.data.map(project => project.totalBuyers),
+            backgroundColor: "rgba(54, 162, 235, 0.5)",
+            borderColor: "rgba(54, 162, 235, 1)",
+            borderWidth: 1,
+          },
+          {
+            label: "시청자 수",
+            data: popularFundingResponse.data.map(project => project.totalViewers),
+            backgroundColor: "rgba(255, 99, 132, 0.5)",
+            borderColor: "rgba(255, 99, 132, 1)",
+            borderWidth: 1,
+          }
+        ]
+      });
+
+      // 현재 사용자 통계 데이터 설정
+      this.userGrowthData = toRaw({
+        labels: currentUsersResponse.data.labels,
+        datasets: [
+          {
+            label: "makers",
+            data: currentUsersResponse.data.makers.map(maker => maker.count),
+            borderColor: "green",
+            backgroundColor: "rgba(0, 255, 0, 0.1)",
+            fill: true,
+          },
+          {
+            label: "users",
+            data: currentUsersResponse.data.users.map(user => user.count),
             borderColor: "blue",
             backgroundColor: "rgba(0, 0, 255, 0.1)",
             fill: true,
           },
-          // ... 나머지 datasets
+          {
+            label: "total",
+            data: currentUsersResponse.data.total.map(total => total.count),
+            borderColor: "purple",
+            backgroundColor: "rgba(128, 0, 128, 0.1)",
+            fill: true,
+          }
         ]
-      };
-      console.log('Chart data before toRaw:', chartData);
-      //this.monthlySignUpData = toRaw(chartData);
-      console.log('Chart data after toRaw:', this.monthlySignUpData);
+      });
 
+
+      // 카테고리별 펀딩 수와 수익 데이터 설정
+      this.categoryFundingData = {
+        labels: categoryRevenueResponse.data.labels,
+        datasets: [
+          {
+            label: "펀딩 수",
+            data: categoryRevenueResponse.data.catrevenue.map(item => item.successCount),
+            backgroundColor: "rgba(54, 162, 235, 0.5)",
+            borderColor: "rgba(54, 162, 235, 1)",
+            borderWidth: 1,
+          },
+          {
+            label: "펀딩 수익 (만원)",
+            data: categoryRevenueResponse.data.catrevenue.map(item => item.revenue / 10000), // 수익 데이터를 만원 단위로 변환
+            backgroundColor: "rgba(255, 206, 86, 0.5)",
+            borderColor: "rgba(255, 206, 86, 1)",
+            borderWidth: 1,
+          },
+        ],
+      };
+
+      console.log('Category Funding Data:', this.categoryFundingData);
+      console.log('Current Users Data:', this.userGrowthData);
+      console.log('Streaming Stats Data:', this.topFundingData);
+      console.log('Revenue Chart Data:', this.revenueData);
+      console.log('Transformed Chart Data:', this.monthlySignUpData); // 변환된 값
 
     } catch (error) {
       console.error('Failed to fetch dashboard stats:', error)
@@ -278,7 +340,6 @@ export default {
       this.loading = false
     }
   },
-
 
   methods: {
     logout() {

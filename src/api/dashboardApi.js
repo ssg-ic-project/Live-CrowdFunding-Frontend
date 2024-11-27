@@ -7,16 +7,16 @@ export const dashboardApi ={
     getNewUsers(){
         return api.get("/api/dashboard/new-users")
     },
-    yearRevenueStats(){
+    getTotalRevenue(){
         return api.get("/api/dashboard/yearly-revenue")
     },
-    streamingStats(){
+    getPopularFunding(){
         return api.get("/api/dashboard/streaming-stats")
     },
-    currentUserStats(){
+    getCurrentUsers(){
         return api.get("/api/dashboard/current-users")
     },
-    categoryRevenueStats(){
+    getCategoryRevenue(){
         return api.get("/api/dashboard/revenue-by-category")
     },
 
