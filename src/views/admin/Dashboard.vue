@@ -6,17 +6,17 @@
     <main class="content">
       <!-- 상단 관리자 정보 -->
       <header>
-        <span>접속중인 ID: {{ userId }} ({{ userName }})</span>
+        <span>접속중인 ID: {{userId }} ({{userName }})</span>
         <button @click="logout">로그아웃</button>
       </header>
 
       <!-- 통계 섹션 -->
-      <section class="stats">
-        <div class="stat-box">일간 펀딩 등록 건 수: {{ dailyFundingCount }}</div>
-        <div class="stat-box">월간 펀딩 등록 건 수: {{ monthlyFundingCount }}</div>
-        <div class="stat-box">연간 펀딩 등록 건 수: {{ yearlyFundingCount }}</div>
-        <div class="stat-box">승인 대기 중 펀딩 수: {{ pendingFundingCount }}</div>
-        <div class="stat-box">진행중인 총 프로젝트 수: {{ totalActiveProjects }}</div>
+      <section class="stats" v-if="!loading">
+        <div class="stat-box">일간 펀딩 등록 건 수: {{ statsData.dailyRegistrations }}</div>
+        <div class="stat-box">월간 펀딩 등록 건 수: {{ statsData.monthlyRegistrations }}</div>
+        <div class="stat-box">연간 펀딩 등록 건 수: {{ statsData.yearlyRegistrations }}</div>
+        <div class="stat-box">승인 대기 중 펀딩 수: {{ statsData.dailyRequests }}</div>
+        <div class="stat-box">진행중인 총 프로젝트 수: {{ statsData.ongoingProjects }}</div>
       </section>
 
       <!-- 차트 섹션 -->
@@ -49,6 +49,7 @@
 <script>
 import LineChart from "@/components/LineChart.vue";
 import BarChart from "@/components/BarChart.vue";
+import {dashboardApi} from '@/api/index.js';
 
 export default {
   name: 'AdminDashboard',
@@ -58,123 +59,152 @@ export default {
   },
   data() {
     return {
-      userId: "admin123",
-      userName: "관리자",
-      dailyFundingCount: 5,
-      monthlyFundingCount: 100,
-      yearlyFundingCount: 1200,
-      pendingFundingCount: 7,
-      // 진행중인 총 프로젝트 수 데이터 추가
-      totalActiveProjects: 156,
+      statsData: {
+        dailyRegistrations: 0,
+        monthlyRegistrations: 0,
+        yearlyRegistrations: 0,
+        dailyRequests: 0,
+        ongoingProjects: 0, // 진행중인 총 프로젝트 수 데이터 추가
 
+      },
 
+        //localStorage에 저장되어있는 정보 가지고 오기.
+        userId: localStorage.getItem("userId"),
+        userName: localStorage.getItem("userName"),
 
+        // userId: "admin123",
+        // userName: "관리자",
+        loading: true,
 
-      monthlySignUpData: {
-        labels: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
-        datasets: [
-          {
-            label: "일반회원",
-            data: [12, 19, 3, 5, 2, 3, 17, 12, 9, 15, 11, 13],
-            borderColor: "blue",
-            backgroundColor: "rgba(0, 0, 255, 0.1)",
-            fill: true,
-          },
-          {
-            label: "메이커",
-            data: [2, 4, 6, 8, 5, 6, 9, 5, 7, 3, 8, 10],
-            borderColor: "green",
-            backgroundColor: "rgba(0, 255, 0, 0.1)",
-            fill: true,
-          },
-          {
-            label: "총계",
-            data: [14, 23, 9, 13, 7, 9, 26, 17, 16, 18, 19, 23],
-            borderColor: "purple",
-            backgroundColor: "rgba(128, 0, 128, 0.1)",
-            fill: true,
-          },
-        ],
-      },
-      revenueData: {
-        labels: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
-        datasets: [
-          {
-            label: "수익",
-            data: [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200],
-            borderColor: "orange",
-            backgroundColor: "rgba(255, 165, 0, 0.1)",
-            fill: true,
-          },
-        ],
-      },
-      topFundingData: {
-        labels: ["펀딩1", "펀딩2", "펀딩3", "펀딩4", "펀딩5", "펀딩6", "펀딩7", "펀딩8", "펀딩9", "펀딩10"],
-        datasets: [
-          {
-            label: "구매자 수",
-            data: [25, 20, 15, 18, 22, 27, 30, 35, 28, 19],
-            backgroundColor: "rgba(54, 162, 235, 0.5)",
-            borderColor: "rgba(54, 162, 235, 1)",
-            borderWidth: 1,
-          },
-          {
-            label: "스트리밍 참가자 수",
-            data: [15, 12, 8, 10, 18, 15, 20, 22, 19, 10],
-            backgroundColor: "rgba(255, 99, 132, 0.5)",
-            borderColor: "rgba(255, 99, 132, 1)",
-            borderWidth: 1,
-          },
-        ],
-      },
-      userGrowthData: {
-        labels: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
-        datasets: [
-          {
-            label: "판매자",
-            data: [5, 10, 6, 12, 7, 15, 9, 18, 11, 13, 10, 17],
-            borderColor: "green",
-            backgroundColor: "rgba(0, 255, 0, 0.1)",
-            fill: true,
-          },
-          {
-            label: "사용자",
-            data: [20, 22, 25, 27, 29, 32, 34, 36, 39, 41, 43, 45],
-            borderColor: "blue",
-            backgroundColor: "rgba(0, 0, 255, 0.1)",
-            fill: true,
-          },
-          {
-            label: "전체",
-            data: [25, 32, 31, 39, 36, 47, 43, 54, 50, 54, 53, 62],
-            borderColor: "purple",
-            backgroundColor: "rgba(128, 0, 128, 0.1)",
-            fill: true,
-          },
-        ],
-      },
-      categoryFundingData: {
-        labels: ["DIY", "엔터테인먼트", "웨어러블", "주변기기", "생활가전", "주방가전", "스마트기기"],
-        datasets: [
-          {
-            label: "펀딩 수",
-            data: [25, 18, 30, 22, 27, 19, 23],
-            backgroundColor: "rgba(54, 162, 235, 0.5)",
-            borderColor: "rgba(54, 162, 235, 1)",
-            borderWidth: 1,
-          },
-          {
-            label: "펀딩 수익 (만원)",
-            data: [300, 220, 500, 400, 310, 250, 450],
-            backgroundColor: "rgba(255, 206, 86, 0.5)",
-            borderColor: "rgba(255, 206, 86, 1)",
-            borderWidth: 1,
-          },
-        ],
-      },
-    };
+        monthlySignUpData: {
+          labels: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+          datasets: [
+            {
+              label: "일반회원",
+              data: [12, 19, 3, 5, 2, 3, 17, 12, 9, 15, 11, 13],
+              borderColor: "blue",
+              backgroundColor: "rgba(0, 0, 255, 0.1)",
+              fill: true,
+            },
+            {
+              label: "메이커",
+              data: [2, 4, 6, 8, 5, 6, 9, 5, 7, 3, 8, 10],
+              borderColor: "green",
+              backgroundColor: "rgba(0, 255, 0, 0.1)",
+              fill: true,
+            },
+            {
+              label: "총계",
+              data: [14, 23, 9, 13, 7, 9, 26, 17, 16, 18, 19, 23],
+              borderColor: "purple",
+              backgroundColor: "rgba(128, 0, 128, 0.1)",
+              fill: true,
+            },
+          ],
+        },
+        revenueData: {
+          labels: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+          datasets: [
+            {
+              label: "수익",
+              data: [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200],
+              borderColor: "orange",
+              backgroundColor: "rgba(255, 165, 0, 0.1)",
+              fill: true,
+            },
+          ],
+        },
+        topFundingData: {
+          labels: ["펀딩1", "펀딩2", "펀딩3", "펀딩4", "펀딩5", "펀딩6", "펀딩7", "펀딩8", "펀딩9", "펀딩10"],
+          datasets: [
+            {
+              label: "구매자 수",
+              data: [25, 20, 15, 18, 22, 27, 30, 35, 28, 19],
+              backgroundColor: "rgba(54, 162, 235, 0.5)",
+              borderColor: "rgba(54, 162, 235, 1)",
+              borderWidth: 1,
+            },
+            {
+              label: "스트리밍 참가자 수",
+              data: [15, 12, 8, 10, 18, 15, 20, 22, 19, 10],
+              backgroundColor: "rgba(255, 99, 132, 0.5)",
+              borderColor: "rgba(255, 99, 132, 1)",
+              borderWidth: 1,
+            },
+          ],
+        },
+        userGrowthData: {
+          labels: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+          datasets: [
+            {
+              label: "판매자",
+              data: [5, 10, 6, 12, 7, 15, 9, 18, 11, 13, 10, 17],
+              borderColor: "green",
+              backgroundColor: "rgba(0, 255, 0, 0.1)",
+              fill: true,
+            },
+            {
+              label: "사용자",
+              data: [20, 22, 25, 27, 29, 32, 34, 36, 39, 41, 43, 45],
+              borderColor: "blue",
+              backgroundColor: "rgba(0, 0, 255, 0.1)",
+              fill: true,
+            },
+            {
+              label: "전체",
+              data: [25, 32, 31, 39, 36, 47, 43, 54, 50, 54, 53, 62],
+              borderColor: "purple",
+              backgroundColor: "rgba(128, 0, 128, 0.1)",
+              fill: true,
+            },
+          ],
+        },
+        categoryFundingData: {
+          labels: ["DIY", "엔터테인먼트", "웨어러블", "주변기기", "생활가전", "주방가전", "스마트기기"],
+          datasets: [
+            {
+              label: "펀딩 수",
+              data: [25, 18, 30, 22, 27, 19, 23],
+              backgroundColor: "rgba(54, 162, 235, 0.5)",
+              borderColor: "rgba(54, 162, 235, 1)",
+              borderWidth: 1,
+            },
+            {
+              label: "펀딩 수익 (만원)",
+              data: [300, 220, 500, 400, 310, 250, 450],
+              backgroundColor: "rgba(255, 206, 86, 0.5)",
+              borderColor: "rgba(255, 206, 86, 1)",
+              borderWidth: 1,
+            },
+          ],
+        },
+
+      };
   },
+
+  async created() {
+    try {
+      this.loading = true
+      const response = await dashboardApi.generalStats()
+
+      this.statsData =  {
+        dailyRegistrations: response.data.dailyRegistrations,
+        monthlyRegistrations: response.data.monthlyRegistrations,
+        yearlyRegistrations: response.data.yearlyRegistrations,
+        dailyRequests: response.data.dailyRequests,
+        ongoingProjects: response.data.ongoingProjects
+      }
+
+    } catch (error) {
+      console.error('Failed to fetch dashboard stats:', error)
+    }finally{
+      this.loading = false
+    }
+  },
+
+
   methods: {
+
     logout() {
       localStorage.removeItem('isAdminLoggedIn');
       this.$router.push('/admin/login');
