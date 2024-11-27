@@ -112,7 +112,7 @@ export default {
             accessToken: "user-access-token",
             refreshToken: "user-refresh-token",
             userEmail: "user@test.com",
-            role: "buyer"
+            role: "USER"
           };
           // 로컬 스토리지에 저장
           localStorage.setItem("accessToken", userTestData.accessToken);
@@ -140,7 +140,7 @@ export default {
             accessToken: "maker-access-token",
             refreshToken: "maker-refresh-token",
             userEmail: "maker@test.com",
-            role: "seller"
+            role: "MAKER"
           };
           // 로컬 스토리지에 저장
           localStorage.setItem("accessToken", makerTestData.accessToken);

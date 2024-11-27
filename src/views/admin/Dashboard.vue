@@ -66,6 +66,10 @@ export default {
       pendingFundingCount: 7,
       // 진행중인 총 프로젝트 수 데이터 추가
       totalActiveProjects: 156,
+
+
+
+
       monthlySignUpData: {
         labels: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
         datasets: [
