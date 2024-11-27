@@ -197,10 +197,13 @@ export default {
     async fetchProductDetail() {
       try {
         const productId = this.$route.params.productId;
-        const response = await axios.get(`/api/project/${productId}`);
+        const response = await axios.get(`/api/project/${productId}`, {
+          params: {
+            userId: localStorage.getItem('userId'),
+          },
+        });
         this.product = response.data;
-        const wishlisted = localStorage.getItem(`wishlist_${productId}`);
-        this.isWishlisted = wishlisted === 'true';
+        this.isWishlisted = this.product.isLiked;
       } catch (error) {
         console.error('상품 정보 로딩 실패:', error);
         this.error = true;
@@ -208,9 +211,37 @@ export default {
         this.isLoading = false;
       }
     },
-    toggleWishlist() {
-      this.isWishlisted = !this.isWishlisted;
-      localStorage.setItem(`wishlist_${this.product.id}`, this.isWishlisted);
+    async toggleWishlist() {
+      try {
+        const userId = localStorage.getItem('userId');
+        const productId = this.$route.params.productId;
+        if (!userId || !productId) {
+          console.log('유저id' + userId);
+          console.log('프로덕트id' + productId);
+          console.error('사용자 ID 또는 제품 ID가 없습니다');
+          return;
+        }
+
+        const requestData = {
+          userId: BigInt(userId), // Long 타입에 맞춰 변환
+          projectId: BigInt(this.product.id)
+        };
+
+        const response = await axios.post(`/api/liked`, {
+          userId: Number(userId), // 또는 그냥 숫자로 보내도 됨
+          projectId: Number(this.product.id)
+        });
+        
+        if (response.status === 200) {
+          this.isWishlisted = !this.isWishlisted;
+          this.product.isLiked = this.isWishlisted;
+          localStorage.setItem(`wishlist_${this.product.id}`, this.isWishlisted);
+        }
+        
+      } catch (err) {
+        console.error('찜하기 실패:', err.response?.data || err.message);
+        alert('찜하기 처리 중 오류가 발생했습니다.');
+      }
     },
     handleNotification() {
       alert('알림 설정 기능은 아직 구현되지 않았습니다.');
