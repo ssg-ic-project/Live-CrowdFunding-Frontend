@@ -94,7 +94,7 @@ export default {
   name: 'FundingStatus',
   data() {
     return {
-      currentFilter: 2, // 기본값은 진행중(2)
+      currentFilter: 1, 
       projects: [],
       pageInfo: null,
       loading: false,
@@ -119,7 +119,8 @@ export default {
           statusNumber: this.currentFilter
         }
       });
-      
+      console.log(response.data);
+
       const { pageInfoDTO, dataList } = response.data;
       this.projects = dataList;
       this.pageInfo = {
