@@ -19,22 +19,62 @@
         <table>
           <thead>
             <tr>
+              <th>신고 ID</th>
               <th>피신고인 ID</th>
+              <th>신고 프로젝트 ID</th>
+              <th>신고자 ID</th>
               <th>신고 내용</th>
-              <th>신고 프로젝트</th>
               <th>신고 날짜</th>
+              <th>신고 채팅 내용</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="report in reports" :key="report.id" @click="openReportDetail(report)">
-              <td>{{ report.reportedUserId }}</td>
-              <td>{{ report.reportContent }}</td>
-              <td>{{ report.projectName }}</td>
-              <td>{{ report.reportDate }}</td>
+              <td>{{ report.id }}</td>
+              <td>{{ report.userId }}</td>
+              <td>{{ report.projectId }}</td>
+              <td>{{ report.managerId }}</td>
+              <td>{{ report.reason }}</td>
+              <td>{{ report.createdAt }}</td>
+              <td>{{ report.chatMessage }}</td>
             </tr>
           </tbody>
         </table>
       </section>
+
+      <!-- 테이블 아래에 추가 -->
+      <section class="pagination">
+        <!-- 이전 페이지 -->
+        <button
+            :disabled="!pageInfo.prev"
+            @click="changePage(currentPage - 1)"
+            class="pagination-button"
+        >
+          이전
+        </button>
+
+        <!-- 페이지 번호들 -->
+        <button
+            v-for="pageNum in pageNumbers"
+            :key="pageNum"
+            @click="changePage(pageNum)"
+            :class="['pagination-button', { active: currentPage === pageNum }]"
+        >
+          {{ pageNum }}
+        </button>
+
+        <!-- 다음 페이지 -->
+        <button
+            :disabled="!pageInfo.next"
+            @click="changePage(currentPage + 1)"
+            class="pagination-button"
+        >
+          다음
+        </button>
+      </section>
+
+
+
 
       
       <!-- 신고 상세 모달 -->
@@ -44,12 +84,12 @@
           <h3>신고 상세 정보</h3>
           <p><strong>신고내역 ID:</strong> {{ selectedReport.id }}</p>
           <p><strong>신고 프로젝트 ID:</strong> {{ selectedReport.projectId }}</p>
-          <p><strong>프로젝트명:</strong> {{ selectedReport.projectName }}</p>
-          <p><strong>피신고인 ID:</strong> {{ selectedReport.reportedUserId }}</p>
-          <p><strong>신고 채팅 내용:</strong> {{ selectedReport.chatContent }}</p>
-          <p><strong>신고자(직원) ID:</strong> {{ selectedReport.reporterId }}</p>
-          <p><strong>신고 내용 (관리자 코멘트):</strong> {{ selectedReport.reportContent }}</p>
-          <p><strong>신고 날짜:</strong> {{ selectedReport.reportDate }}</p>
+<!--          <p><strong>프로젝트명:</strong> {{ selectedReport.projectName }}</p>-->
+          <p><strong>피신고인 ID:</strong> {{ selectedReport.userId }}</p>
+          <p><strong>신고 채팅 내용:</strong> {{ selectedReport.chatMessage }}</p>
+          <p><strong>신고자(직원) ID:</strong> {{ selectedReport.id }}</p>
+          <p><strong>신고 내용 (관리자 코멘트):</strong> {{ selectedReport.reason }}</p>
+          <p><strong>신고 날짜:</strong> {{ selectedReport.createdAt }}</p>
 
 
           <!-- 버튼 그룹 -->
@@ -65,46 +105,51 @@
 </template>
 
 <script>
+import {chatApi} from '@/api/chatApi';
+
 export default {
 data() {
   return {
     userId: "admin123",
     userName: "관리자",
-    reports: [
-      {
-        id: 1,
-        projectId: 101,
-        projectName: "프로젝트 A",
-        reportedUserId: "user1",
-        chatContent: "문제의 채팅 내용",
-        reporterId: "staff123",
-        reportContent: "부적절한 언어 사용",
-        reportDate: "2023-10-01",
-      },
-
-      {
-        id: 2,
-        projectId: 102,
-        projectName: "프로젝트 B",
-        reportedUserId: "user2",
-        chatContent: "스팸 메시지",
-        reporterId: "staff456",
-        reportContent: "스팸 행위",
-        reportDate: "2023-10-02",
-      },
-
-    ],
+    reports: [],
+    currentPage: 1,
     showModal: false,
     selectedReport: null,
+    pageInfo: {},
   };
 },
-methods: {
-  logout() {
-  
-  this.$router.push('/admin');
-},
-  isActive(path) {
-    return this.$route.path.startsWith(path);
+  mounted(){
+    this.fetchReports();
+
+  },
+  computed: {
+    pageNumbers() {
+      if (!this.pageInfo.start || !this.pageInfo.end) return [];
+      const pages = [];
+      for (let i = this.pageInfo.start; i <= this.pageInfo.end; i++) {
+        pages.push(i);
+      }
+      return pages;
+    }
+  },
+
+  methods: {
+    async changePage(newPage) {
+      this.currentPage = newPage;
+      await this.fetchReports();
+    },
+
+    async fetchReports(){
+    try{
+      const response = await chatApi.getReportList({page: this.currentPage});
+      this.reports = response.data.dataList;
+      this.pageInfo = response.data.pageInfoDTO;
+      //this.reports = response.data;
+      console.log("check response data", this.reports);
+    }catch (error){
+      console.error('신고 데이터를 불러오는 중 오류가 발생했습니다: ', error);
+    }
   },
   openReportDetail(report) {
     this.selectedReport = report;
@@ -118,6 +163,14 @@ methods: {
     alert(`사용자 ${this.selectedReport.reportedUserId}가 비활성화되었습니다.`);
     this.closeModal();
   },
+
+  logout() {
+  this.$router.push('/admin');
+},
+  isActive(path) {
+    return this.$route.path.startsWith(path);
+  },
+
   suspendUser() {
     alert(`사용자 ${this.selectedReport.reportedUserId}가 정지되었습니다.`);
     this.closeModal();
@@ -132,6 +185,7 @@ methods: {
       this.closeModal();
     }
   },
+
 },
 };
 </script>
@@ -341,5 +395,44 @@ background-color: #007bff;
 .delete-button:hover {
 background-color: #0069d9;
 }
+
+/* style 태그 안에 추가 */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+}
+
+.pagination-button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #dee2e6;
+  background-color: white;
+  color: #0065cb;
+  cursor: pointer;
+  border-radius: 4px;
+  min-width: 2.5rem;
+}
+
+.pagination-button:hover:not(:disabled) {
+  background-color: #f8f9fa;
+  border-color: #0065cb;
+}
+
+.pagination-button.active {
+  background-color: #0065cb;
+  color: white;
+  border-color: #0065cb;
+}
+
+.pagination-button:disabled {
+  background-color: #e9ecef;
+  cursor: not-allowed;
+  color: #6c757d;
+}
+
+
+
+
 </style>
 

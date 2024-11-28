@@ -5,10 +5,10 @@
 </template>
 
 <script>
-import { Chart, LineController, LineElement, PointElement, LinearScale, Title, Tooltip, CategoryScale, Legend} from 'chart.js';
+import { Chart, LineController, LineElement, PointElement, LinearScale, Title, Tooltip, CategoryScale, Legend, Filler} from 'chart.js';
 // import Chart from 'chart.js/auto';
 
-Chart.register(LineController, LineElement, PointElement, LinearScale, Title, Tooltip, CategoryScale, Legend);
+Chart.register(LineController, LineElement, PointElement, LinearScale, Title, Tooltip, CategoryScale, Legend, Filler);
 
 export default {
   props: ['data'],

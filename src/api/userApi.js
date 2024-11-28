@@ -3,7 +3,7 @@ import axios from "axios";
 
 export const userApi = {
     getUsers(params){
-        console.log("in userApi:", params);
+        // console.log("in userApi:", params);
         return api.get('/api/usersList', {
             params: {
             page: params.page,
