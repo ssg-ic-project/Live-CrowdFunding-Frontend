@@ -63,7 +63,7 @@
 <script>
 import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import ProductItem from '@/components/ProductItem.vue';
+import ProductItem from '@/components/ProductItem1.vue';
 import odungImage from '@/assets/image/오둥이하트.png';
 import axios from 'axios';
 

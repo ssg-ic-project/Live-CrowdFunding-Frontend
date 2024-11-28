@@ -149,7 +149,7 @@
 
 <script>
 import { ref, computed } from 'vue';
-import ProductItem from '@/components/ProductItem.vue';
+import ProductItem from '@/components/ProductItem1.vue';
 import axios from 'axios';
 
 export default {

@@ -19,21 +19,26 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+
 const props = defineProps({
   roomId: {
     type: String,
     required: true,
   },
 })
+
 const product = ref({
   productName: '',
   price: 0,
   summary: '',
   images: [],
 })
+
 const VITE_API_SERVER_URI = import.meta.env.VITE_API_SERVER_URI
+
 const getProduct = async () => {
   const response = await fetch(`${VITE_API_SERVER_URI}/api/project/${props.roomId}/live`)
+
   try {
     if (response.ok) {
       const project_info = await response.json()
@@ -45,6 +50,7 @@ const getProduct = async () => {
     console.error('채팅 히스토리 로드 실패:', error)
   }
 }
+
 onMounted(() => {
   getProduct()
 })
@@ -56,6 +62,7 @@ onMounted(() => {
   flex-direction: column;
   gap: 1rem;
 }
+
 .product-card {
   display: flex;
   gap: 1rem;
@@ -63,23 +70,28 @@ onMounted(() => {
   border: 1px solid #dee2e6;
   border-radius: 0.5rem;
 }
+
 .product-image {
   width: 100px;
   height: 100px;
   object-fit: cover;
   border-radius: 0.25rem;
 }
+
 .product-details {
   flex: 1;
 }
+
 .product-name {
   margin: 0 0 0.5rem 0;
 }
+
 .product-price {
   font-weight: bold;
   color: #007bff;
   margin: 0 0 0.5rem 0;
 }
+
 .product-description {
   margin: 0;
   color: #6c757d;
