@@ -70,7 +70,23 @@ const routes = [
       { path: 'stream/:streamId', name: 'Streaming', component: Streaming },
       { path: 'terms', name: 'Terms', component: Terms },
       { path: '/payment', name: 'Payment', component: Payment, props: true,},
-      { path: 'streaming', component: StreamingRoom, props: true },
+      { path: '/streaming',name: 'Streaming',component: StreamingRoom,
+        beforeEnter: (to, from, next) => {
+          const userType = localStorage.getItem('userType');
+          const productId = to.query.productId;
+        
+          if (!productId) {
+            next({ name: 'Home' });
+            return;
+          }
+          if (!userType) {
+            next({
+              name: 'Login',
+              query: { redirect: to.fullPath }
+            });
+            return;
+          }
+          next();}}
     ],
   },
   {

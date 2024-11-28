@@ -115,23 +115,39 @@ const scrollToBottom = () => {
     }, 50)
   }
 }
-
 const loadChatHistory = async () => {
-  const response = await fetch(`${VITE_API_SERVER_URI}/api/chat/history/${props.roomId}`)
-
   try {
+    if (!props.roomId) {
+      console.error('채팅 히스토리 로드 실패: roomId가 없습니다.');
+      return;
+    }
+    
+    console.log('Loading chat history for room:', props.roomId);
+    // URL 수정: /api/chat/history/ -> /api/chat/history
+    const apiUrl = `${VITE_API_SERVER_URI}/api/chat/history/${props.roomId}`;
+    console.log('Chat history API URL:', apiUrl);
+
+    const response = await fetch(apiUrl);
     if (response.ok) {
-      const history = await response.json()
-      // 차단된 사용자의 메시지를 필터링
-      messages.value = history.filter((msg) => !blockedUsers.value.has(msg.userName))
+      const history = await response.json();
+      console.log('채팅 히스토리 로드 성공:', history);
+      
+      messages.value = history.filter((msg) => !blockedUsers.value.has(msg.userName));
       nextTick(() => {
-        scrollToBottom()
-      })
+        scrollToBottom();
+      });
+    } else {
+      const errorText = await response.text();
+      console.error('채팅 히스토리 로드 실패:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorText
+      });
     }
   } catch (error) {
-    console.error('채팅 히스토리 로드 실패:', error)
+    console.error('채팅 히스토리 로드 중 예외 발생:', error);
   }
-}
+};
 
 // 사용자 차단 기능
 const blockUser = (userName) => {

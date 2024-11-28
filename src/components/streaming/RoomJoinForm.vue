@@ -1,3 +1,4 @@
+<!-- RoomJoinForm.vue -->
 <template>
   <div class="room-join-form">
     <input

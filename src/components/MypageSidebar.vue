@@ -22,7 +22,7 @@
         <!-- 판매자용 하위 기능 -->
 
    
-        <template v-if="userType === 'MAKER'">
+        <template v-if="userType === 'maker'">
           <li :class="{ active: isActive('/mypage/funding-status') }">
             <router-link to="/mypage/funding-status">펀딩 진행 목록</router-link>
           </li>
@@ -33,7 +33,7 @@
         
         
         <!-- 구매자용 하위 기능 -->
-        <template v-else-if="userType === 'USER'">
+        <template v-else-if="userType === 'user'">
           
           
           <li :class="{ active: isActive('/mypage/funding-participation') }">

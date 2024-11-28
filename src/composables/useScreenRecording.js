@@ -5,7 +5,7 @@ export const useScreenRecording = () => {
   const recordedChunks = ref([])
   const isRecording = ref(false)
 
-  const SERVER_URL = import.meta.env.VITE_SERVER_URI
+  const VITE_API_SERVER_URI = import.meta.env.VITE_API_SERVER_URI
 
   const startRecording = async () => {
     try {
@@ -54,7 +54,7 @@ export const useScreenRecording = () => {
       formData.append('file', file)
       formData.append('scheduleId', '4') // scheduleId 추가
 
-      const response = await fetch(`${SERVER_URL}/api/recordings`, {
+      const response = await fetch(`${VITE_API_SERVER_URI}/api/recordings`, {
         method: 'POST',
         body: formData,
       })
