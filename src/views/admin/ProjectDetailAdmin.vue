@@ -26,8 +26,8 @@
 
         <!-- 우측 패널 -->
         <div class="right-panel">
-          <h2>{{ project.name }}</h2>
-          <p>판매자: {{ project.seller }}</p>
+          <h2>{{ project.productName }}</h2>
+          <p>판매자: {{ project.maker }}</p>
 
 
           <!-- 문서 리스트 -->
@@ -107,6 +107,8 @@
 </template>
 
 <script>
+import {projectApi} from "@/api/projectApi.js";
+
 export default {
   name: 'ProjectDetail',
   props: ['id'],
@@ -116,15 +118,14 @@ export default {
       userName: '관리자',
       project: {
         id: this.id,
-        name: '',
-        seller: '판매자 A',
-        image: 'https://via.placeholder.com/300',
-        documents: [
-          { name: '설계서.pdf', content: '설계서 내용', reviewed: false },
-          { name: '사업 계획서.pdf', content: '사업 계획서 내용', reviewed: false },
-          { name: '마케팅 전략.pdf', content: '마케팅 전략 내용', reviewed: false },
-        ],
-        reviewStatus: '승인 대기',
+        productName: '',
+        maker: {
+          id: '',
+          name: ''
+        },
+        contentImage: '',
+        documents: [],
+        reviewStatus: '검토중',
       },
       showModal: false,
       selectedDoc: null,
@@ -197,7 +198,33 @@ export default {
   mounted() {
     this.project.name = `프로젝트 ${this.project.id}`;
   },
+
+  async created() {
+    try {
+      const response = await projectApi.getProject(this.id);
+      const projectData = response.data;
+      const firstImage = projectData.images.length > 0 ? projectData.images[0].url : '';
+
+
+      this.project = {
+        id: projectData.id,
+        productName: projectData.productName,
+        maker: projectData.maker,
+        contentImage: firstImage,
+        reviewProjectStatus: projectData.reviewProjectStatus,
+        progressProjectStatus: projectData.progressProjectStatus,
+        documents: projectData.documents.map(doc => ({
+          name: doc.name,
+          content: doc.url,
+          reviewed: false
+        })),
+      };
+    } catch (error) {
+      console.error('프로젝트 조회 실패:', error);
+    }
+  },
 };
+
 </script>
 
 <style scoped>
