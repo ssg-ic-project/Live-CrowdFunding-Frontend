@@ -1,22 +1,20 @@
-<!-- src/views/mypage/Wishlist.vue -->
 <template>
   <div class="wishlist-page">
     <div class="header">
       <h2>찜 목록</h2>
-      <span class="count">(총 {{ wishlist.length }}개)</span>
+      <span class="count" v-if="pageInfo">(총 {{ pageInfo.totalElements }}개)</span>
     </div>
     <div class="product-grid">
-      <div v-for="product in wishlist" :key="product.id" class="product-card">
+      <div v-for="project in projects" :key="project.id" class="product-card">
         <div class="image-container">
-          <img :src="product.image" :alt="product.name" />
-
+          <img :src="project.thumbnailUrl" :alt="project.productName" />
           
           <!-- 하트 아이콘 -->
-          <button @click.stop="toggleWishlist(product)" class="wishlist-btn">
+          <button @click.stop="toggleWishlist(project)" class="wishlist-btn">
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
               viewBox="0 0 24 24" 
-              :fill="product.isWished ? '#ff4b4b' : 'none'"
+              fill="#ff4b4b"
               stroke="#ff4b4b"
               stroke-width="2"
               class="heart-icon"
@@ -24,153 +22,110 @@
               <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
             </svg>
           </button>
-
-
-          <!-- LIVE 뱃지 -->
-          <div v-if="product.isLive" class="live-badge">
-            <svg class="live-icon" viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="8" stroke="white" stroke-width="2" fill="none"/>
-              <circle cx="12" cy="12" r="3" fill="white"/>
-            </svg>
-            LIVE
-          </div>
         </div>
         <div class="product-info">
-          <div class="achievement">{{ product.achievement }}% 달성</div>
-          <h3 class="product-name">{{ product.name }}</h3>
-          <p class="company">{{ product.company }}</p>
-          <div class="price">{{ formatPrice(product.price) }}원</div>
+          <div class="achievement">{{ project.percentage }}% 달성</div>
+          <h3 class="product-name">{{ project.productName }}</h3>
+          <p class="description">{{ project.description }}</p>
+          <div class="price">{{ formatPrice(project.price) }}원</div>
         </div>
       </div>
+    </div>
+
+    <!-- 페이지네이션 -->
+    <div class="pagination" v-if="pageInfo && pageInfo.totalPages > 1">
+      <button 
+        :disabled="pageInfo.page <= 1"
+        @click="changePage(pageInfo.page - 1)"
+        class="pagination-btn"
+      >
+        이전
+      </button>
+      <span class="page-info">{{ pageInfo.page }} / {{ pageInfo.totalPages }}</span>
+      <button 
+        :disabled="pageInfo.page >= pageInfo.totalPages"
+        @click="changePage(pageInfo.page + 1)"
+        class="pagination-btn"
+      >
+        다음
+      </button>
     </div>
   </div>
 </template>
 
 <script>
-import { ref } from 'vue';
-import odungImage from '@/assets/image/오둥이하트.png';
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
 
 export default {
   name: 'Wishlist',
+  props: {
+    userId: {
+      type: Number,
+      required: true
+    }
+  },
   setup() {
-    const wishlist = ref([
-      {
-        id: 1,
-        image: odungImage,
-        name: '스마트 LED 모션센서',
-        company: '테크라이트',
-        price: 89000,
-        achievement: 75,
-        isWished: true,
-        isLive: true
-      },
-      {
-        id: 2,
-        image: odungImage,
-        name: '무선 공기청정기 미니',
-        company: '퓨어에어',
-        price: 159000,
-        achievement: 82,
-        isWished: true,
-        isLive: false
-      },
-      {
-        id: 3,
-        image: odungImage,
-        name: '접이식 전동킥보드',
-        company: '모빌리티플러스',
-        price: 429000,
-        achievement: 91,
-        isWished: true,
-        isLive: true
-      },
-      {
-        id: 4,
-        image: odungImage,
-        name: '스마트 온도조절 텀블러',
-        company: '테크컵',
-        price: 49000,
-        achievement: 65,
-        isWished: true,
-        isLive: false
-      },
-      {
-        id: 5,
-        image: odungImage,
-        name: '무선 게이밍 마우스',
-        company: '게이밍기어',
-        price: 89000,
-        achievement: 88,
-        isWished: true,
-        isLive: true
-      },
-      {
-        id: 6,
-        image: odungImage,
-        name: '스마트 도어락',
-        company: '세이프홈',
-        price: 239000,
-        achievement: 73,
-        isWished: true,
-        isLive: false
-      },
-      {
-        id: 7,
-        image: odungImage,
-        name: '휴대용 UV 살균기',
-        company: '클린테크',
-        price: 69000,
-        achievement: 95,
-        isWished: true,
-        isLive: true
-      },
-      {
-        id: 8,
-        image: odungImage,
-        name: '스마트 플랜트 팟',
-        company: '그린라이프',
-        price: 79000,
-        achievement: 68,
-        isWished: true,
-        isLive: false
-      },
-      {
-        id: 9,
-        image: odungImage,
-        name: '무선 블루투스 스피커',
-        company: '사운드웨이브',
-        price: 129000,
-        achievement: 87,
-        isWished: true,
-        isLive: true
-      },
-      {
-        id: 10,
-        image: odungImage,
-        name: '접이식 전동자전거',
-        company: '에코모빌리티',
-        price: 890000,
-        achievement: 79,
-        isWished: true,
-        isLive: false
+    const projects = ref([]);
+    const pageInfo = ref(null);
+    const pageSize = ref(12); // 한 페이지당 보여줄 아이템 수
+
+    const fetchWishlist = async (page = 1) => {
+      try {
+        const userId = localStorage.getItem('userId');
+        const response = await axios.get(`/api/liked/${userId}`, {
+          params: {
+            page: page,
+            size: pageSize.value
+          }
+        });
+        
+        projects.value = response.data.dataList;
+        pageInfo.value = response.data.pageInfoDTO;
+      } catch (error) {
+        console.error('찜 목록을 불러오는데 실패했습니다:', error);
       }
-    ]);
+    };
 
     const formatPrice = (price) => {
       return new Intl.NumberFormat('ko-KR').format(price);
     };
 
-    const toggleWishlist = (product) => {
-      const index = wishlist.value.findIndex(p => p.id === product.id);
-      if (index !== -1) {
-        wishlist.value = wishlist.value.filter(p => p.id !== product.id);
+    const toggleWishlist = async (project) => {
+      try {
+        const userId = localStorage.getItem('userId');
+        if (!userId || !project.id) {
+          console.error('사용자 ID 또는 제품 ID가 없습니다');
+          return;
+        }
+
+        await axios.post(`/api/liked`, {
+          userId: Number(userId),
+          projectId: Number(project.id)
+        });
+        
+        await fetchWishlist(pageInfo.value.page);
+
+      } catch (err) {
+        console.error('찜하기 해제 실패:', err.response?.data || err.message);
+        alert('찜하기 해제 처리 중 오류가 발생했습니다.');
       }
     };
 
+    const changePage = (newPage) => {
+      fetchWishlist(newPage);
+    };
+
+    onMounted(() => {
+      fetchWishlist();
+    });
+
     return {
-      wishlist,
+      projects,
+      pageInfo,
       toggleWishlist,
-      formatPrice
+      formatPrice,
+      changePage
     };
   }
 };
@@ -202,8 +157,9 @@ h2 {
 
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .product-card {
@@ -240,7 +196,7 @@ h2 {
   background: white;
   border: none;
   cursor: pointer;
-  z-index: 1; /* z-index 값을 1로 변경 */
+  z-index: 1;
   padding: 6px;
   display: flex;
   align-items: center;
@@ -256,61 +212,97 @@ h2 {
   height: 16px;
 }
 
-.live-badge {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  background-color: #ff4b4b;
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.live-icon {
-  width: 12px;
-  height: 12px;
-}
-
 .product-info {
-  padding: 0.75rem;
+  padding: 1rem;
 }
 
 .achievement {
   color: #28a745;
   font-size: 0.85rem;
   font-weight: bold;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
 }
 
 .product-name {
-  font-size: 1rem;
-  margin: 0.25rem 0;
+  font-size: 1.1rem;
+  margin: 0 0 0.5rem 0;
   color: #000;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.company {
+.description {
   color: #666;
-  font-size: 0.85rem;
-  margin: 0.25rem 0;
+  font-size: 0.9rem;
+  margin: 0.5rem 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  height: 2.7em;
 }
 
 .price {
   font-weight: bold;
-  font-size: 1rem;
+  font-size: 1.1rem;
   color: #000;
+  margin-top: 0.5rem;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.pagination-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #f5f5f5;
+}
+
+.pagination-btn:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.page-info {
+  font-size: 0.9rem;
+  color: #666;
 }
 
 @media (max-width: 768px) {
   .product-grid {
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem;
+  }
+
+  .product-info {
+    padding: 0.75rem;
+  }
+
+  .product-name {
+    font-size: 1rem;
+  }
+
+  .description {
+    font-size: 0.8rem;
+  }
+
+  .price {
+    font-size: 1rem;
   }
 }
 </style>

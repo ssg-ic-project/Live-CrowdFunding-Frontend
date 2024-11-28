@@ -90,13 +90,7 @@
           <label>주소</label>
           <div class="address-group">
             <input type="text" v-model="editUserData.address" readonly />
-            <button
-              type="button"
-              @click="openAddressSearch"
-              class="address-button"
-            >
-              주소찾기
-            </button>
+            <button type="button" @click="openAddressAPI" class="address-button">주소찾기</button>
           </div>
         </div>
         <div class="input-group">
@@ -292,9 +286,28 @@ export default {
       }
       return true;
     },
-    openAddressSearch() {
-      // 주소 검색 API 연동 필요
-      alert("주소 검색");
+    // 주소 API
+    openAddressAPI() {
+      new window.daum.Postcode({
+        oncomplete: (data) => {
+          // 주소 데이터를 editUserData에 직접 할당
+          this.editUserData.address = data.roadAddress || data.jibunAddress;
+
+          // 참고항목 추가
+          if (data.userSelectedType === "R") {
+            let extraAddr = "";
+            if (data.bname !== "" && /[동|로|가]$/g.test(data.bname)) {
+              extraAddr += data.bname;
+            }
+            if (data.buildingName !== "" && data.apartment === "Y") {
+              extraAddr += extraAddr !== "" ? ", " + data.buildingName : data.buildingName;
+            }
+            if (extraAddr !== "") {
+              this.editUserData.address += " (" + extraAddr + ")";
+            }
+          }
+        },
+      }).open();
     },
     async updateProfile() {
       if (!this.validateForm()) {
