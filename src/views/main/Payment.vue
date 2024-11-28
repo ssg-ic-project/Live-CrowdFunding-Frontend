@@ -235,7 +235,7 @@ export default {
       if (this.canProceed && this.paymentWidget) {
         try {
           //여기에서 orderId get하기!!!
-          //const orderId = 2321327788854;
+          const orderId = 2321327788861;
 
           // const orderId = location.pathname
           //     .split('/')
@@ -247,7 +247,7 @@ export default {
             : this.defaultAddress;
 
           const paymentConfig = {
-            orderId: this.generateOrderId(),
+            orderId: orderId, //this.generateOrderId(), //api로 가지고 올 예정~
             deliveryAddress: currentAddress,
             orderName: this.product.name,
             customerEmail: "customer123@gmail.com",
