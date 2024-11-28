@@ -4,6 +4,7 @@ import { useMediasoup } from './useMediasoup'
 export const useStreaming = () => {
   const localVideoRef = ref(null)
   const remoteMediaRef = ref(null)
+  const userName = ref('')
 
   const {
     socket,
@@ -182,6 +183,7 @@ export const useStreaming = () => {
     viewers,
     localStream,
     userRole,
+    userName, 
     screenProducer,
     joinRoom,
     leaveRoom,

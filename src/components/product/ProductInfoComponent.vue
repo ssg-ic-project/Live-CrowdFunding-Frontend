@@ -1,22 +1,31 @@
-<!-- ProductInfoComponent.vue -->
 <template>
-  <div class="product-info">
-    <div class="product-header">
-      <h1 class="product-title">{{ product.productName }}</h1>
-      <p class="product-price">{{ product.price }}원</p>
-    </div>
-    <div class="product-summary">
-      {{ product.summary }}
-    </div>
-    <div class="product-image" v-if="product.images.length > 0">
-      <img :src="product.images[0].url" :alt="product.productName" />
+  <div class="product-container">
+    <div class="product-card">
+      <!-- <img :src="product.images[0].url" :alt="product.productName" class="product-image" /> -->
+      <img
+        v-if="product.images && product.images.length > 0"
+        :src="product.images[0].url"
+        :alt="product.productName"
+        class="product-image"
+      />
+      <div class="product-details">
+        <h3 class="product-name">{{ product.productName }}</h3>
+        <p class="product-price">{{ product.price }}원</p>
+        <p class="product-description">{{ product.summary }}</p>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
-const { VITE_API_SERVER_URI } = import.meta.env
+
+const props = defineProps({
+  roomId: {
+    type: String,
+    required: true,
+  },
+})
 
 const product = ref({
   productName: '',
@@ -25,74 +34,66 @@ const product = ref({
   images: [],
 })
 
-const props = defineProps({
-  roomId: {
-    type: String,
-    required: true
-  }
-})
+const VITE_API_SERVER_URI = import.meta.env.VITE_API_SERVER_URI
 
-// ProductInfoComponent.vue
 const getProduct = async () => {
-  try {
-    // API URL과 roomId를 콘솔에 출력해서 확인
-    console.log('API URL:', `${VITE_API_SERVER_URI}/api/project/${props.roomId}`)
-    console.log('RoomId:', props.roomId)
+  const response = await fetch(`${VITE_API_SERVER_URI}/api/project/${props.roomId}`)
 
-    const response = await fetch(`${VITE_API_SERVER_URI}/api/project/${props.roomId}`)
+  try {
     if (response.ok) {
       const project_info = await response.json()
-      console.log('상품 정보 로드 성공:', project_info)
+      console.log('상품 정보 로드 성공', project_info)
       product.value = project_info
-    } else {
-      console.error('상품 정보 로드 실패:', response.status, response.statusText)
-      // response 내용도 확인
-      const errorText = await response.text()
-      console.error('Error response:', errorText)
+      console.log('product:', product.value.images[0].url)
     }
   } catch (error) {
-    console.error('상품 정보 로드 실패:', error)
+    console.error('채팅 히스토리 로드 실패:', error)
   }
 }
 
-// onMounted에서 roomId 확인
 onMounted(() => {
-  console.log('ProductInfoComponent mounted, roomId:', props.roomId)
-  if (props.roomId) {
-    getProduct()
-  }
+  getProduct()
 })
 </script>
 
 <style scoped>
-.product-info {
+.product-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.product-card {
+  display: flex;
+  gap: 1rem;
   padding: 1rem;
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
 }
 
-.product-header {
-  margin-bottom: 1rem;
+.product-image {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 0.25rem;
 }
 
-.product-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
+.product-details {
+  flex: 1;
+}
+
+.product-name {
+  margin: 0 0 0.5rem 0;
 }
 
 .product-price {
-  font-size: 1.2rem;
-  color: #2b6cb0;
+  font-weight: bold;
+  color: #007bff;
+  margin: 0 0 0.5rem 0;
 }
 
-.product-summary {
-  margin-bottom: 1rem;
-  line-height: 1.5;
-}
-
-.product-image img {
-  width: 100%;
-  max-height: 300px;
-  object-fit: cover;
-  border-radius: 8px;
+.product-description {
+  margin: 0;
+  color: #6c757d;
 }
 </style>

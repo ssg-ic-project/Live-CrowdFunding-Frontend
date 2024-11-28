@@ -1,6 +1,14 @@
-<!-- StreamingRoom.vue -->
 <template>
   <div class="streaming-layout">
+    <!-- <div v-if="!joined">
+      <room-join-form
+        v-model:room-id="roomId"
+        v-model:user-role="userRole"
+        v-model:user-name="userName"
+        @join="joinRoom"
+      />
+    </div> -->
+
     <div class="grid-container">
       <!-- 스트리밍 영역 -->
       <div class="streaming-area">
@@ -20,47 +28,39 @@
       <!-- 채팅 영역 -->
       <div class="chat-area">
         <div class="area-header">실시간 채팅</div>
-        <chat-component 
-          v-if="socket" 
-          :roomId="currentRoomId" 
-          :socket="socket" 
-          :user-name="userName" 
-        />
+        <chat-component :roomId="roomId" :socket="socket" :user-name="userName" />
       </div>
 
       <!-- 상품 정보 영역 -->
       <div class="product-info-area">
         <div class="area-header">상품 정보</div>
         <div class="scrollable-content">
-          <product-info-component :roomId="currentRoomId" />
+          <product-info-component :roomId="roomId" />
           <div class="stream-summary-section">
             <h3 class="section-header">스트리밍 요약</h3>
-            <stream-summary-component 
-              v-if="socket" 
-              :roomId="streamingRoomId" 
-              :socket="socket" 
-            />
+            <stream-summary-component :roomId="roomId" :socket="socket" />
           </div>
         </div>
       </div>
     </div>
   </div>
 </template>
+
 <script setup>
-// StreamingRoom.vue의 script setup 부분
-import { onMounted, onBeforeUnmount, computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
 import ChatComponent from '@/components/chat/ChatComponent.vue'
 import ProductInfoComponent from '@/components/product/ProductInfoComponent.vue'
 import StreamSummaryComponent from '@/components/user-statistics/StreamSummaryComponent.vue'
+
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { useStreaming } from '../composables/useStreaming'
+import RoomJoinForm from '@/components/streaming/RoomJoinForm.vue'
 import HostControls from '@/components/streaming/HostControls.vue'
 import ViewerControls from '@/components/streaming/ViewerControls.vue'
+import ViewerList from '@/components/streaming/ViewerList.vue'
 import VideoPreview from '@/components/streaming/VideoPreview.vue'
 import RemoteMedia from '@/components/streaming/RemoteMedia.vue'
-import { useStreaming } from '../composables/useStreaming'
 
-const route = useRoute();
-const router = useRouter();
+const userName = ref('')
 
 const {
   localVideoRef,
@@ -71,60 +71,25 @@ const {
   peers,
   viewers,
   localStream,
+  userRole,
   screenProducer,
   joinRoom,
   leaveRoom,
   toggleCamera,
   initializeSocket,
   setRemoteMediaEl,
-} = useStreaming();
+} = useStreaming()
 
-const userName = localStorage.getItem('userEmail') || '';
-const userType = localStorage.getItem('userType');
-const userRole = computed(() => userType === 'maker' ? 'host' : 'viewer');
-const currentRoomId = computed(() => route.query.productId);
-
-// 템플릿에서 사용할 수 있도록 roomId를 computed로 만듦
-const streamingRoomId = computed(() => roomId.value);
-
-onMounted(async () => {
-  try {
-    if (!currentRoomId.value) {
-      console.error('No product ID provided');
-      router.push({ name: 'Home' });
-      return;
-    }
-    
-    console.log('StreamingRoom productId:', currentRoomId.value);
-
-    if (!userType) {
-      router.push({ 
-        name: 'Login',
-        query: { redirect: route.fullPath }
-      });
-      return;
-    }
-
-    await initializeSocket();
-    roomId.value = currentRoomId.value;
-    
-    await joinRoom({
-      roomId: currentRoomId.value,
-      userName,
-      userRole: userRole.value
-    });
-  } catch (error) {
-    console.error('Failed to initialize streaming:', error);
-    router.push({ name: 'Home' });
-  }
-});
+onMounted(() => {
+  initializeSocket()
+})
 
 onBeforeUnmount(() => {
   if (joined.value) {
-    leaveRoom();
+    leaveRoom()
   }
-  socket.value?.disconnect();
-});
+  socket.value?.disconnect()
+})
 </script>
 
 <style scoped>
