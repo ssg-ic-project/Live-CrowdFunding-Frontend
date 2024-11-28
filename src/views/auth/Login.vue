@@ -9,9 +9,9 @@
       <div class="logo">
         <router-link to="/">
           <img
-              src="../../assets/image/logo.png"
-              alt="logo"
-              class="logo-image"
+            src="../../assets/image/logo.png"
+            alt="logo"
+            class="logo-image"
           />
         </router-link>
       </div>
@@ -20,12 +20,12 @@
         <div class="input-group">
           <label for="email">이메일</label>
           <input
-              type="text"
-              id="email"
-              v-model="email"
-              @input="validateEmail"
-              placeholder="이메일을 입력하세요"
-              @keyup.enter="focusPassword"
+            type="text"
+            id="email"
+            v-model="email"
+            @input="validateEmail"
+            placeholder="이메일을 입력하세요"
+            @keyup.enter="focusPassword"
           />
           <p v-if="emailError" class="error-message">
             유효한 이메일을 입력해주세요.
@@ -35,12 +35,12 @@
         <div class="input-group">
           <label for="password">비밀번호</label>
           <input
-              type="password"
-              id="password"
-              v-model="password"
-              placeholder="비밀번호를 입력하세요"
-              @keyup.enter="handleLogin"
-              ref="passwordInput"
+            type="password"
+            id="password"
+            v-model="password"
+            placeholder="비밀번호를 입력하세요"
+            @keyup.enter="handleLogin"
+            ref="passwordInput"
           />
         </div>
         <!-- 로그인 버튼 -->
@@ -55,7 +55,7 @@
         <!-- 아이디/비밀번호 찾기 및 회원가입 -->
         <div class="links">
           <router-link
-              :to="{
+            :to="{
               name: 'IdPasswordRecovery',
               query: { redirect: previousRoute },
             }"
@@ -70,7 +70,7 @@
   </div>
 </template>
 <script>
-import { authApi } from '@/api'
+import { authApi } from "@/api";
 export default {
   name: "Login",
   data() {
@@ -85,7 +85,7 @@ export default {
   },
   methods: {
     focusPassword() {
-      this.$refs.passwordInput.focus()
+      this.$refs.passwordInput.focus();
     },
     validateEmail() {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -93,88 +93,44 @@ export default {
     },
     async handleLogin() {
       try {
-        // 입력값 검증
-        this.validateEmail();
-        if (this.emailError) {
-          this.errorMessage = "유효한 이메일을 입력해주세요.";
-          return;
-        }
-        if (!this.email || !this.password) {
-          this.loginError = true;
-          this.errorMessage = "이메일과 비밀번호를 모두 입력해주세요.";
-          return;
-        }
-        // 테스트 계정 확인
-        if (this.email === "buyer@test.com" && this.password === "123") {
-          console.log("테스트 계정(buyer) 로그인 성공");
-          // 테스트 계정(user) 데이터 설정
-          const userTestData = {
-            accessToken: "user-access-token",
-            refreshToken: "user-refresh-token",
-            userEmail: "user@test.com",
-            role: "USER"
-          };
-          // 로컬 스토리지에 저장
-          localStorage.setItem("accessToken", userTestData.accessToken);
-          localStorage.setItem("refreshToken", userTestData.refreshToken);
-          localStorage.setItem("userEmail", userTestData.userEmail);
-          localStorage.setItem("userType", userTestData.role);
-          localStorage.setItem("isLoggedIn", "true");
-          // 사용자 이름 저장
-          const userName = userTestData.userEmail.split("@")[0];
-          localStorage.setItem("userName", userName);
-          // 로그인 상태 변경 이벤트 발생
-          window.dispatchEvent(new Event("login-state-changed"));
-          // 페이지 이동
-          if (this.previousRoute && this.previousRoute !== "/auth/login") {
-            this.$router.push(this.previousRoute);
-          } else {
-            this.$router.push("/");
-          }
-          return; // 테스트 계정 성공 처리 후 종료
-        }
-        if (this.email === "seller@test.com" && this.password === "123") {
-          console.log("테스트 계정(seller) 로그인 성공");
-          // 테스트 계정(maker) 데이터 설정
-          const makerTestData = {
-            accessToken: "maker-access-token",
-            refreshToken: "maker-refresh-token",
-            userEmail: "maker@test.com",
-            role: "MAKER"
-          };
-          // 로컬 스토리지에 저장
-          localStorage.setItem("accessToken", makerTestData.accessToken);
-          localStorage.setItem("refreshToken", makerTestData.refreshToken);
-          localStorage.setItem("userEmail", makerTestData.userEmail);
-          localStorage.setItem("userType", makerTestData.role);
-          localStorage.setItem("isLoggedIn", "true");
-          localStorage.setItem("userId", 1);
-          // 사용자 이름 저장
-          const userName = makerTestData.userEmail.split("@")[0];
-          localStorage.setItem("userName", userName);
-          // 로그인 상태 변경 이벤트 발생
-          window.dispatchEvent(new Event("login-state-changed"));
-          // 페이지 이동
-          if (this.previousRoute && this.previousRoute !== "/auth/login") {
-            this.$router.push(this.previousRoute);
-          } else {
-            this.$router.push("/");
-          }
-          return; // 테스트 계정 성공 처리 후 종료
-        }
+        if (!this.validateForm()) return;
+
+        const response = await authApi.login({
+          email: this.email,
+          password: this.password,
+        });
+
+        localStorage.setItem("userId", response.data.accountId);
+        localStorage.setItem("accessToken", response.data.accessToken);
+        localStorage.setItem("refreshToken", response.data.refreshToken);
+        localStorage.setItem("userEmail", this.email);
+        localStorage.setItem("userType", response.data.role.toLowerCase());
+        localStorage.setItem("isLoggedIn", "true");
+
+        this.$router.push(this.previousRoute || "/");
       } catch (error) {
-        console.error('로그인 에러:', error);
         this.loginError = true;
-        this.errorMessage = "로그인 중 오류가 발생했습니다.";
+        this.errorMessage =
+          error.response?.data?.message || "로그인에 실패했습니다.";
       }
+    },
+
+    validateForm() {
+      this.validateEmail();
+      if (this.emailError || !this.email || !this.password) {
+        this.loginError = true;
+        this.errorMessage = "이메일과 비밀번호를 확인해주세요.";
+        return false;
+      }
+      return true;
     },
     async handleNaverLogin() {
       try {
         const response = await authApi.getNaverLoginUrl();
         window.location.href = response.data;
       } catch (error) {
-        console.error('네이버 로그인 에러:', error);
-        alert('네이버 로그인을 시도하는 중 오류가 발생했습니다.');
+        console.error("네이버 로그인 에러:", error);
+        alert("네이버 로그인을 시도하는 중 오류가 발생했습니다.");
       }
     },
     resetForm() {
@@ -183,7 +139,7 @@ export default {
       this.emailError = false;
       this.loginError = false;
       this.errorMessage = "";
-    }
+    },
   },
   mounted() {
     // 이전 페이지 경로 저장
@@ -195,15 +151,15 @@ export default {
       this.errorMessage = error;
     }
     // 토큰이 있으면 자동 로그인 처리
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem("accessToken");
     if (token) {
-      console.log('기존 토큰 발견, 자동 로그인 처리');
-      this.$router.push('/');
+      console.log("기존 토큰 발견, 자동 로그인 처리");
+      this.$router.push("/");
     }
   },
   beforeUnmount() {
     this.resetForm();
-  }
+  },
 };
 </script>
 <style scoped>
@@ -212,7 +168,7 @@ export default {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #FFFFFF; /* 배경색 흰색으로 변경 */
+  background-color: #ffffff; /* 배경색 흰색으로 변경 */
   position: relative;
 }
 .back-button {
@@ -293,7 +249,7 @@ export default {
   border: none;
 }
 .naver-login {
-  background-color: #03C75A;
+  background-color: #03c75a;
 }
 .links {
   margin-top: 1rem;
