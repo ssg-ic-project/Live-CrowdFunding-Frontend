@@ -174,6 +174,8 @@
 </template>
 
 <script>
+import {projectApi} from "@/api/projectApi.js";
+
 export default {
   name: 'ProjectDetail',
   props: ['id'],
@@ -310,6 +312,7 @@ export default {
     }
   }
 };
+
 </script>
 <style scoped>
 .dashboard {

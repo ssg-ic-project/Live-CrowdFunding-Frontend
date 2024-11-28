@@ -234,6 +234,14 @@ export default {
       console.log("결제 진행💸");
       if (this.canProceed && this.paymentWidget) {
         try {
+          //여기에서 orderId get하기!!!
+          //const orderId = 2321327788854;
+
+          // const orderId = location.pathname
+          //     .split('/')
+          //     .filter(Boolean)
+          //     .pop();
+
           const currentAddress = this.addingNewAddress
             ? this.newAddressInput
             : this.defaultAddress;
