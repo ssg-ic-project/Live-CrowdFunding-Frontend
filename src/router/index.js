@@ -53,6 +53,7 @@ import PaymentFailBF from "@/views/mypage/PaymentFailBF.vue";
 
 
 
+
 // 라우트 정의
 const routes = [
   {
@@ -114,6 +115,9 @@ const routes = [
       { path: 'signup', name: 'SignUp', component: SignUp },
       { path: 'recovery', name: 'IdPasswordRecovery', component: IdPasswordRecovery },
       { path: 'reset-password', name: 'ResetPassword', component: () => import('../views/auth/ResetPassword.vue')},
+      { path: 'oauth/callback/naver', name: 'NaverCallback', component: () => import('../views/auth/OAuthCallback.vue')}, 
+ 
+
     ],
   },
 

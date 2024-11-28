@@ -1,59 +1,59 @@
 <!-- OAuthCallback.vue -->
 <template>
-    <div class="oauth-callback">
-      <div class="loading-message">로그인 처리중...</div>
-    </div>
-  </template>
-  
-  <script>
-  import { onMounted } from 'vue';
-  import { useRouter } from 'vue-router';
-  import { useStore } from 'vuex';
-  
-  export default {
-    name: 'OAuthCallback',
-    setup() {
-      const router = useRouter();
-      const store = useStore();
-  
-      onMounted(() => {
-        const params = new URLSearchParams(window.location.search);
-        const token = params.get('token');
-        const refreshToken = params.get('refreshToken');
-        const email = params.get('email');
-  
-        if (token && refreshToken) {
-          // 토큰 저장 (Vuex store 사용)
-          store.commit('auth/setTokens', {
-            accessToken: token,
-            refreshToken: refreshToken,
-            userEmail: email
+  <div class="oauth-callback">
+    <div class="loading-message">로그인 처리중...</div>
+  </div>
+</template>
+
+<script>
+import { onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "../../store/auth";
+import { authApi } from "@/api";
+
+export default {
+  name: "OAuthCallback",
+  setup() {
+    const router = useRouter();
+    const authStore = useAuthStore(); // pinia store 사용
+
+    onMounted(async () => {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("code");
+      const state = params.get("state");
+
+      if (code && state) {
+        try {
+          const response = await authApi.naverCallback(code, state);
+          authStore.setTokens({
+            // pinia store mutation 사용
+            accessToken: response.data.accessToken,
+            refreshToken: response.data.refreshToken,
+            userEmail: response.data.userEmail,
           });
-  
-          // 메인 페이지로 이동
-          router.push('/');
-        } else {
-          // 에러 처리
+          router.push("/");
+        } catch (error) {
           router.push({
-            path: '/login',
-            query: { error: '로그인에 실패했습니다. 다시 시도해주세요.' }
+            path: "/auth/login",
+            query: { error: "로그인에 실패했습니다." },
           });
         }
-      });
-    }
-  }
-  </script>
-  
-  <style scoped>
-  .oauth-callback {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
-  
-  .loading-message {
-    font-size: 1.2rem;
-    color: #666;
-  }
-  </style>
+      }
+    });
+  },
+};
+</script>
+
+<style scoped>
+.oauth-callback {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.loading-message {
+  font-size: 1.2rem;
+  color: #666;
+}
+</style>
