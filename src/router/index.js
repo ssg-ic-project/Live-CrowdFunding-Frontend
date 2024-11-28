@@ -20,6 +20,7 @@ import Terms from '../views/main/Terms.vue';
 
 // 스트리밍 페이지 컴포넌트
 import Streaming from '../views/main/Streaming.vue';
+import StreamingRoom from '@/views/StreamingRoom.vue';
 
 //결제 페이지 컴포넌트
 import Payment from '@/views/main/Payment.vue'; 
@@ -47,6 +48,10 @@ import ReportStatus from '../views/admin/ReportStatus.vue';
 import Login from '../views/auth/Login.vue';
 import SignUp from '../views/auth/SignUp.vue';
 import IdPasswordRecovery from '../views/auth/IdPasswordRecovery.vue';
+import PaymentSuccessBF from "@/views/mypage/PaymentSuccessBF.vue";
+import PaymentFailBF from "@/views/mypage/PaymentFailBF.vue";
+
+
 
 // 라우트 정의
 const routes = [
@@ -65,6 +70,23 @@ const routes = [
       { path: 'stream/:streamId', name: 'Streaming', component: Streaming },
       { path: 'terms', name: 'Terms', component: Terms },
       { path: '/payment', name: 'Payment', component: Payment, props: true,},
+      { path: '/streaming',name: 'Streaming',component: StreamingRoom,
+        beforeEnter: (to, from, next) => {
+          const userType = localStorage.getItem('userType');
+          const productId = to.query.productId;
+        
+          if (!productId) {
+            next({ name: 'Home' });
+            return;
+          }
+          if (!userType) {
+            next({
+              name: 'Login',
+              query: { redirect: to.fullPath }
+            });
+            return;
+          }
+          next();}}
     ],
   },
   {
@@ -79,7 +101,12 @@ const routes = [
       { path: 'funding-participation', name: 'FundingParticipation', component: FundingParticipation },
       { path: 'project-registration', name: 'ProjectRegistration', component: ProjectRegistration },
       { path: 'project/:id', name: 'ProjectDetail', component: ProjectDetail },
-   
+
+      { path: '/success-bf', name: 'PaymentSuccessBF', component: () => import('../views/mypage/PaymentSuccessBF.vue') },
+      { path: '/fail-bf', name: 'PaymentFailBF', component: () => import('../views/mypage/PaymentFailBF.vue') }
+
+
+
     ],
   },
   {

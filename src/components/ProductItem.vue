@@ -1,20 +1,20 @@
+<!-- ProductItem.vue -->
 <template>
-  <router-link :to="{ name: 'ProductDetail', params: { productId: product.id } }" class="product-link">
-    <div class="product-item">
-      <div v-if="product.isLive" class="live-badge">LIVE</div>
-      <div class="image-container">
-        <img :src="product.url" :alt="product.productName" />
-      </div>
-      <div class="product-info">
-        <div class="achievement">{{ product.achievement }}%</div>
-        <h3 class="title">{{ product.name }}</h3>
-        <div class="footer">
-          <span class="stats-box category">{{ product.category }}</span>
-          <span class="stats-box days">{{ product.remainingTime }}일 남음</span>
-        </div>
+  <!-- isLive가 true일 경우 스트리밍으로, 아닐 경우 상품 상세로 이동 -->
+  <div class="product-item" @click="handleClick">
+    <div v-if="product.isLive" class="live-badge">LIVE</div>
+    <div class="image-container">
+      <img :src="product.url" :alt="product.productName" />
+    </div>
+    <div class="product-info">
+      <div class="achievement">{{ product.achievement }}%</div>
+      <h3 class="title">{{ product.name }}</h3>
+      <div class="footer">
+        <span class="stats-box category">{{ product.category }}</span>
+        <span class="stats-box days">{{ product.remainingTime }}일 남음</span>
       </div>
     </div>
-  </router-link>
+  </div>
 </template>
 
 <script>
@@ -31,8 +31,22 @@ export default {
     },
   },
   methods: {
-  },
-  computed: {
+    handleClick() {
+      if (this.product.isLive) {
+        // /streaming URL 유지하고 productId는 쿼리로 전달
+        this.$router.push({
+          path: "/streaming",
+          query: {
+            productId: this.product.id,
+          },
+        });
+      } else {
+        this.$router.push({
+          name: "ProductDetail",
+          params: { productId: this.product.id },
+        });
+      }
+    },
   },
 };
 </script>
@@ -44,7 +58,29 @@ export default {
   background: white;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer; /* 클릭 가능함을 표시 */
+  transition: transform 0.2s ease;
+}
+
+.product-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+.clickable {
+  cursor: pointer;
+}
+
+.live-badge:hover {
+  background: rgba(255, 0, 0, 1);
+}
+.product-item {
+  position: relative;
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .image-container {
@@ -102,7 +138,7 @@ export default {
   position: absolute;
   top: 8px;
   left: 8px;
-  background: rgba(255,0,0,0.8);
+  background: rgba(255, 0, 0, 0.8);
   color: white;
   padding: 2px 6px;
   border-radius: 4px;
