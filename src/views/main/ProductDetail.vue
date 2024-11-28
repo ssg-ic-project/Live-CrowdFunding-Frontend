@@ -27,36 +27,18 @@
         <div class="product-image-section">
           <!-- 이미지 슬라이더 -->
           <div class="image-slider" v-if="hasMultipleImages">
-            <button
-              @click.stop="prevImage"
-              class="slider-button prev-button"
-              aria-label="이전 이미지"
-            >
+            <button @click.stop="prevImage" class="slider-button prev-button" aria-label="이전 이미지">
               &#10094;
             </button>
-
-            <img
-              :src="currentImage.imageUrl"
-              :alt="`${product.productName} 이미지 ${currentImageIndex + 1}`"
-              class="product-main-image"
-            />
-
-            <button
-              @click.stop="nextImage"
-              class="slider-button next-button"
-              aria-label="다음 이미지"
-            >
+            <img :src="currentImage.imageUrl" :alt="`${product.productName} 이미지 ${currentImageIndex + 1}`" class="product-main-image" />
+            <button @click.stop="nextImage" class="slider-button next-button" aria-label="다음 이미지">
               &#10095;
             </button>
           </div>
 
           <!-- 단일 이미지 표시 -->
           <div v-else class="single-image">
-            <img
-              :src="product.images[0].imageUrl"
-              :alt="product.productName"
-              class="product-main-image"
-            />
+            <img :src="product.images[0].imageUrl" :alt="product.productName" class="product-main-image" />
           </div>
         </div>
 
@@ -64,80 +46,37 @@
         <div class="product-info-section">
           <!-- 상단: 펀딩 %, 카테고리, 알림, 공유 아이콘 -->
           <div class="top-info">
-            <!-- 펀딩 달성률 -->
             <div class="funding-percentage">
               <span>{{ product.percentage }}% 펀딩 달성</span>
             </div>
-
-            <!-- 카테고리 -->
             <div class="category">
               <span>카테고리: {{ product.category }}</span>
             </div>
-
-            <!-- 알림 및 공유 아이콘 -->
             <div class="icons">
-              <button
-                @click="handleNotification"
-                aria-label="알림"
-                class="icon-button"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="icon"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path
-                    d="M12 24c1.104 0 2-.896 2-2h-4c0 1.104.896 2 2 2zm6.364-6v-5c0-3.07-1.639-5.64-4.5-6.32V6c0-.828-.672-1.5-1.5-1.5S10.364 5.172 10.364 6v.68C7.504 7.36 5.865 9.93 5.865 13v5l-1.364 1.364V20h16v-.636L18.364 18z"
-                  />
-                </svg>
+              <button @click="handleNotification" aria-label="알림" class="icon-button">
+                <!-- 알림 아이콘 SVG -->
               </button>
-
-              <button
-                @click="handleShare"
-                aria-label="공유"
-                class="icon-button"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="icon"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path
-                    d="M18 16.08c-.76 0-1.44.3-1.96.77l-7.12-4.06a3.003 3.003 0 000-1.46l7.12-4.06c.52.47 1.2.77 1.96.77 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .56.19 1.09.52 1.5L8.81 9.58a1.99 1.99 0 01-2.52 0 2.005 2.005 0 010-2.82l7.12-4.06a4.005 4.005 0 00-5.08-3.06 4.005 4.005 0 00-1.16 5.94l7.12 4.06c-.33.41-.52.94-.52 1.5 0 2.76 2.24 5 5 5s5-2.24 5-5-2.24-5-5-5z"
-                  />
-                </svg>
+              <button @click="handleShare" aria-label="공유" class="icon-button">
+                <!-- 공유 아이콘 SVG -->
               </button>
             </div>
           </div>
 
-          <!-- 상품명 -->
           <h1 class="product-name">{{ product.productName }}</h1>
-
-          <!-- 상품 간단 설명 -->
           <p class="product-description">{{ product.summary }}</p>
 
-          <!-- 펀딩 정보 -->
           <div class="funding-info">
             <div class="price-info">
-              <span class="funding-price"
-                >{{ calculateDiscountedPrice }}원</span
-              >
+              <span class="funding-price">{{ calculateDiscountedPrice }}원</span>
               <span v-if="product.discountPercentage" class="original-price">
                 {{ product.price.toLocaleString() }}원
               </span>
-              <span
-                v-if="product.discountPercentage"
-                class="discount-percentage"
-              >
+              <span v-if="product.discountPercentage" class="discount-percentage">
                 {{ product.discountPercentage }}% 할인
               </span>
             </div>
             <div class="funding-stats">
-              <span class="funding-amount"
-                >목표 금액: {{ product.goalAmount.toLocaleString() }}원</span
-              >
+              <span class="funding-amount">목표 금액: {{ product.goalAmount.toLocaleString() }}원</span>
               <span class="funding-likes">관심: {{ product.likeCount }}명</span>
               <span class="funding-days-left">{{ daysLeft }}일 남음</span>
             </div>
@@ -145,49 +84,37 @@
 
           <hr class="divider" />
 
-          <!-- 액션 버튼-->
-<div class="action-buttons">
-  <button
-    @click="toggleWishlist"
-    class="btn wishlist-btn"
-    :class="{ active: isWishlisted }"
-    aria-label="찜하기"
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      :fill="isWishlisted ? '#ff4b4b' : 'none'"
-      stroke="currentColor"
-      stroke-width="2"
-    >
-      <path
-        d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-      />
-    </svg>
-    <span class="wishlist-count">{{ product.likeCount }}</span>
-  </button>
+          <div class="action-buttons">
+            <button @click="toggleWishlist" class="btn wishlist-btn" :class="{ active: isWishlisted }" aria-label="찜하기">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" :fill="isWishlisted ? '#ff4b4b' : 'none'" stroke="currentColor" stroke-width="2">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+              </svg>
+              <span class="wishlist-count">{{ product.likeCount }}</span>
+            </button>
 
-  <button @click="goToPayment" class="btn fund-btn fund-btn-full">
-    펀딩하기
-  </button>
-</div>
+            <div class="fund-container">
+              <div class="quantity-selector">
+                <button @click="decrementQuantity" :disabled="isDecrementDisabled" class="quantity-btn" aria-label="수량 감소">-</button>
+                <input type="number" v-model="selectedQuantity" @input="handleQuantityInput" min="1" max="100" class="quantity-input" />
+                <button @click="incrementQuantity" :disabled="isIncrementDisabled" class="quantity-btn" aria-label="수량 증가">+</button>
+              </div>
+              <button @click="confirmFunding" class="btn fund-btn fund-btn-full">
+                {{ selectedQuantity }}개 펀딩하기
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- 상세 설명 이미지 -->
       <div v-if="product.contentImage" class="detailed-image-section">
-        <img
-          :src="product.contentImage"
-          :alt="`${product.productName} 상세 이미지`"
-          class="product-detail-image"
-        />
+        <img :src="product.contentImage" :alt="`${product.productName} 상세 이미지`" class="product-detail-image" />
       </div>
     </div>
   </div>
 </template>
-
 <script>
-import { ref, computed } from "vue";
+import { ref } from "vue";
 import ProductItem from "@/components/ProductItem.vue";
 import axios from "axios";
 
@@ -196,6 +123,7 @@ export default {
   components: {
     ProductItem,
   },
+  
   data() {
     return {
       product: null,
@@ -203,18 +131,33 @@ export default {
       error: false,
       currentImageIndex: 0,
       isWishlisted: false,
+      selectedQuantity: 1, 
+      showQuantitySelect: false,
     };
   },
+
+  setup() {
+    const showQuantitySelect = ref(false);
+    const selectedQuantity = ref(1);
+
+    return {
+      showQuantitySelect,
+      selectedQuantity,
+    };
+  },
+
   computed: {
     hasMultipleImages() {
       return this.product?.images?.length > 1;
     },
+    
     currentImage() {
       if (this.hasMultipleImages) {
         return this.product.images[this.currentImageIndex];
       }
       return this.product.images[0];
     },
+    
     daysLeft() {
       if (!this.product) return 0;
       const endDate = new Date(this.product.endAt);
@@ -222,6 +165,7 @@ export default {
       const diffTime = endDate - today;
       return Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
     },
+    
     calculateDiscountedPrice() {
       if (!this.product) return 0;
       if (!this.product.discountPercentage)
@@ -230,11 +174,73 @@ export default {
         this.product.price * (1 - this.product.discountPercentage / 100);
       return Math.floor(discountedPrice).toLocaleString();
     },
+      // 수량 증가 버튼 비활성화 여부
+      isIncrementDisabled() {
+      return this.selectedQuantity >= 100;
+    },
+
+    // 수량 감소 버튼 비활성화 여부
+    isDecrementDisabled() {
+      return this.selectedQuantity <= 1;
+    },
   },
+  
   async created() {
     await this.fetchProductDetail();
   },
+  
   methods: {
+    showQuantitySelector() {
+      this.showQuantitySelect = true;
+    },
+
+    selectQuantity(quantity) {
+      this.selectedQuantity = quantity;
+    },
+
+// 수량 증가
+incrementQuantity() {
+      if (this.selectedQuantity < 100) {
+        this.selectedQuantity++;
+      }
+    },
+
+    // 수량 감소
+    decrementQuantity() {
+      if (this.selectedQuantity > 1) {
+        this.selectedQuantity--;
+      }
+    },
+
+    // 수량 직접 입력 처리
+    handleQuantityInput(event) {
+      let value = parseInt(event.target.value);
+      
+      // 빈 값이면 1로 설정
+      if (isNaN(value) || value < 1) {
+        this.selectedQuantity = 1;
+      } 
+      // 최대값 초과시 100으로 설정
+      else if (value > 100) {
+        this.selectedQuantity = 100;
+      } 
+      else {
+        this.selectedQuantity = value;
+      }
+    },
+
+    // 펀딩하기 버튼 클릭 처리
+    confirmFunding() {
+      this.$router.push({
+        name: "Payment",
+        query: {
+          productId: this.product.id,
+          quantity: this.selectedQuantity,
+        },
+      });
+    },
+
+
     async fetchProductDetail() {
       try {
         const productId = this.$route.params.productId;
@@ -252,13 +258,12 @@ export default {
         this.isLoading = false;
       }
     },
+
     async toggleWishlist() {
       try {
         const userId = localStorage.getItem("userId");
         const productId = this.$route.params.productId;
         if (!userId || !productId) {
-          console.log("유저id" + userId);
-          console.log("프로덕트id" + productId);
           console.error("사용자 ID 또는 제품 ID가 없습니다");
           return;
         }
@@ -272,20 +277,22 @@ export default {
           this.isWishlisted = !this.isWishlisted;
           this.product.isLiked = this.isWishlisted;
           if (this.isWishlisted) {
-        this.product.likeCount += 1;
-      } else {
-        this.product.likeCount = Math.max(0, this.product.likeCount - 1);
+            this.product.likeCount += 1;
+          } else {
+            this.product.likeCount = Math.max(0, this.product.likeCount - 1);
+          }
+          localStorage.setItem(`wishlist_${this.product.id}`, this.isWishlisted);
+        }
+      } catch (err) {
+        console.error("찜하기 실패:", err.response?.data || err.message);
+        alert("찜하기 처리 중 오류가 발생했습니다.");
       }
-      localStorage.setItem(`wishlist_${this.product.id}`, this.isWishlisted);
-    }
-  } catch (err) {
-    console.error("찜하기 실패:", err.response?.data || err.message);
-    alert("찜하기 처리 중 오류가 발생했습니다.");
-  }
-},
+    },
+
     handleNotification() {
       alert("알림 설정 기능은 아직 구현되지 않았습니다.");
     },
+
     handleShare() {
       navigator.clipboard
         .writeText(window.location.href)
@@ -296,18 +303,14 @@ export default {
           console.error("클립보드 복사 실패:", err);
         });
     },
-    goToPayment() {
-      this.$router.push({
-        name: "Payment",
-        query: { productId: this.product.id },
-      });
-    },
+
     nextImage() {
       if (this.hasMultipleImages) {
         this.currentImageIndex =
           (this.currentImageIndex + 1) % this.product.images.length;
       }
     },
+
     prevImage() {
       if (this.hasMultipleImages) {
         this.currentImageIndex =
@@ -771,5 +774,102 @@ wishlist-container {
   font-weight: 500;
   min-width: 24px;
   text-align: left;
+}
+
+.fund-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.quantity-selector {
+  display: flex;
+  gap: 0.5rem;
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+}
+
+.quantity-option {
+  flex: 1;
+  padding: 0.5rem;
+  border: none;
+  border-radius: 0.25rem;
+  background-color: transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.quantity-option:hover {
+  background-color: #f3f4f6;
+}
+
+.quantity-option.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.fund-btn-full {
+  width: 100%;
+}
+.quantity-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.quantity-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #e5e7eb;
+  background-color: white;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: all 0.2s;
+}
+
+.quantity-btn:hover:not(:disabled) {
+  background-color: #f3f4f6;
+}
+
+.quantity-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.quantity-input {
+  width: 60px;
+  height: 32px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 1rem;
+}
+
+.quantity-input::-webkit-inner-spin-button,
+.quantity-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.quantity-input {
+  -moz-appearance: textfield;
+}
+
+.fund-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 </style>
