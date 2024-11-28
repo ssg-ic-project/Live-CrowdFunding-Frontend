@@ -297,15 +297,8 @@
     </div>
   </div>
 
-<!--  &lt;!&ndash; 토스페이먼츠 결제 위젯 &ndash;&gt;-->
-<!--  <div v-if="showPaymentTossWidgetModal">-->
-<!--    <h2>결제 수단</h2>-->
-<!--    <div id="payment-method"></div>-->
-<!--  </div>-->
-
-</template>
-
 <script>
+import axios from 'axios';
 import {ANONYMOUS, loadPaymentWidget} from "@tosspayments/payment-widget-sdk";
 
 export default {
@@ -475,238 +468,166 @@ export default {
         currency: 'KRW'
       }).format(price);
     },
+
     selectPlan(planId) {
       this.selectedPlan = planId;
     },
+
     handleThumbnailUpload(event) {
       const file = event.target.files[0];
       if (file) {
         this.thumbnailPreview = URL.createObjectURL(file);
       }
     },
+
     handleImagesUpload(event) {
       const files = Array.from(event.target.files).slice(0, 5);
       this.imagePreviews = files.map((file) => URL.createObjectURL(file));
     },
+
     handleContentImageUpload(event) {
       const file = event.target.files[0];
       if (file) {
         this.contentImagePreview = URL.createObjectURL(file);
       }
     },
+
     handleDocumentUpload(type, event) {
-      if (!event || !event.target || !event.target.files) {
-        console.error('Invalid event object');
-        return;
+      if (!event?.target?.files?.[0]) return;
+      this.uploadedDocuments[type] = event.target.files[0];
+    },
+
+    async processTextContent(content) {
+      return content
+        .replace(/\r\n|\r|\n/g, '\n')
+        .replace(/[\u0000-\u0019]+/g, " ")
+        .replace(/\\/g, "\\\\")
+        .replace(/"/g, '\\"')
+        .trim();
+    },
+
+    async extractDocumentText(file) {
+      if (file.type === 'text/plain') {
+        const text = await file.text();
+        return this.processTextContent(text);
       }
+      
+      if (file.type.includes('word') || file.type.includes('docx')) {
+        const arrayBuffer = await file.arrayBuffer();
+        const result = await window.mammoth.extractRawText({ arrayBuffer });
+        return this.processTextContent(result.value);
+      }
+      
+      throw new Error(`지원하지 않는 파일 형식입니다: ${file.type}`);
+    },
 
-      const file = event.target.files[0];
-      if (!file) return;
-
-      this.uploadedDocuments[type] = file;
-
-      if (type === 'projectPlan' || type === 'developmentPlan') {
-        if (file.type === 'text/plain') {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            try {
-              let content = e.target.result;
-
-              content = content.replace(/\r\n|\r|\n/g, '\n');
-              content = content.replace(/[\u0000-\u0019]+/g, " ");
-              content = content.replace(/\\/g, "\\\\");
-              content = content.replace(/"/g, '\\"');
-
-              const jsonResult = {
-                [type === 'projectPlan' ? 'projectDocument' : 'fundingDocument']: content.trim()
-              };
-
-              console.log(JSON.stringify(jsonResult));
-
-              return jsonResult;
-            } catch (error) {
-              console.error('텍스트 파일 처리 중 오류:', error);
-            }
-          };
-          reader.readAsText(file, 'UTF-8');
-        } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-            || file.type === 'application/msword') {
-          const reader = new FileReader();
-          reader.onload = async (e) => {
-            try {
-              const arrayBuffer = e.target.result;
-              const result = await window.mammoth.extractRawText({arrayBuffer});
-
-              if (result.value) {
-                let content = result.value;
-
-                content = content.replace(/\r\n|\r|\n/g, '\n');
-                content = content.replace(/[\u0000-\u0019]+/g, " ");
-                content = content.replace(/\\/g, "\\\\");
-                content = content.replace(/"/g, '\\"');
-
-                const jsonResult = {
-                  [type === 'projectPlan' ? 'projectDocument' : 'fundingDocument']: content.trim()
-                };
-
-                console.log(JSON.stringify(jsonResult));
-
-                return jsonResult;
-              }
-            } catch (error) {
-              console.error('Word 문서 처리 중 오류:', error);
-            }
-          };
-          reader.readAsArrayBuffer(file);
-        } else {
-          console.log('지원하지 않는 파일 형식입니다:', file.type);
-        }
-      } else if (type === 'agreement' || type === 'additional') {
-        console.log(`${type === 'agreement' ? '개인정보 동의서' : '추가 서류'} 첨부됨:`, file.name);
+    async processDocuments() {
+      try {
+        const projectText = await this.extractDocumentText(this.uploadedDocuments.projectPlan);
+        const fundingText = await this.extractDocumentText(this.uploadedDocuments.developmentPlan);
+        
+        return {
+          projectDocument: projectText,
+          fundingDocument: fundingText
+        };
+      } catch (error) {
+        console.error('문서 처리 오류:', error);
+        return null;
       }
     },
-    cancelRegistration() {
-      if (
-          confirm(
-              "프로젝트 등록을 취소하시겠습니까?\n입력된 내용은 저장되지 않습니다."
-          )
-      ) {
-        this.$router.push("/mypage/funding-status");
-      }
-    },
-    submitProject() {
-      if (!this.validateForm()) {
-        return;
-      }
-      this.showReviewModal = true;
-      this.startReview();
-    },
+
     validateForm() {
-      if (
-          !this.project.name ||
-          !this.project.category ||
-          !this.project.description ||
-          !this.project.price ||
-          !this.project.targetAmount ||
-          !this.thumbnailPreview
-      ) {
+      const requiredFields = [
+        this.project.name,
+        this.project.category,
+        this.project.description,
+        this.project.price,
+        this.project.targetAmount,
+        this.thumbnailPreview,
+        this.uploadedDocuments.projectPlan,
+        this.uploadedDocuments.developmentPlan
+      ];
+
+      if (requiredFields.some(field => !field)) {
         alert("모든 필수 항목을 입력해주세요.");
         return false;
       }
       return true;
     },
-    startReview() {
+
+    async simulateReviewProcess() {
       let progress = 0;
       this.currentMessageIndex = 0;
 
-      const interval = setInterval(() => {
-        progress += 1;
-        this.reviewProgress = progress;
+      return new Promise(resolve => {
+        const interval = setInterval(() => {
+          progress += 2;
+          this.reviewProgress = progress;
 
-        if (
-            progress % 20 === 0 &&
-            this.currentMessageIndex < this.reviewMessages.length
-        ) {
-          this.reviewMessage = this.reviewMessages[this.currentMessageIndex];
-          this.currentMessageIndex++;
-        }
+          if (progress % 20 === 0 && this.currentMessageIndex < this.reviewMessages.length) {
+            this.reviewMessage = this.reviewMessages[this.currentMessageIndex];
+            this.currentMessageIndex++;
+          }
 
-        if (progress >= 100) {
-          clearInterval(interval);
-          this.completeReview();
-        }
-      }, 50);
+          if (progress >= 100) {
+            clearInterval(interval);
+            resolve();
+          }
+        }, 50);
+      });
     },
-    completeReview() {
-      this.reviewComplete = true;
 
-      this.reviewSuccess = Math.random() > 0.3;
+    async submitProject() {
+      if (!this.validateForm()) return;
 
-      if (!this.reviewSuccess) {
-        const reasons = [
-          "프로젝트 기획서의 내용이 부족합니다. 보완 후 다시 신청해주세요.",
-        ];
-        this.rejectReason = reasons[Math.floor(Math.random() * reasons.length)];
-      }
-    },
-    selectedPlanInfo() {
-      return this.pricingPlans.find(plan => plan.id === this.selectedPlan) || {name: '', price: 0};
-    },
-    async initTossPayments() {
       try {
+        const documents = await this.processDocuments();
+        if (!documents) {
+          throw new Error('문서 처리 중 오류가 발생했습니다.');
+        }
 
-        const paymentWidget = await loadPaymentWidget(this.clientKey, ANONYMOUS)
+        this.showReviewModal = true;
+        await this.simulateReviewProcess();
 
-        await paymentWidget.renderPaymentMethods('#payment-method', {
-          value: this.initialPrice,
-          currency: 'KRW',
-          country: 'KR'
-        })
+        const response = await axios.post('/api/proposals/analyze', documents);
+        const { proposalScore, rejectionReason } = response.data;
 
-        await paymentWidget.renderAgreement('#agreement')
-
-        this.paymentWidget = paymentWidget
+        this.reviewComplete = true;
+        this.reviewSuccess = proposalScore >= 80;
+        
+        if (!this.reviewSuccess) {
+          this.rejectReason = rejectionReason;
+        }
       } catch (error) {
-        console.error('토스페이먼츠 초기화 실패:', error)
+        console.error('프로젝트 제출 오류:', error);
+        alert('프로젝트 제출 중 오류가 발생했습니다.');
+        this.closeModal();
+      }
+    },
+    cancelRegistration() {
+      if (confirm("프로젝트 등록을 취소하시겠습니까?\n입력된 내용은 저장되지 않습니다.")) {
+        this.$router.push("/mypage/funding-status");
       }
     },
 
-
-    async showPaymentModal() {
-      console.log("탱큐 포 결제💸")
+    showPaymentModal() {
       this.showReviewModal = false;
+      this.showPaymentCompleteModal = true;
     },
 
-  async confirmPayment() {
-    console.log("탱큐 포 결제💸")
-    const orderId = this.generateOrderId();
-
-    if(this.paymentWidget){
-      try{
-        const paymentConfig = {
-          orderId: orderId, //토스에서 필요함
-          orderName: this.project.name, //토스에서 필요함
-          amount:this.initialPrice,
-          successUrl: `${window.location.origin}${this.$router.resolve({ name: 'PaymentSuccessBF'
-          }).href}`,
-          failUrl: `${window.location.origin}${this.$router.resolve({ name: 'PaymentFailBF' }).href}`
-        };
-
-          // 결제 요청
-          await this.paymentWidget.requestPayment(paymentConfig);
-
-
-      }catch(error){
-        console.error(error);
-      }
-    }else{
-      alert('결제가 진행되지 않았습니다.');
-    }
-  },
-
-
-  goToProjectList() {
-    this.showPaymentCompleteModal = false;
-    this.$nextTick(()=> {
+    goToProjectList() {
+      this.showPaymentCompleteModal = false;
       this.$router.push("/mypage/funding-status");
-    });
-  },
+    },
 
-  closeModal() {
-    this.showReviewModal = false;
-    this.reviewProgress = 0;
-    this.reviewComplete = false;
-    this.reviewMessage = "프로젝트를 검토중입니다...";
-  },
-
-    generateOrderId(){
-      const timestamp = Date.now().toString();
-      const random = Math.random().toString().slice(2,8);
-      return timestamp + random;
+    closeModal() {
+      this.showReviewModal = false;
+      this.reviewProgress = 0;
+      this.reviewComplete = false;
+      this.reviewMessage = "프로젝트를 검토중입니다...";
     }
-  },
-};
-
+  }
+}
 </script>
 
 <style scoped>

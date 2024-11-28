@@ -3,203 +3,183 @@
   <div class="funding-status-page">
     <h2>펀딩 진행 목록</h2>
     
-
     <!-- 상태 필터 -->
     <div class="status-filter">
       <button 
-        @click="currentFilter = 'before'"
-        :class="{ active: currentFilter === 'before' }"
+        @click="changeFilter(1)"
+        :class="{ active: currentFilter === 1 }"
       >
         진행 전 펀딩
       </button>
       <button 
-        @click="currentFilter = 'ongoing'"
-        :class="{ active: currentFilter === 'ongoing' }"
+        @click="changeFilter(2)"
+        :class="{ active: currentFilter === 2 }"
       >
         현재 진행중인 펀딩
       </button>
       <button 
-        @click="currentFilter = 'ended'"
-        :class="{ active: currentFilter === 'ended' }"
+        @click="changeFilter(3)"
+        :class="{ active: currentFilter === 3 }"
       >
         종료된 펀딩
       </button>
     </div>
- 
+    
+    <!-- 로딩 상태 표시 -->
+    <div v-if="loading" class="loading-state">
+      데이터를 불러오는 중...
+    </div>
     
     <!-- 프로젝트 목록 -->
-    <div class="projects-list">
+    <div v-else class="projects-list">
       <div 
-        v-for="project in filteredProjects" 
+        v-for="project in projects" 
         :key="project.id"
         class="project-card"
         @click="goToProjectDetail(project.id)"
       >
         <div class="project-info">
-          <h3 class="project-name">{{ project.name }}</h3>
+          <h3 class="project-name">{{ project.productName }}</h3>
           <div class="project-details">
             <div class="detail-item">
               <span class="label">시작일:</span>
               <span class="value">{{ formatStartDate(project) }}</span>
             </div>
             <div class="detail-item">
-              <span class="status-badge" :class="project.status">
+              <span class="status-badge" :class="getStatusClass(project.status)">
                 {{ getStatusText(project.status) }}
               </span>
             </div>
             <div class="detail-item">
               <span class="funding-progress">
-                {{ project.fundingAmount.toLocaleString() }}원 ({{ project.progressPercentage }}%)
+                {{ project.totalPrice?.toLocaleString() }}원 ({{ project.percentage }}%)
               </span>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <div class="pagination" v-if="pageInfo">
+  <button 
+    :disabled="!pageInfo.hasPrev"
+    @click="changePage(pageInfo.start - 1)"
+  >
+    이전
+  </button>
+  
+    <template v-for="pageNum in (pageInfo.end - pageInfo.start + 1)" :key="pageNum">
+      <button 
+        :class="{ active: pageInfo.currentPage === (pageInfo.start + pageNum - 1) }"
+        @click="changePage(pageInfo.start + pageNum - 1)"
+      >
+        {{ pageInfo.start + pageNum - 1 }}
+      </button>
+    </template>
+    
+    <button 
+      :disabled="!pageInfo.hasNext"
+      @click="changePage(pageInfo.end + 1)"
+    >
+      다음
+    </button>
   </div>
- </template>
- 
- <script>
- export default {
+  </div>
+</template>
+
+<script>
+import axios from 'axios';
+
+export default {
   name: 'FundingStatus',
   data() {
     return {
-      currentFilter: 'ongoing',
-      projects: [
-        // 진행 전 프로젝트 (검토중, 반려)
-        {
-          id: 1,
-          name: '스마트 공기청정기 프로젝트',
-          startDate: '2024-03-20',
-          status: 'reviewing',
-          fundingAmount: 0,
-          progressPercentage: 0,
-          targetAmount: 10000000
-        },
-        {
-          id: 2,
-          name: '스마트 워치 프로젝트',
-          startDate: '2024-03-25',
-          status: 'reviewing',
-          fundingAmount: 0,
-          progressPercentage: 0,
-          targetAmount: 8000000
-        },
-        {
-          id: 3,
-          name: '휴대용 프로젝터 프로젝트',
-          startDate: '2024-03-18',
-          status: 'rejection',
-          fundingAmount: 0,
-          progressPercentage: 0,
-          targetAmount: 15000000
-        },
-        
-        // 진행중인 프로젝트 (펀딩중)
-        {
-          id: 4,
-          name: '무선 이어버드 프로젝트',
-          startDate: '2024-03-15',
-          status: 'funding',
-          fundingAmount: 5000000,
-          progressPercentage: 45,
-          targetAmount: 11000000
-        },
-        {
-          id: 5,
-          name: '스마트 백팩 프로젝트',
-          startDate: '2024-03-10',
-          status: 'funding',
-          fundingAmount: 7500000,
-          progressPercentage: 75,
-          targetAmount: 10000000
-        },
-        {
-          id: 6,
-          name: '전기자전거 프로젝트',
-          startDate: '2024-03-05',
-          status: 'funding',
-          fundingAmount: 12000000,
-          progressPercentage: 60,
-          targetAmount: 20000000
-        },
-        
-        // 종료된 프로젝트 (성공, 실패)
-        {
-          id: 7,
-          name: '스마트 도어락 프로젝트',
-          startDate: '2024-02-01',
-          status: 'success',
-          fundingAmount: 15000000,
-          progressPercentage: 120,
-          targetAmount: 12500000
-        },
-        {
-          id: 8,
-          name: '태양광 보조배터리 프로젝트',
-          startDate: '2024-01-20',
-          status: 'success',
-          fundingAmount: 25000000,
-          progressPercentage: 125,
-          targetAmount: 20000000
-        },
-        {
-          id: 9,
-          name: '로봇청소기 프로젝트',
-          startDate: '2024-01-15',
-          status: 'failed',
-          fundingAmount: 8000000,
-          progressPercentage: 65,
-          targetAmount: 15000000
-        },
-        {
-          id: 10,
-          name: '스마트 화분 프로젝트',
-          startDate: '2024-01-10',
-          status: 'failed',
-          fundingAmount: 3000000,
-          progressPercentage: 30,
-          targetAmount: 10000000
-        }
-      ]
+      currentFilter: 1, 
+      projects: [],
+      pageInfo: null,
+      loading: false,
+      pageSize: 10 // 한 페이지당 보여줄 항목 수
     };
   },
-  computed: {
-    filteredProjects() {
-      if (this.currentFilter === 'ongoing') {
-        return this.projects.filter(p => 
-          p.status === 'reviewing' || p.status === 'funding'
-        );
-      } else {
-        return this.projects.filter(p => 
-          p.status === 'success' || p.status === 'failed'
-        );
-      }
+  
+  created() {
+    this.fetchProjects();
+  },
+  
+  methods: {
+  async fetchProjects(page = 1) {
+    this.loading = true;
+    const makerId = localStorage.getItem('userId');
+    
+    try {
+      const response = await axios.get('/api/project/list/' + makerId, {
+        params: {
+          page: page,
+          size: this.pageSize,
+          statusNumber: this.currentFilter
+        }
+      });
+      console.log(response.data);
+
+      const { pageInfoDTO, dataList } = response.data;
+      this.projects = dataList;
+      this.pageInfo = {
+        currentPage: pageInfoDTO.page,
+        totalElements: pageInfoDTO.total,
+        start: pageInfoDTO.start,
+        end: pageInfoDTO.end,
+        hasPrev: pageInfoDTO.prev,
+        hasNext: pageInfoDTO.next
+      };
+    } catch (error) {
+      console.error('프로젝트 목록을 불러오는데 실패했습니다:', error);
+    } finally {
+      this.loading = false;
     }
   },
-  methods: {
+    
     formatStartDate(project) {
-      if (project.status === 'reviewing') {
-        return '-';
-      }
-      return project.startDate;
+      if (!project.startAt) return '-';
+      return new Date(project.startAt).toLocaleDateString();
     },
+    
     getStatusText(status) {
       const statusMap = {
-        reviewing: '검토중',
-        rejection: '반려',
-        funding: '펀딩중',
-        success: '펀딩성공',
-        failed: '펀딩실패'
+        'REVIEWING': '검토중',
+        'REJECTED': '반려',
+        'FUNDING': '펀딩중',
+        'SUCCESS': '펀딩성공',
+        'FAILED': '펀딩실패'
       };
-      return statusMap[status];
+      return statusMap[status] || status;
     },
+    
+    getStatusClass(status) {
+      const statusClassMap = {
+        'REVIEWING': 'reviewing',
+        'REJECTED': 'failed',
+        'FUNDING': 'funding',
+        'SUCCESS': 'success',
+        'FAILED': 'failed'
+      };
+      return statusClassMap[status] || '';
+    },
+    
+    async changeFilter(filterValue) {
+      this.currentFilter = filterValue;
+      await this.fetchProjects(1); // 필터 변경시 첫 페이지부터 조회
+    },
+    
+    async changePage(newPage) {
+      await this.fetchProjects(newPage);
+    },
+    
     goToProjectDetail(projectId) {
       this.$router.push(`/mypage/project/${projectId}`);
     }
   }
- };
- </script>
+};
+</script>
  
  <style scoped>
  .funding-status-page {
