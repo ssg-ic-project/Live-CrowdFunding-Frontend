@@ -12,7 +12,7 @@
           <label>이름</label>
           <p>{{ userData.name }}</p>
         </div>
-        <div class="info-group">
+        <div v-if="!isMaker" class="info-group">
           <label>닉네임</label>
           <p>{{ userData.nickname }}</p>
         </div>
@@ -36,7 +36,7 @@
           <label>로그인 방법</label>
           <p>{{ userData.loginMethod ? "소셜 로그인" : "일반 로그인" }}</p>
         </div>
-        <div class="info-group">
+        <div v-if="!isMaker" class="info-group">
           <label>알림수신 동의</label>
           <p>{{ userData.notification ? "동의" : "미동의" }}</p>
         </div>
@@ -70,7 +70,7 @@
           <label>이름</label>
           <p>{{ userData.name }}</p>
         </div>
-        <div class="input-group">
+        <div v-if="!isMaker" class="input-group">
           <label>닉네임</label>
           <input type="text" v-model="editUserData.nickname" />
         </div>
@@ -97,7 +97,7 @@
           <label>상세주소</label>
           <input type="text" v-model="editUserData.detailAddress" />
         </div>
-        <div class="input-group">
+        <div v-if="!isMaker" class="input-group">
           <label>알림수신 동의</label>
           <div class="notification-checkboxes">
             <div class="checkbox-group">
@@ -141,67 +141,47 @@ export default {
         detailAddress: "",
         notification: false,
       },
+      isMaker: false,
     };
   },
   async created() {
+    this.isMaker = localStorage.getItem("userType") === "maker";
     await this.fetchUserData();
   },
   methods: {
     async fetchUserData() {
-  const userId = localStorage.getItem("userId");
-  const userType = localStorage.getItem("userType");
-  
-  // 디버깅
-  console.log("userId:", userId);
-  console.log("userType:", userType);
-
-  // JWT에서 사용자 ID 추출
-  if (!userId) {
-    const token = localStorage.getItem("accessToken");
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        const email = payload.sub; // JWT에서 이메일 추출
-        // 서버에 이메일로 사용자 ID 요청하는 API 필요
-      } catch (e) {
-        console.error("Token parsing error:", e);
+      const userId = localStorage.getItem("userId");
+      const userType = localStorage.getItem("userType");
+      
+      if (!userId || !userType) {
+        this.$router.push("/auth/login");
+        return;
       }
-    }
-  }
 
-  if (!userId || !userType) {
-    this.$router.push("/auth/login");
-    return;
-  }
-
-  const endpoint = userType === "maker" ? "/api/maker/" : "/api/user/";
-  
-  try {
-    const response = await axios.get(`${endpoint}${userId}`);
-    this.userData = response.data;
-    this.loading = false;
-  } catch (err) {
-    console.error("API Error:", err);
-    this.error = "사용자 정보를 불러오는데 실패했습니다.";
-    this.loading = false;
-  }
-},
-
+      const endpoint = userType === "maker" ? "/api/maker/" : "/api/user/";
+      
+      try {
+        const response = await axios.get(`${endpoint}${userId}`);
+        this.userData = response.data;
+        this.loading = false;
+      } catch (err) {
+        console.error("API Error:", err);
+        this.error = "사용자 정보를 불러오는데 실패했습니다.";
+        this.loading = false;
+      }
+    },
     async deleteAccount() {
       const confirmDelete = confirm("정말로 탈퇴하시겠습니까?");
 
       if (confirmDelete) {
         try {
           const userId = localStorage.getItem("userId");
-          console.log("사용자id" + userId);
-          await axios.delete(`/api/user/${userId}`);
-
-          // 로컬 스토리지 클리어
+          const userType = localStorage.getItem("userType");
+          const endpoint = userType === "maker" ? "/api/maker/" : "/api/user/";
+          
+          await axios.delete(`${endpoint}${userId}`);
           localStorage.clear();
-
           alert("회원 탈퇴가 완료되었습니다.");
-
-          // 홈페이지나 로그인 페이지로 리다이렉트
           this.$router.push("/auth/login");
         } catch (err) {
           if (err.response) {
@@ -268,7 +248,7 @@ export default {
       }
     },
     validateForm() {
-      if (!this.editUserData.nickname.trim()) {
+      if (!this.isMaker && !this.editUserData.nickname.trim()) {
         alert("닉네임을 입력해주세요.");
         return false;
       }
@@ -286,14 +266,10 @@ export default {
       }
       return true;
     },
-    // 주소 API
     openAddressAPI() {
       new window.daum.Postcode({
         oncomplete: (data) => {
-          // 주소 데이터를 editUserData에 직접 할당
           this.editUserData.address = data.roadAddress || data.jibunAddress;
-
-          // 참고항목 추가
           if (data.userSelectedType === "R") {
             let extraAddr = "";
             if (data.bname !== "" && /[동|로|가]$/g.test(data.bname)) {
@@ -316,27 +292,29 @@ export default {
 
       try {
         const userId = localStorage.getItem("userId");
-        console.log("사용자정보" + this.editUserData);
-        const response = await axios.put(
-          `/api/user/${userId}`,
-          this.editUserData
-        );
+        const userType = localStorage.getItem("userType");
+        const endpoint = userType === "maker" ? "/api/maker/" : "/api/user/";
+        
+        const updateData = { ...this.editUserData };
+        if (this.isMaker) {
+          delete updateData.nickname;
+          delete updateData.notification;
+        }
+
+        const response = await axios.put(`${endpoint}${userId}`, updateData);
         if (response.status === 200) {
-          // 성공적으로 업데이트된 경우
-          await this.fetchUserData(); // 최신 데이터로 다시 로드
+          await this.fetchUserData();
           this.isEditing = false;
           alert("회원정보가 성공적으로 수정되었습니다.");
         }
       } catch (err) {
         if (err.response) {
-          // 서버에서 에러 응답이 온 경우
           switch (err.response.status) {
             case 400:
               alert("잘못된 요청입니다. 입력하신 정보를 확인해주세요.");
               break;
             case 401:
               alert("로그인이 필요합니다.");
-              // 로그인 페이지로 리다이렉트
               this.$router.push("/login");
               break;
             case 403:
