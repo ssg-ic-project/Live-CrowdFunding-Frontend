@@ -51,10 +51,10 @@
                     @click="selectUser(user)"
                     :class="{ 'selected': selectedUser && selectedUser.id === user.id }"
                   >
-                    <td>{{ user.nickname }}</td>
-                    <td>{{ user.signupDate }}</td>
-                    <td>{{ user.status }}</td>
-                    <td>{{ user.type }}</td>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.createdAt }}</td>
+                    <td>{{ user.accountStatus }}</td>
+                    <td>{{ user.memberType }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -86,11 +86,11 @@
               <p><strong>이름:</strong> {{ selectedUser.name }}</p>
               <p><strong>전화번호:</strong> {{ selectedUser.phone }}</p>
               <p><strong>이메일:</strong> {{ selectedUser.email }}</p>
-              <p><strong>우편번호:</strong> {{ selectedUser.postalCode }}</p>
+              <p><strong>우편번호:</strong> {{ selectedUser.zipCode}}</p>
               <p><strong>주소:</strong> {{ selectedUser.address }}</p>
-              <p><strong>계정 생성일:</strong> {{ selectedUser.signupDate }}</p>
-              <p><strong>계정 상태:</strong> {{ selectedUser.status }}</p>
-              <p><strong>회원유형:</strong> {{ selectedUser.type }}</p>
+              <p><strong>계정 생성일:</strong> {{ selectedUser.createdAt }}</p>
+              <p><strong>계정 상태:</strong> {{ selectedUser.accountStatus }}</p>
+              <p><strong>회원유형:</strong> {{ selectedUser.memberType }}</p>
             </div>
           </div>
           <div class="section-content empty-state" v-else>
@@ -122,31 +122,16 @@ export default {
     };
   },
   computed: {
-    // filteredUsers() {
-    //   return this.users.filter((user) => {
-    //     const matchesStatus = !this.selectedStatus || user.status === this.selectedStatus;
-    //     const matchesType = !this.selectedType || user.type === this.selectedType;
-    //     const matchesSearchQuery =
-    //       !this.searchQuery || user.nickname.toLowerCase().includes(this.searchQuery.toLowerCase());
-    //
-    //     return matchesStatus && matchesType && matchesSearchQuery;
-    //   });
-    // },
+
     paginatedUsers() {
       // console.log("yejin user check:", this.users);
       return this.users;
-      // const start = (this.currentPage - 1) * this.itemsPerPage;
-      // const end = start + this.itemsPerPage;
-      // return this.filteredUsers.slice(start, end);
+
     },
-    // totalPages() {
-    //   return Math.ceil(this.filteredUsers.length / this.itemsPerPage);
-    // }
+
   },
   watch: {
-    // filteredUsers() {
-    //   this.currentPage = 1;
-    // }
+
     currentPage(){
       this.findUsers();
     }
@@ -165,7 +150,7 @@ export default {
 
         const response = await userApi.getUsers(params);
 
-        console.log("check check yejin users: ");
+        console.log("check check yejin users: ", response);
         this.users = response.data.dataList;
         //
         // console.log("check check yejin users: ");
@@ -175,7 +160,7 @@ export default {
           // this.currentPage = response.data.pageInfoDTO.page;
         }
       } catch (error) {
-        console.error('사용자 조회 실패: ', eror);
+        console.error('사용자 조회 실패: ', error);
       }
     },
 
