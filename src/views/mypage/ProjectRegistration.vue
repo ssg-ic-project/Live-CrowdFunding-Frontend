@@ -256,15 +256,7 @@
   <template v-if="reviewSuccess">
     <p class="success">승인되었습니다!</p>
     <div class="button-group">
-      <!-- 토스페이먼츠 결제 위젯 -->
-
-      <div>
-        <h2>서비스 이용 기본료 결제💸</h2>
-        <div id="payment-method" ></div>
-        <div id="agreement"></div>
-      </div>
-
-      <button @click="handlePayment" class="payment-btn">
+      <button @click="showPaymentModal" class="payment-btn">
         결제하기
       </button>
       <button @click="closeModal" class="cancel-btn">
@@ -281,7 +273,6 @@
       </div>
     </div>
 
-
     <!-- 결제 완료 모달 -->
     <div v-if="showPaymentCompleteModal" class="modal">
       <div class="modal-content">
@@ -296,10 +287,11 @@
       </div>
     </div>
   </div>
+</template>
 
 <script>
 import axios from 'axios';
-import {ANONYMOUS, loadPaymentWidget} from "@tosspayments/payment-widget-sdk";
+
 
 export default {
   name: "ProjectRegistration",
@@ -386,85 +378,24 @@ export default {
         "최종 검토를 진행중입니다...",
       ],
       currentMessageIndex: 0,
-      clientKey: 'test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm',
-      initialPrice: 70000,
-      paymentWidget: null,
-      showPaymentTossWidgetModal: false,
     };
   },
   computed: {
     selectedPlanInfo() {
-      return this.pricingPlans.find(plan => plan.id === this.selectedPlan) || {name: '-', price: 0};
+      return this.pricingPlans.find(plan => plan.id === this.selectedPlan) || { name: '-', price: 0 };
     },
     formattedSelectedPrice() {
-      return this.selectedPlanInfo.price ?
-          new Intl.NumberFormat('ko-KR', {
-            style: 'currency',
-            currency: 'KRW'
-          }).format(this.selectedPlanInfo.price) : '0원';
+      return this.selectedPlanInfo.price ? 
+        new Intl.NumberFormat('ko-KR', { 
+          style: 'currency', 
+          currency: 'KRW'
+        }).format(this.selectedPlanInfo.price) : '0원';
     }
   },
-
-  // async mounted() {
-  //   await this.initTossPayments()
-  // },
-
-  watch: {
-    reviewSuccess: {
-      async handler(newVal){
-        if(newVal){
-          await this.initTossPayments();
-        }
-      },
-      immediate: false
-    },
-
-    // URL query parameter 감시
-    '$route.query.showSuccessModal': {
-      immediate: true,
-      handler(newVal) {
-
-        if (newVal === 'true') {
-          this.showPaymentCompleteModal = true;
-        }
-      }
-    }
-
-  },
-
   methods: {
-
-    async handlePayment() {
-      try {
-        //project 데이터 저장
-        const projectData = {
-          selectedPlan: this.selectedPlan,
-          makerId: this.makerId, //로그인한 사용자의 정보 가지고 오기
-          orderName: this.orderName, //project name
-          category: this.category,
-          amount: this.amount,
-          targetAmount: this.targetAmount,
-          summary: this.summary,
-          discount: this.discount,
-          contentImage: this.contentImage
-        }
-
-        sessionStorage.setItem('projectData', JSON.stringify(projectData));
-
-        await this.confirmPayment();
-
-      } catch (error) {
-        console.error('결제 처리 중 오류 발생:', error);
-      }
-    },
-
-    sout() {
-      console.log('checking Yejin')
-    },
-
     formatPrice(price) {
-      return new Intl.NumberFormat('ko-KR', {
-        style: 'currency',
+      return new Intl.NumberFormat('ko-KR', { 
+        style: 'currency', 
         currency: 'KRW'
       }).format(price);
     },
@@ -604,6 +535,7 @@ export default {
         this.closeModal();
       }
     },
+
     cancelRegistration() {
       if (confirm("프로젝트 등록을 취소하시겠습니까?\n입력된 내용은 저장되지 않습니다.")) {
         this.$router.push("/mypage/funding-status");
