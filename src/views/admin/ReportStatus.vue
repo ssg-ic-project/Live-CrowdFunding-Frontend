@@ -1,4 +1,5 @@
 <!-- src/views/ReportStatus.vue -->
+<!--신고 현황 관리 페이지-->
 <template>
   <div class="dashboard">
     
@@ -74,9 +75,6 @@
       </section>
 
 
-
-
-      
       <!-- 신고 상세 모달 -->
       <div v-if="showModal" class="modal">
         <div class="modal-content">
@@ -90,7 +88,6 @@
           <p><strong>신고자(직원) ID:</strong> {{ selectedReport.id }}</p>
           <p><strong>신고 내용 (관리자 코멘트):</strong> {{ selectedReport.reason }}</p>
           <p><strong>신고 날짜:</strong> {{ selectedReport.createdAt }}</p>
-
 
           <!-- 버튼 그룹 -->
           <div class="button-group">
@@ -151,17 +148,29 @@ data() {
       console.error('신고 데이터를 불러오는 중 오류가 발생했습니다: ', error);
     }
   },
+
   openReportDetail(report) {
     this.selectedReport = report;
     this.showModal = true;
   },
+
   closeModal() {
     this.showModal = false;
     this.selectedReport = null;
   },
-  deactivateUser() {
-    alert(`사용자 ${this.selectedReport.reportedUserId}가 비활성화되었습니다.`);
-    this.closeModal();
+
+  async deactivateUser() {
+    try {
+      await chatApi.updateUserStatus(this.selectedReport.id, '비활성화');
+      alert(`사용자 ${this.selectedReport.userId}가 비활성화되었습니다.`);
+
+      this.closeModal();
+      await this.fetchReports();
+    } catch (error) {
+      console.error('사용자 비활성화 중 오류가 발생했습니다: ', error);
+      alert('사용자 비활성화에 실패했습니다.');
+    }
+
   },
 
   logout() {
@@ -171,10 +180,18 @@ data() {
     return this.$route.path.startsWith(path);
   },
 
-  suspendUser() {
-    alert(`사용자 ${this.selectedReport.reportedUserId}가 정지되었습니다.`);
-    this.closeModal();
+  async suspendUser() {
+      try{
+        await chatApi.updateUserStatus(this.selectedReport.id, '정지');
+        alert(`사용자 ${this.selectedReport.userId}가 정지되었습니다.`);
+        this.closeModal();
+        await this.fetchReports();
+      }catch (error){
+        console.error('사용자 정지 중 오류가 발생했습니다:', error);
+        alert('사용자 정지에 실패했습니다.');
+      }
   },
+
   deleteReport() {
     const confirmed = confirm("이 신고를 삭제하시겠습니까?");
     if (confirmed) {

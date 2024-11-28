@@ -5,9 +5,9 @@
 </template>
 
 <script>
-import { Chart, BarController, BarElement, CategoryScale, LinearScale, Title, Tooltip } from 'chart.js';
+import { Chart, BarController, BarElement, CategoryScale, LinearScale, Title, Tooltip, Filler } from 'chart.js';
 
-Chart.register(BarController, BarElement, CategoryScale, LinearScale, Title, Tooltip);
+Chart.register(BarController, BarElement, CategoryScale, LinearScale, Title, Tooltip, Filler);
 
 export default {
   props: ['data'],

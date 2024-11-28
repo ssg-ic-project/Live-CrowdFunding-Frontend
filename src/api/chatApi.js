@@ -11,8 +11,13 @@ export const chatApi = {
             }
         });
     },
-    updateUserStatus(){
-
+    updateUserStatus(reportId, status) {
+        return api.post(`/api/${reportId}/user-status`, {
+            status: status
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
     }
-
 }

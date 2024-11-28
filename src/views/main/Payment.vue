@@ -241,7 +241,7 @@ export default {
       if (this.canProceed && this.paymentWidget) {
         try {
           //여기에서 orderId get하기!!!
-          // const orderId = 2321327788854;
+          //const orderId = 2321327788854;
 
           // const orderId = location.pathname
           //     .split('/')
