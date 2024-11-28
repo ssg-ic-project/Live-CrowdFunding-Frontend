@@ -69,7 +69,6 @@ const routes = [
       { path: 'wishlist', name: 'WishlistMain', component: WishlistMain },
       { path: 'stream/:streamId', name: 'Streaming', component: Streaming },
       { path: 'terms', name: 'Terms', component: Terms },
-      { path: '/payment', name: 'Payment', component: Payment, props: true,},
       { path: '/streaming',name: 'Streaming',component: StreamingRoom,
         beforeEnter: (to, from, next) => {
           const userType = localStorage.getItem('userType');
@@ -138,7 +137,7 @@ const routes = [
     component: MainLayout,
     children: [
       // ... 기존 라우트들 ...
-      { path: '/payment', name: 'Payment', component: Payment, props: true },
+      { path: '/payment/:orderId', name: 'Payment', component: Payment, props: true },
       { path: '/success', name: 'PaymentSuccess', component: () => import('../views/main/PaymentSuccess.vue') },
       { path: '/fail', name: 'PaymentFail', component: () => import('../views/main/PaymentFail.vue') }
     ]
