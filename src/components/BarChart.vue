@@ -5,30 +5,60 @@
 </template>
 
 <script>
-import { Chart, BarController, BarElement, CategoryScale, LinearScale, Title, Tooltip, Filler } from 'chart.js';
-
-Chart.register(BarController, BarElement, CategoryScale, LinearScale, Title, Tooltip, Filler);
+import { Chart, BarController, BarElement, CategoryScale, LinearScale, Title, Tooltip } from 'chart.js';
 
 export default {
   props: ['data'],
   mounted() {
-    new Chart(this.$refs.barChartCanvas, {
-      type: 'bar',
-      data: this.data,
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          tooltip: {
-            enabled: true,
-            mode: 'index',
-            intersect: false,
-            position: 'nearest', 
-            yAlign: 'top', 
+    this.renderChart();
+  },
+  watch: {
+    data() {
+      this.renderChart();
+    },
+  },
+  methods: {
+    renderChart() {
+      if (this.chart) {
+        this.chart.destroy();
+      }
+
+      const ctx = this.$refs.barChartCanvas.getContext('2d');
+
+      const plugins = [BarController, BarElement, CategoryScale, LinearScale, Title, Tooltip];
+      if (this.shouldRegisterFiller()) {
+        import('chart.js/auto').then((chartModule) => {
+          const Filler = chartModule.Filler;
+          plugins.push(Filler);
+          this.createChart(ctx, plugins);
+        });
+      } else {
+        this.createChart(ctx, plugins);
+      }
+    },
+    createChart(ctx, plugins) {
+      Chart.register(...plugins);
+      this.chart = new Chart(ctx, {
+        type: 'bar',
+        data: this.data,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            tooltip: {
+              enabled: true,
+              mode: 'index',
+              intersect: false,
+              position: 'nearest',
+              yAlign: 'top',
+            },
           },
         },
-      },
-    });
+      });
+    },
+    shouldRegisterFiller() {
+      return this.data && this.data.datasets.some((dataset) => dataset.fill);
+    },
   },
 };
 </script>
