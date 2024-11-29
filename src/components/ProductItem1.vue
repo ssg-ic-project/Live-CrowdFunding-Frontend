@@ -1,6 +1,7 @@
 <!-- ProductItem.vue -->
 <template>
-  <div class="product-item" @click="$emit('click', product)">
+  <!-- isLive가 true일 경우 스트리밍으로, 아닐 경우 상품 상세로 이동 -->
+  <div class="product-item" @click="handleClick">
     <div v-if="product.isLive" class="live-badge">LIVE</div>
     <div class="image-container">
       <img :src="product.url" :alt="product.productName" />
@@ -15,6 +16,7 @@
     </div>
   </div>
 </template>
+
 <script>
 export default {
   name: "ProductItem",
@@ -26,9 +28,26 @@ export default {
     rank: {
       type: Number,
       default: null,
-    }
+    },
   },
-  emits: ['click']
+  methods: {
+    handleClick() {
+      if (this.product.isLive) {
+        // /streaming URL 유지하고 productId는 쿼리로 전달
+        this.$router.push({
+          path: "/streaming",
+          query: {
+            productId: this.product.id,
+          },
+        });
+      } else {
+        this.$router.push({
+          name: "ProductDetail",
+          params: { productId: this.product.id },
+        });
+      }
+    },
+  },
 };
 </script>
 

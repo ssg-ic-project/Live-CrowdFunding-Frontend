@@ -3,7 +3,7 @@ import { toRaw } from 'vue'
 import * as mediasoupClient from 'mediasoup-client'
 import { io } from 'socket.io-client'
 
-const SERVER_URL = import.meta.env.VITE_SERVER_URI
+const SERVER_URL = import.meta.env.VITE_MEDIA_SERVER_URI
 
 export const useMediasoup = () => {
   const socket = ref(null)
@@ -11,7 +11,7 @@ export const useMediasoup = () => {
   const sendTransport = ref(null)
   const recvTransport = ref(null)
   const joined = ref(false)
-  const roomId = ref('')
+  const roomId = ref('3')
   const peers = ref([])
   const viewers = ref([])
   const localStream = ref(null)

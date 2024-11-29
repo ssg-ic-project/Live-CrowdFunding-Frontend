@@ -3,12 +3,10 @@
   <div class="full-width-banner">
     <BannerSlider />
   </div>
-
   <div class="home">
     <CategoryList />
 
     <div class="main-content-grid">
-      <!-- 라이브 상품 섹션 -->
       <section class="live-section" v-if="!isLoading && !error">
         <h2>라이브 상품</h2>
         <div class="product-grid">
@@ -16,11 +14,11 @@
             v-for="product in liveProducts.slice(0, 12)"
             :key="product.id"
             :product="product"
+            @click="handleProductClick"
           />
         </div>
       </section>
 
-      <!-- 랭킹 상품 섹션 -->
       <section class="ranking-section" v-if="!isLoading && !error">
         <h2>실시간 인기 상품</h2>
         <div class="ranking-list">
@@ -29,36 +27,26 @@
             :key="product.id"
             :product="product"
             :rank="index + 1"
+            @click="handleProductClick"
           />
         </div>
       </section>
     </div>
 
-    <!-- AI 추천 상품 섹션 // 구현 가능??! -->
-    <!-- <section class="ai-recommendation-section" v-if="!isLoading && !error">
-      <h2>AI 추천 상품</h2>
-      <div class="product-grid full-width">
-        <ProductItem
-          v-for="product in aiRecommendedProducts"
-          :key="product.id"
-          :product="product"
-        />
-      </div>
-    </section> -->
-
     <div v-if="isLoading" class="loading">로딩 중...</div>
     <div v-if="error" class="error">{{ error }}</div>
   </div>
 </template>
+
 <script>
 import { ref, onMounted } from "vue";
+import { useRouter } from 'vue-router';
+import { useStreaming } from '@/composables/useStreaming';
 import BannerSlider from "@/components/BannerSlider.vue";
 import CategoryList from "@/components/CategoryList.vue";
 import ProductItem from "@/components/ProductItem.vue";
 import RankingCard from "@/components/RankingCard.vue";
-import odungImage from "@/assets/image/오둥이하트.png";
 import axios from 'axios';
-
 export default {
   name: "Home",
   components: {
@@ -68,21 +56,46 @@ export default {
     RankingCard,
   },
   setup() {
+    const router = useRouter();
     const rankingProducts = ref([]);
     const liveProducts = ref([]);
-    const aiRecommendedProducts = ref([]);
-
     const isLoading = ref(true);
     const error = ref(null);
-
-    //여기부터 용빈
-    
+    const { joinRoom, userName, userRole, roomId, socket, initializeSocket } = useStreaming();
+    const handleProductClick = async (product) => {
+  console.log("Clicked product:", product);  
+  if (product.isLive) {
+    try {
+      userName.value = localStorage.getItem('userName') || '손님';  
+      userRole.value = localStorage.getItem('userRole') || 'user'; 
+      roomId.value = product.id.toString();
+      
+      router.push({
+        path: '/streaming',
+        query: { productId: product.id },
+        state: {
+          userName: userName.value,
+          userRole: userRole.value,
+          // roomId: roomId.value,
+          // socket: socket.value,
+        },
+      });
+    } catch (err) {
+      console.error('스트리밍 참여 실패:', err);
+      error.value = '스트리밍 참여 중 오류가 발생했습니다.';
+    }
+  } else {
+    router.push({
+      name: "ProductDetail",
+      params: { productId: product.id },
+    });
+  }
+};
     const fetchMainPageData = async () => {
       try {
         const response = await axios.get('/api/project/main');
-        console.log('API Response:', response.data); // 응답 데이터 확인
+        console.log('API Response:', response.data);
         
-        // 라이브 펀딩 프로젝트 데이터 매핑
         if (response.data.liveFundingProjects) {
           liveProducts.value = response.data.liveFundingProjects.map(project => ({
             id: project.id,
@@ -94,8 +107,6 @@ export default {
             isLive: true
           }));
         }
-
-        // 탑 펀딩 프로젝트 데이터 매핑
         if (response.data.topFundingProjects) {
           rankingProducts.value = response.data.topFundingProjects.map(project => ({
             id: project.id,
@@ -105,7 +116,7 @@ export default {
             category: project.classification,
             remainingTime: project.remainingTime,
             ranking: project.ranking,
-            isLive: true
+            isLive: false
           }));
         }
       } catch (err) {
@@ -113,7 +124,6 @@ export default {
         error.value = err.response?.data?.message || "데이터를 불러오는 중 오류가 발생했습니다.";
       }
     };
-
     const fetchData = async () => {
       try {
         isLoading.value = true;
@@ -125,22 +135,19 @@ export default {
         isLoading.value = false;
       }
     };
-
     onMounted(() => {
       fetchData();
     });
-
     return {
       rankingProducts,
       liveProducts,
-      aiRecommendedProducts,
       isLoading,
       error,
+      handleProductClick
     };
   },
 };
 </script>
-
 <style scoped>
 .home {
   max-width: 1200px;
