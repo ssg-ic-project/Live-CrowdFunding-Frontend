@@ -98,7 +98,7 @@
                 <input type="number" v-model="selectedQuantity" @input="handleQuantityInput" min="1" max="100" class="quantity-input" />
                 <button @click="incrementQuantity" :disabled="isIncrementDisabled" class="quantity-btn" aria-label="수량 증가">+</button>
               </div>
-              <button @click="confirmFunding" class="btn fund-btn fund-btn-full">
+              <button @click="handleFunding" class="btn fund-btn fund-btn-full">
                 {{ selectedQuantity }}개 펀딩하기
               </button>
             </div>
@@ -316,6 +316,45 @@ incrementQuantity() {
         this.currentImageIndex =
           (this.currentImageIndex - 1 + this.product.images.length) %
           this.product.images.length;
+      }
+    },
+
+    calculateTotalPrice() {
+      const discountedPrice = this.product.price * (1 - (this.product.discountPercentage || 0) / 100);
+      return Math.floor(discountedPrice * this.selectedQuantity);
+    },
+
+    async handleFunding() {
+      try {
+        const userId = localStorage.getItem("userId");
+        if (!userId) {
+          alert("로그인이 필요한 서비스입니다.");
+          return;
+        }
+
+        const orderRequestDTO = {
+          userId: Number(userId),
+          projectId: this.product.id,
+          amount: this.selectedQuantity,
+          totalPrice: this.calculateTotalPrice()
+        };
+
+        console.log("주문 생성 요청:", orderRequestDTO); // 요청 데이터 구조 확인용
+
+        const response = await axios.post('/api/order', orderRequestDTO);
+        console.log("주문 생성 성공:", response.data); // 응답 데이터 구조 확인용
+
+        if (response.data) {
+          this.$router.push({
+            name: 'Payment',
+            params: { orderId: response.data }
+          });
+        } else {
+          throw new Error('Invalid order response');
+        }
+      } catch (error) {
+        console.error("주문 생성 실패:", error);
+        alert("주문 생성 중 오류가 발생했습니다.");
       }
     },
   },
