@@ -1,11 +1,20 @@
 <!-- StreamingRoom.vue -->
 <template>
   <div class="streaming-layout">
-    <div class="grid-container">
+    <!-- <div v-if="!joined">
+      <room-join-form
+        v-model:room-id="roomId"
+        v-model:user-role="userRole"
+        v-model:user-name="userName"
+        @join="joinRoom"
+      />
+    </div> -->
+
+    <div class="grid-container" v-if="socket">
       <!-- 스트리밍 영역 -->
       <div class="streaming-area">
         <host-controls
-          v-if="userRole === 'host'"
+          v-if="userRole === 'maker'"
           :local-stream="localStream"
           :screen-producer="screenProducer"
           @leave="leaveRoom"
@@ -13,54 +22,42 @@
         >
           <video-preview v-if="localStream" ref="localVideoRef" :stream="localStream" />
         </host-controls>
-
         <viewer-controls v-else @leave="leaveRoom" :set-remote-media-el="setRemoteMediaEl" />
       </div>
-
       <!-- 채팅 영역 -->
       <div class="chat-area">
         <div class="area-header">실시간 채팅</div>
-        <chat-component 
-          v-if="socket" 
-          :roomId="currentRoomId" 
-          :socket="socket" 
-          :user-name="userName" 
-        />
+        <chat-component :roomId="roomId" :socket="socket" :user-name="userName" />
       </div>
 
       <!-- 상품 정보 영역 -->
       <div class="product-info-area">
         <div class="area-header">상품 정보</div>
         <div class="scrollable-content">
-          <product-info-component :roomId="currentRoomId" />
+          <product-info-component :roomId="roomId" />
           <div class="stream-summary-section">
             <h3 class="section-header">스트리밍 요약</h3>
-            <stream-summary-component 
-              v-if="socket" 
-              :roomId="streamingRoomId" 
-              :socket="socket" 
-            />
+            <stream-summary-component :roomId="roomId" :socket="socket" />
           </div>
         </div>
       </div>
     </div>
   </div>
 </template>
+
 <script setup>
-// StreamingRoom.vue의 script setup 부분
-import { onMounted, onBeforeUnmount, computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
 import ChatComponent from '@/components/chat/ChatComponent.vue'
 import ProductInfoComponent from '@/components/product/ProductInfoComponent.vue'
 import StreamSummaryComponent from '@/components/user-statistics/StreamSummaryComponent.vue'
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { useStreaming } from '../composables/useStreaming'
+import RoomJoinForm from '@/components/streaming/RoomJoinForm.vue'
 import HostControls from '@/components/streaming/HostControls.vue'
 import ViewerControls from '@/components/streaming/ViewerControls.vue'
+import ViewerList from '@/components/streaming/ViewerList.vue'
 import VideoPreview from '@/components/streaming/VideoPreview.vue'
 import RemoteMedia from '@/components/streaming/RemoteMedia.vue'
-import { useStreaming } from '../composables/useStreaming'
-
-const route = useRoute();
-const router = useRouter();
+const userName = ref('')
 
 const {
   localVideoRef,
@@ -71,60 +68,75 @@ const {
   peers,
   viewers,
   localStream,
+  userRole,
   screenProducer,
   joinRoom,
+  setupRoom,
   leaveRoom,
   toggleCamera,
   initializeSocket,
   setRemoteMediaEl,
-} = useStreaming();
-
-const userName = localStorage.getItem('userEmail') || '';
-const userType = localStorage.getItem('userType');
-const userRole = computed(() => userType === 'maker' ? 'host' : 'viewer');
-const currentRoomId = computed(() => route.query.productId);
-
-// 템플릿에서 사용할 수 있도록 roomId를 computed로 만듦
-const streamingRoomId = computed(() => roomId.value);
+} = useStreaming()
 
 onMounted(async () => {
-  try {
-    if (!currentRoomId.value) {
-      console.error('No product ID provided');
-      router.push({ name: 'Home' });
-      return;
-    }
-    
-    console.log('StreamingRoom productId:', currentRoomId.value);
-
-    if (!userType) {
-      router.push({ 
-        name: 'Login',
-        query: { redirect: route.fullPath }
-      });
-      return;
-    }
-
-    await initializeSocket();
-    roomId.value = currentRoomId.value;
-    
-    await joinRoom({
-      roomId: currentRoomId.value,
-      userName,
-      userRole: userRole.value
-    });
-  } catch (error) {
-    console.error('Failed to initialize streaming:', error);
-    router.push({ name: 'Home' });
+  if (!socket.value) {
+    await initializeSocket()
   }
-});
+
+  userName.value = localStorage.getItem('userName') || '손님';  
+  userRole.value = localStorage.getItem('userType') || 'user';
+  console.log('userName:', userName.value)
+  console.log('userRole:', userRole.value)
+
+  // 연결 완료를 기다림
+  await new Promise(resolve => {
+    if (socket.value.connected) {
+      resolve()
+    } else {
+      socket.value.on('connect', () => {
+        resolve()
+      })
+    }
+  })
+
+  console.log('socket:', socket.value)
+
+  // 서버와 연결이 되어야 id가 할당됨
+
+  console.log('Socket id:', socket.value.id)
+
+  socket.value.on('room-joined', async (response) => {
+    if (response.error) {
+      console.error('Room join error:', response.error)
+      alert('방 입장에 실패했습니다.')
+      return
+    }
+    try {
+      await setupRoom(response)
+    } catch (error) {
+      console.error('Setup room error:', error)
+      alert('방 설정에 실패했습니다.')
+    }
+  })
+
+  // 방 참여 요청
+  try {
+    socket.value.emit('join-room', {
+      roomId: roomId.value,
+      peerId: socket.value.id,
+    })
+  } catch (error) {
+    console.error('Failed to join room:', error)
+    alert('방 입장에 실패했습니다.')
+  }
+})
 
 onBeforeUnmount(() => {
   if (joined.value) {
-    leaveRoom();
+    leaveRoom()
   }
-  socket.value?.disconnect();
-});
+  socket.value?.disconnect()
+})
 </script>
 
 <style scoped>
