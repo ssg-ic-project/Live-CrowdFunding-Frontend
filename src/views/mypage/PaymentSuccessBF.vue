@@ -24,14 +24,14 @@ export default{
       orderId: '',
       orderName: '',
       paymentKey: '',
-      selectedPlan: '',
+      // selectedPlan: '',
       amount: '',
-      category: '',
-      makerId: '',
-      summary: '',
-      discount: '',
-      targetAmount: '',
-      contentImage: [],
+      // category: '',
+      // makerId: '',
+      // summary: '',
+      // discount: '',
+      // targetAmount: '',
+      // contentImage: [],
       isLoading: false,
       error: null,
       errorDetail: null,
@@ -39,8 +39,6 @@ export default{
     }
   },
   methods: {
-
-
     async confirmPayment(){
       this.isLoading = true
       this.error = null
@@ -51,8 +49,15 @@ export default{
         orderName: this.orderName, //프로젝트 이름
         amount: this.amount, //7만원
         paymentKey: this.paymentKey,
-      };
+        // selectedPlan: this.selectedPlan, //요금제 타입
+        // category: this.category,
+        // makerId: this.makerId,
+        // summary: this.summary,
+        // discount: this.discount,
+        // targetAmount: this.targetAmount,
+        // contentImage: this.contentImage
 
+      }
       try{
         console.log('API 호출 시작')
         console.log('결제 수단 체크 by yejin1: ', this.method);
@@ -60,37 +65,16 @@ export default{
         const response = await paymentApi.basicFee(requestData)
         console.log('성공 응답 데이터: ', response.data)
 
-        // 2. 프로젝트 데이터 가져오기
-        const projectData = JSON.parse(sessionStorage.getItem('projectData'));
-        if (!projectData) {
-          throw new Error('프로젝트 데이터를 찾을 수 없습니다.');
-        }
-
-          // 3. FormData 생성 - DB 스키마에 맞춰 수정
-          const formData = new FormData();
-          formData.append('makerId', this.makerId);              // bigint
-          formData.append('planId', projectData.selectedPlan);   // bigint
-          formData.append('categoryId', projectData.category);   // bigint
-          formData.append('productName', projectData.name);      // varchar(20)
-          formData.append('summary', projectData.description);   // varchar(50)
-          formData.append('price', projectData.price);          // int
-          formData.append('discountPercentage', projectData.discount); // int
-          formData.append('goalAmount', projectData.targetAmount);     // int
-
-          // 이미지 처리 (안전하게)
-          if (projectData.contentImage && Array.isArray(projectData.contentImage)) {
-            projectData.contentImage.forEach((image, index) => {
-              formData.append('contentImage', image);
-            });
-          };
-
-
-        // 프로젝트 등록 API 호출
-        const projectResponse = await paymentApi.projectRegist(formData);
-        console.log('프로젝트 등록 성공:', projectResponse.data);
-
+        // this.method = response.data.method //결제 수단
+        // console.log('결제 수단 체크 by yejin: ', this.method);
+        // this.paymentAt = response.data.approvedAt //승인시각
+        // console.log('승인 시각 체크 by yejin: ', this.paymentAt);
 
         this.success = true
+        //성공시 redirect
+        // setTimeout(()=> {
+        //   this.$router.push('/success-bf')
+        // }, 3000)
 
         this.$router.push({
           name: 'ProjectRegistration',

@@ -9,7 +9,7 @@
 
 <script>
 export default {
-  name: 'PaymentFail',
+  name: 'PaymentFailBF',
 
   data() {
     return {
