@@ -11,9 +11,10 @@ export const chatApi = {
             }
         });
     },
-    updateUserStatus(reportId, status) {
+    updateUserStatus(reportId, status, deleteReport = true) {
         return api.post(`/api/${reportId}/user-status`, {
-            status: status
+            status: status,
+            deleteReport: deleteReport
         }, {
             headers: {
                 'Content-Type': 'application/json'
