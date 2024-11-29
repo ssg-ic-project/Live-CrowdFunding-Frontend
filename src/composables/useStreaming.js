@@ -160,6 +160,8 @@ export const useStreaming = () => {
 
       // 새로운 소켓 연결 초기화
       await initializeSocket()
+
+      
     } catch (error) {
       console.error('Error leaving room:', error)
     }

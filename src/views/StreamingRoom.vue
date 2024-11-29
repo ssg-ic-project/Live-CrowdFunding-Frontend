@@ -17,12 +17,12 @@
           v-if="userRole === 'maker'"
           :local-stream="localStream"
           :screen-producer="screenProducer"
-          @leave="leaveRoom"
+          @leave="handleLeaveRoom" 
           @toggle-camera="toggleCamera"
         >
           <video-preview v-if="localStream" ref="localVideoRef" :stream="localStream" />
         </host-controls>
-        <viewer-controls v-else @leave="leaveRoom" :set-remote-media-el="setRemoteMediaEl" />
+        <viewer-controls v-else @leave="handleLeaveRoom" :set-remote-media-el="setRemoteMediaEl" />
       </div>
       <!-- 채팅 영역 -->
       <div class="chat-area">
@@ -57,6 +57,10 @@ import ViewerControls from '@/components/streaming/ViewerControls.vue'
 import ViewerList from '@/components/streaming/ViewerList.vue'
 import VideoPreview from '@/components/streaming/VideoPreview.vue'
 import RemoteMedia from '@/components/streaming/RemoteMedia.vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
 const userName = ref('')
 
 const {
@@ -130,6 +134,10 @@ onMounted(async () => {
     alert('방 입장에 실패했습니다.')
   }
 })
+const handleLeaveRoom = async () => {
+  await leaveRoom()
+  await router.push('/')  
+}
 
 onBeforeUnmount(() => {
   if (joined.value) {
