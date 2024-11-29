@@ -1,76 +1,150 @@
 <!-- src/views/admin/ProjectDetail.vue -->
 <template>
   <div class="dashboard">
-
-
-    <!-- 메인 콘텐츠 -->
     <main class="content">
-
-
       <!-- 헤더 -->
       <header>
         <span>접속중인 ID: {{ userId }} ({{ userName }})</span>
         <button @click="logout">로그아웃</button>
       </header>
 
-
       <!-- 프로젝트 상세 정보 -->
       <div class="project-detail">
-
-
-        <!-- 좌측 패널 -->
+        <!-- 좌측 패널: 이미지 섹션 -->
         <div class="left-panel">
-          <img :src="project.image" alt="Project Image" class="project-image" />
+          <div class="image-section">
+            <h3>대표 이미지</h3>
+            <img :src="project.thumbnailImage" alt="Thumbnail" class="main-image" />
+            
+            <h3>추가 이미지</h3>
+            <div class="additional-images">
+              <img v-for="(image, index) in project.additionalImages" 
+                   :key="index" 
+                   :src="image" 
+                   :alt="'Additional image ' + (index + 1)" 
+                   class="additional-image" />
+            </div>
+            
+            <h3>상세 이미지</h3>
+            <img :src="project.contentImage" alt="Content" class="content-image" />
+          </div>
         </div>
 
-
-        <!-- 우측 패널 -->
+        <!-- 우측 패널: 프로젝트 정보 -->
         <div class="right-panel">
-          <h2>{{ project.name }}</h2>
-          <p>판매자: {{ project.seller }}</p>
+          <div class="project-info">
+            <h2>{{ project.name }}</h2>
+            
+            <!-- 기본 정보 섹션 -->
+            <div class="info-section">
+              <h3>기본 정보</h3>
+              <div class="info-grid">
+                <div class="info-item">
+                  <label>판매자</label>
+                  <p>{{ project.seller }}</p>
+                </div>
+                <div class="info-item">
+                  <label>카테고리</label>
+                  <p>{{ project.category }}</p>
+                </div>
+                <div class="info-item">
+                  <label>선택 요금제</label>
+                  <p>{{ project.plan }}</p>
+                </div>
+                <div class="info-item">
+                  <label>판매가</label>
+                  <p>{{ formatPrice(project.price) }}</p>
+                </div>
+                <div class="info-item">
+                  <label>할인율</label>
+                  <p>{{ project.discount }}%</p>
+                </div>
+                <div class="info-item">
+                  <label>목표 금액</label>
+                  <p>{{ formatPrice(project.targetAmount) }}</p>
+                </div>
+              </div>
+            </div>
 
+            <!-- 상품 설명 -->
+            <div class="description-section">
+              <h3>상품 설명</h3>
+              <p>{{ project.description }}</p>
+            </div>
 
-          <!-- 문서 리스트 -->
-          <ul class="document-list">
-            <li v-for="(doc, index) in project.documents" :key="index">
-              <span @click="openDocument(doc)">{{ doc.name }}</span>
+            <!-- 문서 검토 섹션 -->
+            <div class="document-section">
+              <h3>제출 문서</h3>
+              <ul class="document-list">
+                <li v-for="(doc, index) in project.documents" :key="index">
+                  <div class="document-item">
+                    <span class="doc-name" @click="openDocument(doc)">
+                      {{ doc.name }}
+                    </span>
+                    <div class="doc-controls">
+                      <button
+                        :class="['review-status', { reviewed: doc.reviewed }]"
+                        @click="toggleReviewStatus(index)"
+                      >
+                        {{ doc.reviewed ? '검토 완료' : '검토 중' }}
+                      </button>
+                      <button 
+                        class="review-memo"
+                        @click="openMemoModal(index)"
+                      >
+                        메모
+                      </button>
+                    </div>
+                  </div>
+                  <p v-if="doc.memo" class="doc-memo">메모: {{ doc.memo }}</p>
+                </li>
+              </ul>
+            </div>
+
+            <!-- 승인/반려 버튼 그룹 -->
+            <div class="button-group">
+              <button class="action-button" @click="goBack">목록</button>
               <button
-                :class="{ reviewed: doc.reviewed }"
-                @click="toggleReviewStatus(index)"
+                class="action-button approve-button"
+                :disabled="!allDocumentsReviewed"
+                @click="openApproveModal"
               >
-                {{ doc.reviewed ? '검토 완료' : '검토 중' }}
+                승인
               </button>
-            </li>
-          </ul>
-
-
-          <!-- 버튼 그룹 -->
-          <div class="button-group">
-            <button class="action-button" @click="goBack">목록</button>
-            <button
-              class="action-button approve-button"
-              :disabled="!allDocumentsReviewed"
-              @click="openApproveModal"
-            >
-              승인
-            </button>
-            <button class="action-button reject-button" @click="openRejectModal">
-              반려
-            </button>
+              <button 
+                class="action-button reject-button" 
+                @click="openRejectModal"
+              >
+                반려
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-
-      <!-- 문서 모달 -->
+      <!-- 문서 조회 모달 -->
       <div v-if="showModal" class="modal">
         <div class="modal-content">
           <span class="close" @click="closeModal">&times;</span>
           <h3>{{ selectedDoc.name }}</h3>
-          <p>{{ selectedDoc.content }}</p>
+          <div class="document-preview">
+            <p>{{ selectedDoc.content }}</p>
+          </div>
         </div>
       </div>
 
+      <!-- 메모 입력 모달 -->
+      <div v-if="showMemoModal" class="modal">
+        <div class="modal-content">
+          <span class="close" @click="closeMemoModal">&times;</span>
+          <h3>검토 메모</h3>
+          <textarea 
+            v-model="currentMemo" 
+            placeholder="검토 메모를 입력하세요"
+          ></textarea>
+          <button class="submit-button" @click="saveMemo">저장</button>
+        </div>
+      </div>
 
       <!-- 승인 확인 모달 -->
       <div v-if="showApproveModal" class="modal">
@@ -83,22 +157,15 @@
         </div>
       </div>
 
-
-      <!-- 승인 완료 모달 -->
-      <div v-if="showApprovedModal" class="modal">
-        <div class="modal-content">
-          <h3>프로젝트가 승인되었습니다.</h3>
-          <button class="close-button" @click="closeApprovedModal">확인</button>
-        </div>
-      </div>
-
-      
       <!-- 반려 사유 모달 -->
       <div v-if="showRejectModal" class="modal">
         <div class="modal-content">
           <span class="close" @click="closeRejectModal">&times;</span>
           <h3>반려 사유 입력</h3>
-          <textarea v-model="rejectReason" placeholder="반려 사유를 입력하세요"></textarea>
+          <textarea 
+            v-model="rejectReason" 
+            placeholder="반려 사유를 입력하세요"
+          ></textarea>
           <button class="submit-button" @click="submitRejection">제출</button>
         </div>
       </div>
@@ -107,6 +174,8 @@
 </template>
 
 <script>
+import {projectApi} from "@/api/projectApi.js";
+
 export default {
   name: 'ProjectDetail',
   props: ['id'],
@@ -116,35 +185,73 @@ export default {
       userName: '관리자',
       project: {
         id: this.id,
-        name: '',
+        name: '프로젝트 A',
         seller: '판매자 A',
-        image: 'https://via.placeholder.com/300',
-        documents: [
-          { name: '설계서.pdf', content: '설계서 내용', reviewed: false },
-          { name: '사업 계획서.pdf', content: '사업 계획서 내용', reviewed: false },
-          { name: '마케팅 전략.pdf', content: '마케팅 전략 내용', reviewed: false },
+        category: '생활 가전',
+        plan: '스탠다드 플랜',
+        price: 100000,
+        discount: 10,
+        targetAmount: 1000000,
+        description: '프로젝트 상세 설명입니다...',
+        thumbnailImage: 'https://via.placeholder.com/300',
+        additionalImages: [
+          'https://via.placeholder.com/150',
+          'https://via.placeholder.com/150',
+          'https://via.placeholder.com/150'
         ],
-        reviewStatus: '승인 대기',
+        contentImage: 'https://via.placeholder.com/600',
+        documents: [
+          { 
+            name: '상품 기획서.pdf', 
+            content: '상품 기획서 내용', 
+            reviewed: false,
+            memo: '' 
+          },
+          { 
+            name: '펀딩 기획서.pdf', 
+            content: '펀딩 기획서 내용', 
+            reviewed: false,
+            memo: '' 
+          },
+          { 
+            name: '개인정보 이용동의서.pdf', 
+            content: '개인정보 이용동의서 내용', 
+            reviewed: false,
+            memo: '' 
+          },
+          { 
+            name: '추가 서류.pdf', 
+            content: '추가 서류 내용', 
+            reviewed: false,
+            memo: '' 
+          }
+        ],
+        reviewStatus: '승인 대기'
       },
       showModal: false,
-      selectedDoc: null,
+      showMemoModal: false,
       showRejectModal: false,
-      rejectReason: '',
       showApproveModal: false,
-      showApprovedModal: false,
+      selectedDoc: null,
+      currentMemoIndex: null,
+      currentMemo: '',
+      rejectReason: ''
     };
   },
   computed: {
     allDocumentsReviewed() {
       return this.project.documents.every((doc) => doc.reviewed);
-    },
+    }
   },
   methods: {
+    formatPrice(price) {
+      return new Intl.NumberFormat('ko-KR', { 
+        style: 'currency', 
+        currency: 'KRW'
+      }).format(price);
+    },
     logout() {
       this.$router.push('/admin');
-    },
-    isActive(path) {
-      return this.$route.path.startsWith(path);
     },
     openDocument(doc) {
       this.selectedDoc = doc;
@@ -157,6 +264,22 @@ export default {
     toggleReviewStatus(index) {
       this.project.documents[index].reviewed = !this.project.documents[index].reviewed;
     },
+    openMemoModal(index) {
+      this.currentMemoIndex = index;
+      this.currentMemo = this.project.documents[index].memo;
+      this.showMemoModal = true;
+    },
+    closeMemoModal() {
+      this.showMemoModal = false;
+      this.currentMemoIndex = null;
+      this.currentMemo = '';
+    },
+    saveMemo() {
+      if (this.currentMemoIndex !== null) {
+        this.project.documents[this.currentMemoIndex].memo = this.currentMemo;
+      }
+      this.closeMemoModal();
+    },
     openApproveModal() {
       this.showApproveModal = true;
     },
@@ -164,15 +287,8 @@ export default {
       this.showApproveModal = false;
     },
     confirmApproval() {
-      this.showApproveModal = false;
       this.project.reviewStatus = '승인';
-      this.showApprovedModal = true;
-    },
-    closeApprovedModal() {
-      this.showApprovedModal = false;
-      this.$router.push({ name: 'ProjectManagement' });
-    },
-    goBack() {
+      this.closeApproveModal();
       this.$router.push({ name: 'ProjectManagement' });
     },
     openRejectModal() {
@@ -183,23 +299,21 @@ export default {
       this.rejectReason = '';
     },
     submitRejection() {
-      if (this.rejectReason.trim() === '') {
+      if (!this.rejectReason.trim()) {
         alert('반려 사유를 입력해주세요.');
         return;
       }
-      alert(`프로젝트가 반려되었습니다.\n사유: ${this.rejectReason}`);
-
       this.project.reviewStatus = '반려';
       this.closeRejectModal();
-      this.goBack();
+      this.$router.push({ name: 'ProjectManagement' });
     },
-  },
-  mounted() {
-    this.project.name = `프로젝트 ${this.project.id}`;
-  },
+    goBack() {
+      this.$router.push({ name: 'ProjectManagement' });
+    }
+  }
 };
-</script>
 
+</script>
 <style scoped>
 .dashboard {
   display: flex;
@@ -226,6 +340,7 @@ header button {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 header button:hover {
@@ -245,45 +360,195 @@ header button:hover {
   flex: 2;
 }
 
-.project-image {
+.image-section h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.main-image,
+.content-image {
   width: 100%;
   border-radius: 8px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.additional-images {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.additional-image {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.additional-image:hover {
+  transform: scale(1.05);
+}
+
+.project-info h2 {
+  margin-bottom: 1.5rem;
+  color: #333;
+  font-size: 1.8rem;
+}
+
+.info-section {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.info-section h3 {
+  color: #333;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.info-item {
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+.info-item label {
+  color: #666;
+  font-size: 0.9rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.info-item p {
+  font-size: 1.1rem;
+  color: #333;
+  font-weight: 500;
+  margin: 0;
+}
+
+.description-section {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.description-section h3 {
+  color: #333;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.description-section p {
+  color: #666;
+  line-height: 1.6;
+}
+
+.document-section {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.document-section h3 {
+  color: #333;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
 }
 
 .document-list {
-  list-style-type: none;
+  list-style: none;
   padding: 0;
-  margin-top: 1rem;
 }
 
-.document-list li {
+.document-item {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+  background: #f8f9fa;
 }
 
-.document-list span {
-  cursor: pointer;
+.doc-name {
   color: #0065cb;
+  cursor: pointer;
   text-decoration: underline;
+  font-weight: 500;
 }
 
-.document-list button {
-  margin-left: 1rem;
+.doc-name:hover {
+  color: #0055a3;
+}
+
+.doc-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.review-status,
+.review-memo {
   padding: 0.5rem 1rem;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s;
 }
 
-.document-list button.reviewed {
-  background-color: green;
+.review-status.reviewed {
+  background-color: #28a745;
   color: white;
 }
 
-.document-list button:not(.reviewed) {
-  background-color: red;
+.review-status.reviewed:hover {
+  background-color: #218838;
+}
+
+.review-status:not(.reviewed) {
+  background-color: #dc3545;
   color: white;
+}
+
+.review-status:not(.reviewed):hover {
+  background-color: #c82333;
+}
+
+.review-memo {
+  background-color: #6c757d;
+  color: white;
+}
+
+.review-memo:hover {
+  background-color: #5a6268;
+}
+
+.doc-memo {
+  margin: 0.5rem 0 1rem 1rem;
+  color: #666;
+  font-style: italic;
+  font-size: 0.9rem;
 }
 
 .button-group {
@@ -296,15 +561,19 @@ header button:hover {
   flex: 1;
   padding: 0.75rem 0;
   font-size: 1rem;
-  background-color: #cccccc;
-  color: #333;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  transition: background-color 0.3s;
 }
 
-.action-button:hover {
-  background-color: #bbbbbb;
+.action-button:first-child {
+  background-color: #6c757d;
+  color: white;
+}
+
+.action-button:first-child:hover {
+  background-color: #5a6268;
 }
 
 .approve-button {
@@ -317,8 +586,9 @@ header button:hover {
 }
 
 .approve-button:disabled {
-  background-color: gray;
+  background-color: #6c757d;
   cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .reject-button {
@@ -330,7 +600,7 @@ header button:hover {
   background-color: #c82333;
 }
 
-/* 모달 스타일 */
+/* Modal Styles */
 .modal {
   position: fixed;
   top: 0;
@@ -341,16 +611,19 @@ header button:hover {
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1000;
 }
 
 .modal-content {
   background-color: white;
   padding: 2rem;
   border-radius: 8px;
-  width: 100%;
-  max-width: 500px;
+  width: 90%;
+  max-width: 600px;
   position: relative;
-  text-align: center;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .close {
@@ -359,22 +632,68 @@ header button:hover {
   right: 1rem;
   cursor: pointer;
   font-size: 1.5rem;
+  color: #666;
+  transition: color 0.3s;
 }
 
-.button-group {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-top: 1.5rem;
+.close:hover {
+  color: #333;
 }
 
-.confirm-button,
-.cancel-button,
-.close-button {
-  padding: 0.5rem 1.5rem;
+.modal h3 {
+  margin-bottom: 1.5rem;
+  color: #333;
+  font-size: 1.4rem;
+}
+
+.document-preview {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  margin: 1rem 0;
+  resize: vertical;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: #0065cb;
+}
+
+.submit-button {
+  padding: 0.75rem 1.5rem;
+  background-color: #0065cb;
+  color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s;
+}
+
+.submit-button:hover {
+  background-color: #0055a3;
+}
+
+.confirm-button,
+.cancel-button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s;
 }
 
 .confirm-button {
@@ -395,34 +714,62 @@ header button:hover {
   background-color: #c82333;
 }
 
-.close-button {
-  background-color: #0065cb;
-  color: white;
+/* Responsive Styles */
+@media (max-width: 1024px) {
+  .project-detail {
+    flex-direction: column;
+  }
+
+  .left-panel,
+  .right-panel {
+    flex: none;
+    width: 100%;
+  }
+
+  .info-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
-.close-button:hover {
-  background-color: #0055a3;
+@media (max-width: 768px) {
+  .content {
+    padding: 1rem;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .additional-images {
+    justify-content: center;
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+
+  .modal-content {
+    width: 95%;
+    padding: 1.5rem;
+  }
 }
 
-.modal textarea {
-  width: 100%;
-  height: 100px;
-  margin-top: 1rem;
-  padding: 0.5rem;
-  font-size: 1rem;
-}
+@media (max-width: 480px) {
+  .document-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
 
-.submit-button {
-  margin-top: 1rem;
-  padding: 0.75rem 1.5rem;
-  background-color: #0065cb;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
+  .doc-controls {
+    width: 100%;
+    justify-content: stretch;
+  }
 
-.submit-button:hover {
-  background-color: #0055a3;
+  .review-status,
+  .review-memo {
+    flex: 1;
+    text-align: center;
+  }
 }
 </style>

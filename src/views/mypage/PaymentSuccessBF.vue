@@ -53,24 +53,6 @@ export default{
         paymentKey: this.paymentKey,
       };
 
-      // // 2. 결제 승인 성공 후 프로젝트 등록
-      // const projectData = JSON.parse(sessionStorage.getItem('projectData'));
-
-      // const formData = new FormData();
-      // formData.append('orderName', projectData.name);
-      // formData.append('selectedPlan', projectData.selectedPlan);
-      // formData.append('amount', this.$route.query.amount);
-      // formData.append('category', projectData.category);
-      // formData.append('makerId', this.makerId);
-      // formData.append('summary', projectData.description);
-      // formData.append('discount', projectData.discount);
-      // formData.append('targetAmount', projectData.targetAmount);
-      //
-      // // 이미지 배열 처리
-      // projectData.contentImage.forEach((image, index) => {
-      //   formData.append(`contentImage[${index}]`, image);
-      // });
-
       try{
         console.log('API 호출 시작')
         console.log('결제 수단 체크 by yejin1: ', this.method);
