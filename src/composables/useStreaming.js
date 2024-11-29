@@ -122,7 +122,7 @@ export const useStreaming = () => {
 
       socket.value.on('new-producer', consume)
 
-      if (userRole.value === 'host') {
+      if (userRole.value === 'maker') {
         await startCamera()
       }
 
