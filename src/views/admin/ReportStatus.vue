@@ -161,7 +161,7 @@ data() {
 
   async deactivateUser() {
     try {
-      await chatApi.updateUserStatus(this.selectedReport.id, '비활성화');
+      await chatApi.updateUserStatus(this.selectedReport.id, '비활성화', true);
       alert(`사용자 ${this.selectedReport.userId}가 비활성화되었습니다.`);
 
       this.closeModal();
@@ -182,7 +182,7 @@ data() {
 
   async suspendUser() {
       try{
-        await chatApi.updateUserStatus(this.selectedReport.id, '정지');
+        await chatApi.updateUserStatus(this.selectedReport.id, '정지', true);
         alert(`사용자 ${this.selectedReport.userId}가 정지되었습니다.`);
         this.closeModal();
         await this.fetchReports();
@@ -192,14 +192,18 @@ data() {
       }
   },
 
-  deleteReport() {
+  async deleteReport() {
     const confirmed = confirm("이 신고를 삭제하시겠습니까?");
     if (confirmed) {
-      this.reports = this.reports.filter(
-        (report) => report.id !== this.selectedReport.id
-      );
-      alert("신고가 삭제되었습니다.");
-      this.closeModal();
+      try {
+        await chatApi.updateUserStatus(this.selectedReport.id, '활성화', true);
+        alert("신고가 삭제되었습니다.");
+        this.closeModal();
+        await this.fetchReports();
+    }catch(error){
+        console.error('신고 삭제 중 오류가 발생했습니다:', error);
+        alert('신고 삭제에 실패했습니다.');
+      }
     }
   },
 
