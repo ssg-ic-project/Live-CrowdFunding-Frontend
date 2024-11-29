@@ -306,6 +306,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 import {ANONYMOUS, loadPaymentWidget} from "@tosspayments/payment-widget-sdk";
 
 export default {
@@ -397,6 +398,10 @@ export default {
       initialPrice: 70000,
       paymentWidget: null,
       showPaymentTossWidgetModal: false,
+      clientKey: 'test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm',
+      initialPrice: 70000,
+      paymentWidget: null,
+      showPaymentTossWidgetModal: false,
     };
   },
   computed: {
@@ -404,6 +409,11 @@ export default {
       return this.pricingPlans.find(plan => plan.id === this.selectedPlan) || {name: '-', price: 0};
     },
     formattedSelectedPrice() {
+      return this.selectedPlanInfo.price ?
+          new Intl.NumberFormat('ko-KR', {
+            style: 'currency',
+            currency: 'KRW'
+          }).format(this.selectedPlanInfo.price) : '0원';
       return this.selectedPlanInfo.price ?
           new Intl.NumberFormat('ko-KR', {
             style: 'currency',
@@ -439,28 +449,52 @@ export default {
 
   },
 
+  // async mounted() {
+  //   await this.initTossPayments()
+  // },
+  watch: {
+    reviewSuccess: {
+      async handler(newVal){
+        if(newVal){
+          await this.initTossPayments();
+        }
+      },
+      immediate: false
+    },
+    // URL query parameter 감시
+    '$route.query.showSuccessModal': {
+      immediate: true,
+      handler(newVal) {
+        if (newVal === 'true') {
+          this.showPaymentCompleteModal = true;
+        }
+      }
+    }
+  },
   methods: {
-
     async handlePayment() {
-     // this.showPaymentTossWidgetModal = true;
       try {
-        // await this.initTossPayments();
-        //
-        // await this.showPaymentModal();
-
+        //project 데이터 저장
+        const projectData = {
+          selectedPlan: this.selectedPlan,
+          makerId: this.makerId, //로그인한 사용자의 정보 가지고 오기
+          orderName: this.orderName, //project name
+          category: this.category,
+          amount: this.amount,
+          targetAmount: this.targetAmount,
+          summary: this.summary,
+          discount: this.discount,
+          contentImage: this.contentImage
+        }
+        sessionStorage.setItem('projectData', JSON.stringify(projectData));
         await this.confirmPayment();
-
       } catch (error) {
         console.error('결제 처리 중 오류 발생:', error);
       }
-
     },
-
-
     sout() {
       console.log('checking Yejin')
     },
-
     formatPrice(price) {
       return new Intl.NumberFormat('ko-KR', {
         style: 'currency',
@@ -587,6 +621,45 @@ export default {
       }
       return true;
     },
+    async initTossPayments() {
+      try {
+        const paymentWidget = await loadPaymentWidget(this.clientKey, ANONYMOUS)
+        await paymentWidget.renderPaymentMethods('#payment-method', {
+          value: this.initialPrice,
+          currency: 'KRW',
+          country: 'KR'
+        })
+        await paymentWidget.renderAgreement('#agreement')
+        this.paymentWidget = paymentWidget
+      } catch (error) {
+        console.error('토스페이먼츠 초기화 실패:', error)
+      }
+    },
+    async confirmPayment() {
+    console.log("탱큐 포 결제💸")
+    const orderId = this.generateOrderId();
+    if(this.paymentWidget){
+      try{
+        const paymentConfig = {
+          orderId: orderId, //토스에서 필요함
+          orderName: this.project.name, //토스에서 필요함
+          amount:this.initialPrice,
+          successUrl: `${window.location.origin}${this.$router.resolve({ name: 'PaymentSuccessBF'
+          }).href}`,
+          failUrl: `${window.location.origin}${this.$router.resolve({ name: 'PaymentFailBF' }).href}`
+        };
+          // 결제 요청
+          await this.paymentWidget.requestPayment(paymentConfig);
+      }catch(error){
+        console.error(error);
+      }
+    }else{
+      alert('결제가 진행되지 않았습니다.');
+    }
+  },
+
+    async simulateReviewProcess() {
+    },
     startReview() {
       let progress = 0;
       this.currentMessageIndex = 0;
@@ -707,21 +780,20 @@ export default {
       this.$router.push("/mypage/funding-status");
     });
   },
-
-  closeModal() {
-    this.showReviewModal = false;
-    this.reviewProgress = 0;
-    this.reviewComplete = false;
-    this.reviewMessage = "프로젝트를 검토중입니다...";
-  },
-
+    closeModal() {
+      this.showReviewModal = false;
+      this.reviewProgress = 0;
+      this.reviewComplete = false;
+      this.reviewMessage = "프로젝트를 검토중입니다...";
+    },
     generateOrderId(){
       const timestamp = Date.now().toString();
       const random = Math.random().toString().slice(2,8);
       return timestamp + random;
-    }
-  },
-};
+    },
+  }
+}
+
 
 </script>
 
