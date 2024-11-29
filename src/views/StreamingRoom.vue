@@ -136,7 +136,7 @@ onMounted(async () => {
 })
 const handleLeaveRoom = async () => {
   await leaveRoom()
-  await router.push('/')  
+  await router.push('/')
 }
 
 onBeforeUnmount(() => {
