@@ -131,9 +131,11 @@
             <label>카테고리</label>
             <select v-model="editProject.category" class="form-input">
               <option value="">카테고리 선택</option>
-              <option value="생활가전">생활가전</option>
-              <option value="디지털기기">디지털기기</option>
-              <option value="패션">패션</option>
+              <option v-for="category in categories" 
+                      :key="category.id" 
+                      :value="category.id">
+                {{ category.name }}
+              </option>
             </select>
           </div>
 
@@ -224,7 +226,16 @@ export default {
       error: null,
       isEditing: false,
       newImages: [], // 새로 추가된 이미지 파일들
-      newContentImage: null // 새로 추가된 상세 이미지 파일
+      newContentImage: null, // 새로 추가된 상세 이미지 파일
+      categories: [
+        { id: 1, name: "생활 가전" },
+        { id: 2, name: "주방 가전" },
+        { id: 3, name: "스마트 가전" },
+        { id: 4, name: "DIY" },
+        { id: 5, name: "엔터테인먼트" },
+        { id: 6, name: "웨어러블" },
+        { id: 7, name: "주변 기기" },
+      ]
     }
   },
 
@@ -297,7 +308,15 @@ export default {
       if (!this.isEditing) {
         try {
           const response = await axios.get(`/api/project/${this.$route.params.id}/update`);
-          this.editProject = response.data;
+
+          const categoryId = this.categories.find(
+            category => category.name === response.data.category
+          )?.id;
+
+          this.editProject = {
+            ...response.data,
+            category: categoryId // 카테고리 이름 대신 ID를 설정
+          };
           this.isEditing = true;
         } catch (error) {
           console.error('수정 정보 조회 실패:', error);
@@ -350,43 +369,66 @@ export default {
       try {
         const formData = new FormData();
         
-        // 프로젝트 기본 정보
-        formData.append('productName', this.editProject.productName);
-        formData.append('category', this.editProject.category);
-        formData.append('price', this.editProject.price);
-        formData.append('discountPercentage', this.editProject.discountPercentage);
-        formData.append('goalAmount', this.editProject.goalAmount);
-        formData.append('summary', this.editProject.summary);
+        // requestDTO 구성
+        const requestDTO = {
+          categoryId: this.editProject.category,
+          productName: this.editProject.productName,
+          summary: this.editProject.summary,
+          price: parseInt(this.editProject.price),
+          discountPercentage: parseInt(this.editProject.discountPercentage),
+          goalAmount: parseInt(this.editProject.goalAmount)
+        };
 
-        // 새로운 이미지들 추가
-        this.newImages.forEach((file, index) => {
-          formData.append(`images`, file);
+        const requestDTOBlob = new Blob([JSON.stringify(requestDTO)], { 
+          type: 'application/json' 
         });
+        formData.append('requestDTO', requestDTOBlob);
 
-        // 새로운 상세 이미지 추가
+        // 이미지 파일들 추가
+        if (this.newImages.length > 0) {
+          this.newImages.forEach((file) => {
+            formData.append('images', file);
+          });
+        }
+
+        // 상세 이미지 추가
         if (this.newContentImage) {
           formData.append('contentImage', this.newContentImage);
         }
 
-        await axios.put(`/api/project/${this.$route.params.id}`, formData, {
+        // FormData 내용 확인
+        for (let pair of formData.entries()) {
+          console.log(pair[0] + ': ' + pair[1]); 
+        }
+
+        // 서버로 전송
+        const response = await axios.patch(`/api/project/${this.$route.params.id}`, formData, {
           headers: {
-            'Content-Type': 'multipart/form-data'
+            'Content-Type': undefined
           }
         });
 
+        console.log('서버 응답:', response); // 응답 확인
+
+        // 성공 처리
+        alert('프로젝트가 성공적으로 수정되었습니다.');
         this.isEditing = false;
-        this.fetchProjectDetails(); // 수정 후 데이터 다시 조회
+        await this.fetchProjectDetails();
+
       } catch (error) {
         console.error('프로젝트 수정 실패:', error);
-        // 에러 처리
+        console.error('에러 응답:', error.response?.data); // 서버 에러 메시지 확인
+        alert('프로젝트 수정 중 오류가 발생했습니다. 다시 시도해주세요.');
       }
     },
 
     cancelEdit() {
-      this.isEditing = false;
-      this.editProject = null;
-      this.newImages = [];
-      this.newContentImage = null;
+      if (confirm('수정을 취소하시겠습니까? 변경사항이 저장되지 않습니다.')) {
+        this.isEditing = false;
+        this.editProject = null;
+        this.newImages = [];
+        this.newContentImage = null;
+      }
     }
   }
 }
