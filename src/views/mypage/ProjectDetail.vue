@@ -97,11 +97,25 @@
         <h3>상품 정보</h3>
         <div class="description">{{ project.summary }}</div>
         <div class="image-section">
+          <!-- 썸네일 이미지 -->
           <div class="image-group">
-            <span class="label">이미지 목록</span>
+            <span class="label">썸네일 이미지</span>
+            <div class="thumbnail-image">
+              <img 
+                v-if="thumbnailImage"
+                :src="thumbnailImage.url"
+                :alt="thumbnailImage.name"
+                class="product-image thumbnail"
+              />
+            </div>
+          </div>
+
+          <!-- 추가 이미지 목록 -->
+          <div class="image-group" v-if="additionalImages.length > 0">
+            <span class="label">추가 이미지</span>
             <div class="additional-images">
               <img 
-                v-for="image in project.images" 
+                v-for="image in additionalImages" 
                 :key="image.id"
                 :src="image.url"
                 :alt="image.name"
@@ -109,9 +123,16 @@
               />
             </div>
           </div>
+
+          <!-- 상세 이미지 -->
           <div class="image-group">
-            <span class="label">상세 이미지</span>
-            <img :src="project.contentImage" alt="상세 이미지" class="detail-image" />
+            <span class="label">내용 이미지</span>
+            <img 
+              v-if="project.contentImage" 
+              :src="project.contentImage" 
+              alt="상세 이미지" 
+              class="detail-image" 
+            />
           </div>
         </div>
       </div>
@@ -164,21 +185,65 @@
       <div class="section">
         <h3>이미지 수정</h3>
         <div class="edit-form">
+          <!-- 썸네일 이미지 -->
           <div class="form-group">
-            <label>이미지 목록</label>
-            <div class="image-list">
-              <div v-for="(image, index) in editProject.images" :key="index" class="image-item">
-                <img :src="image.url" :alt="image.name" class="preview-image" />
-                <button @click="removeImage(index)" class="remove-btn">삭제</button>
+            <label>썸네일 이미지</label>
+            <div class="image-preview">
+              <div class="image-item" v-if="editThumbnailImage">
+                <img 
+                  :src="editThumbnailImage.url" 
+                  alt="썸네일 이미지" 
+                  class="preview-image"
+                />
+                <button type="button" @click="removeThumbnail" class="remove-btn">삭제</button>
               </div>
             </div>
-            <input type="file" @change="addImages" multiple accept="image/*" class="file-input" />
+            <input 
+              type="file" 
+              @change="handleThumbnailUpload" 
+              accept="image/*" 
+              class="file-input" 
+            />
           </div>
 
+          <!-- 추가 이미지 -->
           <div class="form-group">
-            <label>상세 이미지</label>
-            <img v-if="editProject.contentImage" :src="editProject.contentImage" alt="상세 이미지" class="preview-image" />
-            <input type="file" @change="updateContentImage" accept="image/*" class="file-input" />
+            <label>추가 이미지</label>
+            <div class="image-list">
+              <div v-for="(image, index) in editAdditionalImages" :key="index" class="image-item">
+                <img :src="image.url" :alt="image.name" class="preview-image" />
+                <button type="button" @click="removeImage(index)" class="remove-btn">삭제</button>
+              </div>
+            </div>
+            <input 
+              type="file" 
+              @change="handleAdditionalImages" 
+              multiple 
+              accept="image/*" 
+              class="file-input"
+            />
+            <small class="text-muted">최대 5개까지 추가 가능</small>
+          </div>
+
+          <!-- 상세 이미지 -->
+          <div class="form-group">
+            <label>내용 이미지</label>
+            <div class="image-preview">
+              <div class="image-item" v-if="editProject.contentImage">
+                <img 
+                  :src="editProject.contentImage" 
+                  alt="상세 이미지" 
+                  class="preview-image" 
+                />
+                <button type="button" @click="removeContentImage" class="remove-btn">삭제</button>
+              </div>
+            </div>
+            <input 
+              type="file" 
+              @change="updateContentImage" 
+              accept="image/*" 
+              class="file-input" 
+            />
           </div>
         </div>
 
@@ -200,6 +265,7 @@
     </div>
   </div>
 
+  <!-- 검토 요청 확인 모달 -->
   <div v-if="showApprovalConfirmModal" class="modal">
     <div class="modal-content">
       <h3>검토 요청 확인</h3>
@@ -225,8 +291,7 @@ export default {
       loading: true,
       error: null,
       isEditing: false,
-      newImages: [], // 새로 추가된 이미지 파일들
-      newContentImage: null, // 새로 추가된 상세 이미지 파일
+      showApprovalConfirmModal: false,
       categories: [
         { id: 1, name: "생활 가전" },
         { id: 2, name: "주방 가전" },
@@ -235,7 +300,28 @@ export default {
         { id: 5, name: "엔터테인먼트" },
         { id: 6, name: "웨어러블" },
         { id: 7, name: "주변 기기" },
-      ]
+      ],
+      thumbnailFile: null,
+      additionalFiles: [],
+      contentImageFile: null,
+    }
+  },
+
+  computed: {
+    // 조회 모드용 computed 속성
+    thumbnailImage() {
+      return this.project?.images?.find(img => img.imageNumber === "1") || null;
+    },
+    additionalImages() {
+      return this.project?.images?.filter(img => img.imageNumber !== "1") || [];
+    },
+
+    // 수정 모드용 computed 속성
+    editThumbnailImage() {
+      return this.editProject?.images?.find(img => img.imageNumber === "1") || null;
+    },
+    editAdditionalImages() {
+      return this.editProject?.images?.filter(img => img.imageNumber !== "1") || [];
     }
   },
 
@@ -256,12 +342,27 @@ export default {
         this.loading = false;
       }
     },
+    removeThumbnail() {
+      // 썸네일 이미지 제거
+      const thumbnailIndex = this.editProject.images.findIndex(img => img.imageNumber === "1");
+      if (thumbnailIndex !== -1) {
+        this.editProject.images.splice(thumbnailIndex, 1);
+      }
+      this.thumbnailFile = null;
+    },
+
+    removeContentImage() {
+      // 상세 이미지 제거
+      this.editProject.contentImage = null;
+      this.contentImageFile = null;
+    },
 
     formatPrice(price) {
       return price?.toLocaleString('ko-KR') + '원'
     },
 
     formatDate(date) {
+      if (!date) return '-';
       return new Date(date).toLocaleDateString('ko-KR')
     },
 
@@ -286,21 +387,25 @@ export default {
     },
 
     async requestApproval() {
-      const confirmed = confirm('검토를 재요청하시겠습니까?');
-    
-      if (confirmed) {
-        try {
-          await axios.patch(`/api/project/${this.$route.params.id}/status`, {
-            status: '검토중'  // 검토중 상태로 변경
-          });
-          
-          // 성공 시 데이터 다시 불러오기
-          alert('재검토 요청이 완료되었습니다.');
-          await this.fetchProjectDetails();
-        } catch (error) {
-          console.error('검토 요청 실패:', error);
-          alert('검토 요청에 실패했습니다. 다시 시도해주세요.');
-        }
+      this.showApprovalConfirmModal = true;
+    },
+
+    closeApprovalConfirmModal() {
+      this.showApprovalConfirmModal = false;
+    },
+
+    async confirmApproval() {
+      try {
+        await axios.patch(`/api/project/${this.$route.params.id}/status`, {
+          status: '검토중'
+        });
+        
+        alert('재검토 요청이 완료되었습니다.');
+        this.showApprovalConfirmModal = false;
+        await this.fetchProjectDetails();
+      } catch (error) {
+        console.error('검토 요청 실패:', error);
+        alert('검토 요청에 실패했습니다. 다시 시도해주세요.');
       }
     },
 
@@ -315,29 +420,70 @@ export default {
 
           this.editProject = {
             ...response.data,
-            category: categoryId // 카테고리 이름 대신 ID를 설정
+            category: categoryId
           };
           this.isEditing = true;
         } catch (error) {
           console.error('수정 정보 조회 실패:', error);
-          // 에러 처리
+          alert('수정 정보를 불러오는데 실패했습니다.');
         }
       } else {
         this.saveChanges();
       }
     },
 
-    addImages(event) {
-      const files = Array.from(event.target.files);
-      this.newImages.push(...files);
-      
-      // 미리보기 생성
-      files.forEach(file => {
+    handleThumbnailUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        this.thumbnailFile = file;
+        // 미리보기 생성
         const reader = new FileReader();
         reader.onload = (e) => {
+          if (!this.editProject.images) {
+            this.editProject.images = [];
+          }
+          
+          // 기존 썸네일 찾기 및 교체/추가
+          const thumbnailIndex = this.editProject.images.findIndex(img => img.imageNumber === "1");
+          const newThumbnail = {
+            url: e.target.result,
+            name: file.name,
+            imageNumber: "1"
+          };
+          
+          if (thumbnailIndex !== -1) {
+            this.editProject.images[thumbnailIndex] = newThumbnail;
+          } else {
+            this.editProject.images.push(newThumbnail);
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    },
+
+    handleAdditionalImages(event) {
+      const files = Array.from(event.target.files);
+      const maxAdditionalImages = 5 - this.editAdditionalImages.length;
+      const selectedFiles = files.slice(0, maxAdditionalImages);
+
+      this.additionalFiles = [...this.additionalFiles, ...selectedFiles];
+
+      selectedFiles.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          if (!this.editProject.images) {
+            this.editProject.images = [];
+          }
+
+          // 새로운 이미지의 imageNumber는 기존 가장 큰 번호 + 1
+          const maxImageNumber = Math.max(
+            ...this.editProject.images.map(img => parseInt(img.imageNumber) || 0)
+          );
+          
           this.editProject.images.push({
             url: e.target.result,
-            name: file.name
+            name: file.name,
+            imageNumber: String(maxImageNumber + 1)
           });
         };
         reader.readAsDataURL(file);
@@ -347,7 +493,7 @@ export default {
     updateContentImage(event) {
       const file = event.target.files[0];
       if (file) {
-        this.newContentImage = file;
+        this.contentImageFile = file;
         
         // 미리보기 생성
         const reader = new FileReader();
@@ -359,9 +505,19 @@ export default {
     },
 
     removeImage(index) {
-      this.editProject.images.splice(index, 1);
-      if (this.newImages[index]) {
-        this.newImages.splice(index, 1);
+      // 추가 이미지 목록에서 해당 인덱스의 이미지를 제거
+      const imageToRemove = this.editAdditionalImages[index];
+      const imageIndex = this.editProject.images.findIndex(img => 
+        img.url === imageToRemove.url && img.imageNumber === imageToRemove.imageNumber
+      );
+      
+      if (imageIndex !== -1) {
+        this.editProject.images.splice(imageIndex, 1);
+      }
+      
+      // 파일 배열에서도 제거
+      if (this.additionalFiles[index]) {
+        this.additionalFiles.splice(index, 1);
       }
     },
 
@@ -376,48 +532,43 @@ export default {
           summary: this.editProject.summary,
           price: parseInt(this.editProject.price),
           discountPercentage: parseInt(this.editProject.discountPercentage),
-          goalAmount: parseInt(this.editProject.goalAmount)
+          goalAmount: parseInt(this.editProject.goalAmount),
+          thumbnailRemoved: !this.editThumbnailImage && !this.thumbnailFile,
+          contentImageRemoved: !this.editProject.contentImage && !this.contentImageFile
         };
 
-        const requestDTOBlob = new Blob([JSON.stringify(requestDTO)], { 
+        formData.append('requestDTO', new Blob([JSON.stringify(requestDTO)], { 
           type: 'application/json' 
-        });
-        formData.append('requestDTO', requestDTOBlob);
+        }));
 
         // 이미지 파일들 추가
-        if (this.newImages.length > 0) {
-          this.newImages.forEach((file) => {
+        if (this.thumbnailFile) {
+          formData.append('images', this.thumbnailFile);
+        }
+
+        if (this.additionalFiles.length > 0) {
+          this.additionalFiles.forEach(file => {
             formData.append('images', file);
           });
         }
 
         // 상세 이미지 추가
-        if (this.newContentImage) {
-          formData.append('contentImage', this.newContentImage);
+        if (this.contentImageFile) {
+          formData.append('contentImage', this.contentImageFile);
         }
 
-        // FormData 내용 확인
-        for (let pair of formData.entries()) {
-          console.log(pair[0] + ': ' + pair[1]); 
-        }
-
-        // 서버로 전송
-        const response = await axios.patch(`/api/project/${this.$route.params.id}`, formData, {
+        await axios.patch(`/api/project/${this.$route.params.id}`, formData, {
           headers: {
             'Content-Type': undefined
           }
         });
 
-        console.log('서버 응답:', response); // 응답 확인
-
-        // 성공 처리
         alert('프로젝트가 성공적으로 수정되었습니다.');
         this.isEditing = false;
         await this.fetchProjectDetails();
 
       } catch (error) {
         console.error('프로젝트 수정 실패:', error);
-        console.error('에러 응답:', error.response?.data); // 서버 에러 메시지 확인
         alert('프로젝트 수정 중 오류가 발생했습니다. 다시 시도해주세요.');
       }
     },
@@ -426,8 +577,9 @@ export default {
       if (confirm('수정을 취소하시겠습니까? 변경사항이 저장되지 않습니다.')) {
         this.isEditing = false;
         this.editProject = null;
-        this.newImages = [];
-        this.newContentImage = null;
+        this.thumbnailFile = null;
+        this.additionalFiles = [];
+        this.contentImageFile = null;
       }
     }
   }
