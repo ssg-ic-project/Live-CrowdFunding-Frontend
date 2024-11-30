@@ -56,6 +56,9 @@ export default{
         const projectData = JSON.parse(sessionStorage.getItem('projectData'));
         const fileData = JSON.parse(sessionStorage.getItem('fileData'));
 
+        console.log('프로젝트 데이터:', projectData);
+        console.log('파일 데이터:', fileData);
+
         if (!projectData || !fileData) {
           throw new Error('프로젝트 데이터를 찾을 수 없습니다.');
         }
@@ -65,76 +68,111 @@ export default{
 
         // requestDTO 추가
         const requestDTO = {
-          makerId: projectData.makerId,
-          planId: parseInt(projectData.selectedPlan),
-          categoryId: parseInt(projectData.category),
+          makerId: Number(projectData.makerId || 1), // Long 타입으로 변환
+          planId: Number(projectData.selectedPlan), // Long 타입으로 변환
+          categoryId: Number(projectData.category), // Long 타입으로 변환
           productName: projectData.orderName,
           summary: projectData.summary,
-          price: parseInt(projectData.amount),
-          discountPercentage: parseInt(projectData.discount || 0),
-          goalAmount: parseInt(projectData.targetAmount)
+          price: Number(projectData.amount), // Integer 타입으로 변환
+          discountPercentage: Number(projectData.discount || 0), // Integer 타입으로 변환
+          goalAmount: Number(projectData.targetAmount), // Integer 타입으로 변환
         };
 
         formData.append('requestDTO', new Blob([JSON.stringify(requestDTO)], {
           type: 'application/json'
         }));
-
-        // Base64 데이터를 파일로 변환하여 추가
-        if (fileData.thumbnailFile) {
-          formData.append('images', this.base64ToFile(fileData.thumbnailFile));
-        }
-
-        fileData.additionalFiles.forEach(fileInfo => {
-          if (fileInfo) {
-            formData.append('images', this.base64ToFile(fileInfo));
-          }
-        });
-
-        if (fileData.contentImageFile) {
-          formData.append('contentImage', this.base64ToFile(fileData.contentImageFile));
-        }
-
-        // 문서 파일들 추가
-        Object.entries(fileData.documents).forEach(([key, fileInfo]) => {
-          if (fileInfo) {
-            formData.append('documents', this.base64ToFile(fileInfo));
-          }
-        });
-
-        // 프로젝트 등록 API 호출
-        await api.post("/api/project", formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        });
-
-        // 데이터 정리
-        sessionStorage.removeItem('projectData');
-        sessionStorage.removeItem('fileData');
         
-        this.success = true;
-        this.$router.push({
-          name: 'ProjectRegistration',
-          query: { showSuccessModal: 'true' }
-        });
+        const imageFiles = [];
 
-      } catch (error) {
-        console.error('에러 발생:', error);
-        this.error = error.message;
-      } finally {
-        this.isLoading = false;
+        // Base64 데이터를 File 객체로 변환하여 추가
+      if (fileData.thumbnailFile) {
+        const thumbnailFile = await this.base64ToFile(fileData.thumbnailFile);
+        imageFiles.push(thumbnailFile);
       }
-    },
-    base64ToFile(fileInfo) {
-      const arr = fileInfo.data.split(',');
-      const mime = arr[0].match(/:(.*?);/)[1];
-      const bstr = atob(arr[1]);
-      let n = bstr.length;
-      const u8arr = new Uint8Array(n);
-      while (n--) {
-        u8arr[n] = bstr.charCodeAt(n);
+
+      if (fileData.additionalFiles && fileData.additionalFiles.length > 0) {
+        for (const fileInfo of fileData.additionalFiles) {
+          if (fileInfo) {
+            const file = await this.base64ToFile(fileInfo);
+            imageFiles.push(file);
+          }
+        }
       }
-      return new File([u8arr], fileInfo.name, { type: fileInfo.type });
+
+      // 모든 이미지 파일들을 formData에 추가
+      imageFiles.forEach(file => {
+        formData.append('images', file, file.name);
+      });
+
+      if (fileData.contentImageFile) {
+        const contentFile = await this.base64ToFile(fileData.contentImageFile);
+        formData.append('contentImage', contentFile, contentFile.name);
+      }
+
+      // 문서 파일들 처리
+      if (fileData.documents) {
+        const documentFiles = [
+          fileData.documents.projectPlan,
+          fileData.documents.developmentPlan,
+          fileData.documents.agreement,
+          fileData.documents.additional
+        ].filter(doc => doc !== null);
+
+        for (const docInfo of documentFiles) {
+          const docFile = await this.base64ToFile(docInfo);
+          formData.append('documents', docFile, docFile.name);
+        }
+      }
+
+      // FormData 내용 로깅
+      console.log('전송할 FormData 내용:');
+      for (let [key, value] of formData.entries()) {
+        if (value instanceof File) {
+          console.log(`${key}: File - ${value.name} (${value.size} bytes)`);
+        } else if (value instanceof Blob) {
+          console.log(`${key}: Blob - ${value.size} bytes`);
+        } else {
+          console.log(`${key}:`, value);
+        }
+      }
+
+      // API 호출
+      const response = await axios.post("/api/project", formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      // 데이터 정리
+      sessionStorage.removeItem('projectData');
+      sessionStorage.removeItem('fileData');
+
+      this.success = true;
+      this.$router.push({
+        name: 'ProjectRegistration',
+        query: { showSuccessModal: 'true' }
+      });
+
+    } catch (error) {
+      console.error('에러 발생:', error);
+      this.error = error.message;
+      this.errorDetail = JSON.stringify(error.response?.data || error, null, 2);
+    } finally {
+      this.isLoading = false;
+    }
+  },
+    async base64ToFile(fileInfo) {
+      if (!fileInfo || !fileInfo.data) return null;
+
+      // Base64 데이터에서 실제 바이너리 데이터 추출
+      const base64Response = await fetch(fileInfo.data);
+      const blob = await base64Response.blob();
+
+      // 새로운 File 객체 생성
+      return new File([blob], fileInfo.name, {
+        type: fileInfo.type,
+        lastModified: fileInfo.lastModified
+      });
     }
   },
   mounted(){

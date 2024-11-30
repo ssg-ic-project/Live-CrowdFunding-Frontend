@@ -73,10 +73,10 @@
             <option value="">카테고리 선택</option>
             <option
               v-for="category in categories"
-              :key="category"
-              :value="category"
+              :key="category.id"
+              :value="category.id"
             >
-              {{ category }}
+              {{ category.name }}
             </option>
           </select>
         </div>
@@ -362,13 +362,13 @@ export default {
         targetAmount: "",
       },
       categories: [
-        "생활 가전",
-        "주방 가전",
-        "스마트 가전",
-        "DIY",
-        "엔터테인먼트",
-        "웨어러블",
-        "주변 기기",
+        { id: 1, name: "생활 가전" },
+        { id: 2, name: "주방 가전" },
+        { id: 3, name: "스마트 가전" },
+        { id: 4, name: "DIY" },
+        { id: 5, name: "엔터테인먼트" },
+        { id: 6, name: "웨어러블" },
+        { id: 7, name: "주변 기기" },
       ],
       thumbnailPreview: null,
       imagePreviews: [],
@@ -472,51 +472,47 @@ export default {
           targetAmount: this.project.targetAmount
         };
 
-        // 파일 데이터를 FormData로 변환하여 저장
-        const formData = new FormData();
+        const fileData = {
+          thumbnailFile: await this.fileToBase64(this.thumbnailFile),
+          additionalFiles: await Promise.all((this.additionalFiles || []).map(file => this.fileToBase64(file))),
+          contentImageFile: await this.fileToBase64(this.contentImageFile),
+          documents: {
+            projectPlan: await this.fileToBase64(this.uploadedDocuments.projectPlan),
+            developmentPlan: await this.fileToBase64(this.uploadedDocuments.developmentPlan),
+            agreement: await this.fileToBase64(this.uploadedDocuments.agreement),
+            additional: await this.fileToBase64(this.uploadedDocuments.additional)
+          }
+        };
 
-        // 이미지 파일들 추가
-        if (this.thumbnailFile) {
-          formData.append('thumbnailFile', this.thumbnailFile);
-        }
-
-        if (this.additionalFiles) {
-          this.additionalFiles.forEach(file => {
-            formData.append('additionalFiles', file);
-          });
-        }
-        
-        if (this.contentImageFile) {
-          formData.append('contentImage', this.contentImageFile);
-        }
-        
-        // 문서 파일들 추가
-        if (this.uploadedDocuments.projectPlan) {
-          formData.append('projectPlan', this.uploadedDocuments.projectPlan);
-        }
-        if (this.uploadedDocuments.developmentPlan) {
-          formData.append('developmentPlan', this.uploadedDocuments.developmentPlan);
-        }
-        if (this.uploadedDocuments.agreement) {
-          formData.append('agreement', this.uploadedDocuments.agreement);
-        }
-        if (this.uploadedDocuments.additional) {
-          formData.append('additional', this.uploadedDocuments.additional);
-        }
-
-        // FormData를 Blob으로 변환
-        const formDataBlob = await new Response(formData).blob();
-        const formDataUrl = URL.createObjectURL(formDataBlob);
-
-        // sessionStorage에 데이터 저장
+        // 프로젝트 데이터만 sessionStorage에 저장
         sessionStorage.setItem('projectData', JSON.stringify(projectData));
-        sessionStorage.setItem('formDataUrl', formDataUrl);
+        sessionStorage.setItem('fileData', JSON.stringify(fileData));
+
+        console.log('저장된 파일 데이터:', fileData); // 데이터 확인용 로그
 
         await this.confirmPayment();
       } catch (error) {
         console.error('결제 처리 중 오류 발생:', error);
       }
     },
+    // File 객체를 Base64로 변환하는 유틸리티 함수
+  async fileToBase64(file) {
+    if (!file) return null;
+    
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        resolve({
+          name: file.name,
+          type: file.type,
+          data: reader.result,
+          lastModified: file.lastModified
+        });
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  },
 
     async registerProject() {
       try {
