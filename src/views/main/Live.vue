@@ -23,7 +23,6 @@
         />
       </div>
     </div>
-
     <!-- VOD 섹션 -->
     <div class="vod-section">
       <h3>지난 라이브 방송 (VOD)</h3>
@@ -40,7 +39,7 @@
             remainingTime: vod.remainingTime,
             category: vod.classification,
           }"
-          :linkTo="{ name: 'VODRoom', params: { id: vod.projectId } }"
+          :linkTo="{ name: 'VODRoom', params: { streamId: vod.projectId } }"
         />
       </div>
     </div>
