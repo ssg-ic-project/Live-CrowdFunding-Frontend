@@ -398,10 +398,6 @@ export default {
       initialPrice: 70000,
       paymentWidget: null,
       showPaymentTossWidgetModal: false,
-      clientKey: 'test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm',
-      initialPrice: 70000,
-      paymentWidget: null,
-      showPaymentTossWidgetModal: false,
     };
   },
   computed: {
@@ -452,25 +448,6 @@ export default {
   // async mounted() {
   //   await this.initTossPayments()
   // },
-  watch: {
-    reviewSuccess: {
-      async handler(newVal){
-        if(newVal){
-          await this.initTossPayments();
-        }
-      },
-      immediate: false
-    },
-    // URL query parameter 감시
-    '$route.query.showSuccessModal': {
-      immediate: true,
-      handler(newVal) {
-        if (newVal === 'true') {
-          this.showPaymentCompleteModal = true;
-        }
-      }
-    }
-  },
   methods: {
     async handlePayment() {
       try {
@@ -621,42 +598,42 @@ export default {
       }
       return true;
     },
-    async initTossPayments() {
-      try {
-        const paymentWidget = await loadPaymentWidget(this.clientKey, ANONYMOUS)
-        await paymentWidget.renderPaymentMethods('#payment-method', {
-          value: this.initialPrice,
-          currency: 'KRW',
-          country: 'KR'
-        })
-        await paymentWidget.renderAgreement('#agreement')
-        this.paymentWidget = paymentWidget
-      } catch (error) {
-        console.error('토스페이먼츠 초기화 실패:', error)
-      }
-    },
-    async confirmPayment() {
-    console.log("탱큐 포 결제💸")
-    const orderId = this.generateOrderId();
-    if(this.paymentWidget){
-      try{
-        const paymentConfig = {
-          orderId: orderId, //토스에서 필요함
-          orderName: this.project.name, //토스에서 필요함
-          amount:this.initialPrice,
-          successUrl: `${window.location.origin}${this.$router.resolve({ name: 'PaymentSuccessBF'
-          }).href}`,
-          failUrl: `${window.location.origin}${this.$router.resolve({ name: 'PaymentFailBF' }).href}`
-        };
-          // 결제 요청
-          await this.paymentWidget.requestPayment(paymentConfig);
-      }catch(error){
-        console.error(error);
-      }
-    }else{
-      alert('결제가 진행되지 않았습니다.');
-    }
-  },
+    // async initTossPayments() {
+    //   try {
+    //     const paymentWidget = await loadPaymentWidget(this.clientKey, ANONYMOUS)
+    //     await paymentWidget.renderPaymentMethods('#payment-method', {
+    //       value: this.initialPrice,
+    //       currency: 'KRW',
+    //       country: 'KR'
+    //     })
+    //     await paymentWidget.renderAgreement('#agreement')
+    //     this.paymentWidget = paymentWidget
+    //   } catch (error) {
+    //     console.error('토스페이먼츠 초기화 실패:', error)
+    //   }
+    // },
+  //   async confirmPayment() {
+  //   console.log("탱큐 포 결제💸")
+  //   const orderId = this.generateOrderId();
+  //   if(this.paymentWidget){
+  //     try{
+  //       const paymentConfig = {
+  //         orderId: orderId, //토스에서 필요함
+  //         orderName: this.project.name, //토스에서 필요함
+  //         amount:this.initialPrice,
+  //         successUrl: `${window.location.origin}${this.$router.resolve({ name: 'PaymentSuccessBF'
+  //         }).href}`,
+  //         failUrl: `${window.location.origin}${this.$router.resolve({ name: 'PaymentFailBF' }).href}`
+  //       };
+  //         // 결제 요청
+  //         await this.paymentWidget.requestPayment(paymentConfig);
+  //     }catch(error){
+  //       console.error(error);
+  //     }
+  //   }else{
+  //     alert('결제가 진행되지 않았습니다.');
+  //   }
+  // },
 
     async simulateReviewProcess() {
     },
@@ -694,9 +671,9 @@ export default {
         this.rejectReason = reasons[Math.floor(Math.random() * reasons.length)];
       }
     },
-    selectedPlanInfo() {
-      return this.pricingPlans.find(plan => plan.id === this.selectedPlan) || {name: '', price: 0};
-    },
+    // selectedPlanInfo() {
+    //   return this.pricingPlans.find(plan => plan.id === this.selectedPlan) || {name: '', price: 0};
+    // },
     async initTossPayments() {
       try {
 
