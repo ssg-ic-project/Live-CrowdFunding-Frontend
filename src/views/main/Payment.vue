@@ -81,6 +81,7 @@
 // Payment.vue
 <script>
 import { loadPaymentWidget, ANONYMOUS } from "@tosspayments/payment-widget-sdk";
+import axios from "axios";
 
 export default {
   name: "Payment",
@@ -89,13 +90,19 @@ export default {
     return {
       clientKey: "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm",
       paymentWidget: null,
-      product: {},
-      quantity: 1,
+      product: {
+        name: '',
+        price: 0,
+        image: ''
+      },
+      quantity: 0,
+      totalPrice: 0,
       agreeTerms: true,
       defaultAddress: "",
       addingNewAddress: false,
       newAddressInput: "",
       orderId: "",
+      orderDetails: null,
     };
   },
 
@@ -105,7 +112,7 @@ export default {
     },
 
     totalPayment() {
-      return this.discountedPrice * this.quantity;
+      return this.totalPrice; 
     },
 
     canProceed() {
@@ -133,15 +140,32 @@ export default {
     await this.initTossPayments();
   },
 
-  created() {
-    this.loadProduct();
-    this.loadDefaultAddress();
+  async created() {
+    if (this.$route.params.orderId) {
+      this.orderId = this.$route.params.orderId;
+      console.log("order id 체크: "  + this.orderId);
+      try {
+        const response = await axios.get(`/api/order/${this.orderId}`);
+        console.log("response data 체크: " + response.data.toLocaleString());
+        this.quantity = response.data.amount;
+        this.totalPrice = response.data.paymentPrice;
 
-    // URL 쿼리에서 수량 가져오기
-    const urlQuantity = parseInt(this.$route.query.quantity);
-    if (!isNaN(urlQuantity) && urlQuantity > 0) {
-      this.quantity = urlQuantity;
+        this.product = {
+          name: response.data.project?.productName || '상품명', // project 정보가 있다면 사용
+          amount: response.data.amount,
+          price: response.data.paymentPrice,
+          image: response.data.project?.urls?.url || 'https://via.placeholder.com/600x400?text=Product+1', // project 정보가 있다면 사용
+        };
+
+        this.orderDetails = response.data;
+      } catch (error) {
+        console.error('주문 정보 로딩 실패:', error);
+        this.$router.push('/');
+      }
+    } else {
+      this.$router.push('/');
     }
+    this.loadDefaultAddress();
   },
 
   methods: {
@@ -156,28 +180,27 @@ export default {
 
     async initTossPayments() {
       try {
-        const paymentWidget = await loadPaymentWidget(
-          this.clientKey,
-          ANONYMOUS
-        );
 
-        await paymentWidget.renderPaymentMethods("#payment-method", {
+        const paymentWidget = await loadPaymentWidget(this.clientKey, ANONYMOUS)
+
+
+        await paymentWidget.renderPaymentMethods('#payment-method', {
           value: this.totalPayment,
-          currency: "KRW",
-          country: "KR",
-        });
+          currency: 'KRW',
+          country: 'KR'
+        })
 
-        await paymentWidget.renderAgreement("#agreement");
+        await paymentWidget.renderAgreement('#agreement')
 
-        this.paymentWidget = paymentWidget;
+        this.paymentWidget = paymentWidget
       } catch (error) {
-        console.error("토스페이먼츠 초기화 실패:", error);
+        console.error('토스페이먼츠 초기화 실패:', error)
       }
     },
 
     async loadProduct() {
       try {
-        const productId = this.$route.query.productId || 1;
+        const productId = this.$route.query.productId;
         const allProducts = [
           {
             id: 1,
@@ -230,52 +253,59 @@ export default {
       }
     },
 
-    async confirmPayment() {
-      console.log("결제 진행💸");
+    async confirmPayment() { //결제 요청 메소드
+      console.log("탱큐 포 결제💸")
       if (this.canProceed && this.paymentWidget) {
         try {
           //여기에서 orderId get하기!!!
-          const orderId = 2321327788861;
-
+          // const orderId = 2321327788854;
+          const orderId = this.orderId;
           // const orderId = location.pathname
           //     .split('/')
           //     .filter(Boolean)
           //     .pop();
 
-          const currentAddress = this.addingNewAddress
-            ? this.newAddressInput
-            : this.defaultAddress;
 
+          console.log("order id 체크: ")
+          console.log(orderId)
+
+          //주소
+          const currentAddress = this.addingNewAddress ? this.newAddressInput : this.defaultAddress;
+
+          // 결제 설정 객체
           const paymentConfig = {
-            orderId: orderId, //this.generateOrderId(), //api로 가지고 올 예정~
+            orderId: orderId,
             deliveryAddress: currentAddress,
             orderName: this.product.name,
             customerEmail: "customer123@gmail.com",
             customerName: "김토스",
             amount: this.totalPayment,
-            successUrl: `${window.location.origin}${
-              this.$router.resolve({
-                name: "PaymentSuccess",
-              }).href
-            }?deliveryAddress=${encodeURIComponent(currentAddress)}`,
-            failUrl: `${window.location.origin}${
-              this.$router.resolve({
-                name: "PaymentFail",
-              }).href
-            }`,
+            successUrl: `${window.location.origin}${this.$router.resolve({ name: 'PaymentSuccess'
+            }).href}?deliveryAddress=${encodeURIComponent(currentAddress)}`,
+            failUrl: `${window.location.origin}${this.$router.resolve({ name: 'PaymentFail' }).href}`
+
+            //구매자는 결제 수단 입력
+            //카드사에서 구매자 인증을 진행한다.
+            //구매자 인증에 성공하면 successUrl로 redirect된다. 여기까지는 아직 결제 요청만 완료된 상태이다.
+            //인증된 결제를 승인해줘야 된다.
+            //성공 url의 query parameter 값이 결제 요청과 동일하면 결제 승인 API 호출. 카드사로 결제 승인 요청 전달
+
           };
 
+          // 결제 요청
           await this.paymentWidget.requestPayment(paymentConfig);
+
+
         } catch (error) {
-          if (error.code === "USER_CANCEL") {
-            console.log("사용자가 결제를 취소했습니다.");
+          if (error.code === 'USER_CANCEL') {
+            console.log('사용자가 결제를 취소했습니다.');
           } else {
-            console.error("결제 요청 실패:", error);
-            alert("결제 처리 중 오류가 발생했습니다.");
+            console.error('결제 요청 실패:', error);
+            alert('결제 처리 중 오류가 발생했습니다.');
           }
         }
       } else {
-        alert("필수 항목을 모두 완료해주세요.");
+        alert('필수 항목을 모두 완료해주세요.');
       }
     },
 

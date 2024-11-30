@@ -342,12 +342,12 @@ incrementQuantity() {
         console.log("주문 생성 요청:", orderRequestDTO); // 요청 데이터 구조 확인용
 
         const response = await axios.post('/api/order', orderRequestDTO);
-        console.log("주문 생성 성공:", response.data); // 응답 데이터 구조 확인용
+        console.log("주문 생성 성공 id:", response.data.id); // 응답 데이터 구조 확인용
 
         if (response.data) {
           this.$router.push({
             name: 'Payment',
-            params: { orderId: response.data }
+            params: { orderId: response.data.id }
           });
         } else {
           throw new Error('Invalid order response');
