@@ -215,6 +215,7 @@
     <label>개인정보 이용동의서</label>
     <input
       type="file"
+      @change="(e) => handleDocumentUpload('agreement', e)"
       accept=".pdf,.doc,.docx"
       required
     />
@@ -228,6 +229,7 @@
     <label>추가 서류</label>
     <input
       type="file"
+      @change="(e) => handleDocumentUpload('additional', e)"
       accept=".pdf,.doc,.docx"
     />
     <small v-if="uploadedDocuments.additional">
@@ -462,7 +464,7 @@ export default {
       try {
         //project 데이터 저장
         const projectData = {
-          makerId: 1, // 실제 로그인된 사용자 ID
+          makerId: localStorage.getItem('userId'), // 실제 로그인된 사용자 ID
           selectedPlan: this.selectedPlan,
           category: this.project.category,
           orderName: this.project.name,
@@ -677,10 +679,11 @@ export default {
           
           // 2. 결제 성공 후 프로젝트 등록
           const formData = new FormData();
+          console.log('유저 아이디:', localStorage.getItem('userId'));
 
           // requestDTO를 JSON으로 직렬화하여 추가
           const requestDTO = {
-            makerId: 1, // 실제 로그인된 사용자 ID
+            makerId: localStorage.getItem('userId'), // 실제 로그인된 사용자 ID
             planId: parseInt(this.selectedPlan),
             categoryId: parseInt(this.project.category),
             productName: this.project.name,
@@ -770,7 +773,7 @@ export default {
           // 프로젝트 데이터 저장
           const projectData = {
             selectedPlan: this.selectedPlan,
-            makerId: 1, // 실제 로그인된 사용자 ID로 교체 필요
+            makerId: localStorage.getItem('userId'), // 실제 로그인된 사용자 ID로 교체 필요
             orderName: this.project.name,
             category: this.project.category,
             amount: this.project.price,
