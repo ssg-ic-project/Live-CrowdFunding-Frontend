@@ -16,6 +16,7 @@
 
 <script>
 import {paymentApi} from "@/api/index.js";
+import axios from "axios";
 
 export default{
   name: 'PaymentSuccessBF',
@@ -39,63 +40,101 @@ export default{
     }
   },
   methods: {
-    async confirmPayment(){
-      this.isLoading = true
-      this.error = null
-      this.errorDetail = null
+    async confirmPayment() {
+      this.isLoading = true;
+      try {
+        // 결제 승인 처리
+        const requestData = {
+          orderId: this.orderId,
+          orderName: this.orderName,
+          amount: this.amount,
+          paymentKey: this.paymentKey,
+        };
+        await paymentApi.basicFee(requestData);
 
-      const requestData = {
-        orderId: this.orderId,
-        orderName: this.orderName, //프로젝트 이름
-        amount: this.amount, //7만원
-        paymentKey: this.paymentKey,
-        // selectedPlan: this.selectedPlan, //요금제 타입
-        // category: this.category,
-        // makerId: this.makerId,
-        // summary: this.summary,
-        // discount: this.discount,
-        // targetAmount: this.targetAmount,
-        // contentImage: this.contentImage
+        // 저장된 데이터 복원
+        const projectData = JSON.parse(sessionStorage.getItem('projectData'));
+        const fileData = JSON.parse(sessionStorage.getItem('fileData'));
 
-      }
-      try{
-        console.log('API 호출 시작')
-        console.log('결제 수단 체크 by yejin1: ', this.method);
-        console.log('떡볶이 라볶이: ', this.approvedAt);
-        const response = await paymentApi.basicFee(requestData)
-        console.log('성공 응답 데이터: ', response.data)
+        if (!projectData || !fileData) {
+          throw new Error('프로젝트 데이터를 찾을 수 없습니다.');
+        }
 
-        // this.method = response.data.method //결제 수단
-        // console.log('결제 수단 체크 by yejin: ', this.method);
-        // this.paymentAt = response.data.approvedAt //승인시각
-        // console.log('승인 시각 체크 by yejin: ', this.paymentAt);
+        // FormData 생성
+        const formData = new FormData();
 
-        this.success = true
-        //성공시 redirect
-        // setTimeout(()=> {
-        //   this.$router.push('/success-bf')
-        // }, 3000)
+        // requestDTO 추가
+        const requestDTO = {
+          makerId: projectData.makerId,
+          planId: parseInt(projectData.selectedPlan),
+          categoryId: parseInt(projectData.category),
+          productName: projectData.orderName,
+          summary: projectData.summary,
+          price: parseInt(projectData.amount),
+          discountPercentage: parseInt(projectData.discount || 0),
+          goalAmount: parseInt(projectData.targetAmount)
+        };
 
+        formData.append('requestDTO', new Blob([JSON.stringify(requestDTO)], {
+          type: 'application/json'
+        }));
+
+        // Base64 데이터를 파일로 변환하여 추가
+        if (fileData.thumbnailFile) {
+          formData.append('images', this.base64ToFile(fileData.thumbnailFile));
+        }
+
+        fileData.additionalFiles.forEach(fileInfo => {
+          if (fileInfo) {
+            formData.append('images', this.base64ToFile(fileInfo));
+          }
+        });
+
+        if (fileData.contentImageFile) {
+          formData.append('contentImage', this.base64ToFile(fileData.contentImageFile));
+        }
+
+        // 문서 파일들 추가
+        Object.entries(fileData.documents).forEach(([key, fileInfo]) => {
+          if (fileInfo) {
+            formData.append('documents', this.base64ToFile(fileInfo));
+          }
+        });
+
+        // 프로젝트 등록 API 호출
+        await api.post("/api/project", formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+
+        // 데이터 정리
+        sessionStorage.removeItem('projectData');
+        sessionStorage.removeItem('fileData');
+        
+        this.success = true;
         this.$router.push({
           name: 'ProjectRegistration',
           query: { showSuccessModal: 'true' }
         });
 
-
-      } catch(err){
-        console.error('상세 에러: ', err)
-        this.error = err.message || '결제 확인 중 오류가 발생했습니다.'
-        this.errorDetail = JSON.stringify(err, null, 2)
-
-        //에러 시 redirect
-        setTimeout(()=>{
-          this.$router.push(`/fail-bf?message=${encodeURIComponent(this.error)}`)
-        }, 3000)
-
-
-      }finally{
-        this.isLoading = false
+      } catch (error) {
+        console.error('에러 발생:', error);
+        this.error = error.message;
+      } finally {
+        this.isLoading = false;
       }
+    },
+    base64ToFile(fileInfo) {
+      const arr = fileInfo.data.split(',');
+      const mime = arr[0].match(/:(.*?);/)[1];
+      const bstr = atob(arr[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      return new File([u8arr], fileInfo.name, { type: fileInfo.type });
     }
   },
   mounted(){
@@ -125,7 +164,21 @@ export default{
       this.errorDetail = `paymentKye: ${this.paymentKey}, orderId: ${this.orderId}, amount: ${this.amount}`
       return
     }
-    this.confirmPayment()
+    this.confirmPayment();
+
+    if (this.success) {
+    // 결제 성공 시 프로젝트 등록 진행
+    const projectData = sessionStorage.getItem('projectData');
+      if (projectData) {
+        this.$router.push({
+          name: 'ProjectRegistration',
+          query: { 
+            showSuccessModal: 'true',
+            registerProject: 'true'
+          }
+        });
+      }
+    }
   }
 }
 </script>

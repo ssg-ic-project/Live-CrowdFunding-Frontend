@@ -441,6 +441,15 @@ export default {
           this.showPaymentCompleteModal = true;
         }
       }
+    },
+
+    '$route.query.registerProject': {
+      immediate: true,
+      handler(newVal) {
+        if (newVal === 'true') {
+          this.registerProject();
+        }
+      }
     }
 
   },
@@ -453,22 +462,96 @@ export default {
       try {
         //project 데이터 저장
         const projectData = {
+          makerId: 1, // 실제 로그인된 사용자 ID
           selectedPlan: this.selectedPlan,
-          makerId: this.makerId, //로그인한 사용자의 정보 가지고 오기
-          orderName: this.orderName, //project name
-          category: this.category,
-          amount: this.amount,
-          targetAmount: this.targetAmount,
-          summary: this.summary,
-          discount: this.discount,
-          contentImage: this.contentImage
+          category: this.project.category,
+          orderName: this.project.name,
+          summary: this.project.description,
+          amount: this.project.price,
+          discount: this.project.discount || 0,
+          targetAmount: this.project.targetAmount
+        };
+
+        // 파일 데이터를 FormData로 변환하여 저장
+        const formData = new FormData();
+
+        // 이미지 파일들 추가
+        if (this.thumbnailFile) {
+          formData.append('thumbnailFile', this.thumbnailFile);
         }
+
+        if (this.additionalFiles) {
+          this.additionalFiles.forEach(file => {
+            formData.append('additionalFiles', file);
+          });
+        }
+        
+        if (this.contentImageFile) {
+          formData.append('contentImage', this.contentImageFile);
+        }
+        
+        // 문서 파일들 추가
+        if (this.uploadedDocuments.projectPlan) {
+          formData.append('projectPlan', this.uploadedDocuments.projectPlan);
+        }
+        if (this.uploadedDocuments.developmentPlan) {
+          formData.append('developmentPlan', this.uploadedDocuments.developmentPlan);
+        }
+        if (this.uploadedDocuments.agreement) {
+          formData.append('agreement', this.uploadedDocuments.agreement);
+        }
+        if (this.uploadedDocuments.additional) {
+          formData.append('additional', this.uploadedDocuments.additional);
+        }
+
+        // FormData를 Blob으로 변환
+        const formDataBlob = await new Response(formData).blob();
+        const formDataUrl = URL.createObjectURL(formDataBlob);
+
+        // sessionStorage에 데이터 저장
         sessionStorage.setItem('projectData', JSON.stringify(projectData));
+        sessionStorage.setItem('formDataUrl', formDataUrl);
+
         await this.confirmPayment();
       } catch (error) {
         console.error('결제 처리 중 오류 발생:', error);
       }
     },
+
+    async registerProject() {
+      try {
+        // sessionStorage에서 데이터 복원
+        const projectData = JSON.parse(sessionStorage.getItem('projectData'));
+        const formDataUrl = sessionStorage.getItem('formDataUrl');
+        const formDataBlob = await fetch(formDataUrl).then(r => r.blob());
+        const formData = new FormData();
+
+        // FormData 재구성
+        formData.append('requestDTO', new Blob([JSON.stringify(projectData)], { type: 'application/json' }));
+        
+        // 원본 FormData의 파일들 복원
+        const originalFormData = new FormData();
+        originalFormData.append('temp', formDataBlob);
+        // FormData 복원 로직...
+
+        // API 호출
+        await api.post("/api/project", formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          }
+        });
+
+        // 저장된 데이터 삭제
+        sessionStorage.removeItem('projectData');
+        sessionStorage.removeItem('formDataUrl');
+
+        this.showPaymentCompleteModal = true;
+      } catch (error) {
+        console.error('프로젝트 등록 중 오류 발생:', error);
+        alert('프로젝트 등록 중 오류가 발생했습니다.');
+      }
+    },
+    
     sout() {
       console.log('checking Yejin')
     },
@@ -510,6 +593,10 @@ export default {
       if (!file) return;
 
       this.uploadedDocuments[type] = file;
+      if (!file) return;
+
+      this.uploadedDocuments[type] = file;
+      console.log(`${type} 문서 저장됨:`, file);
 
       if (type === 'projectPlan' || type === 'developmentPlan') {
         if (file.type === 'text/plain') {
