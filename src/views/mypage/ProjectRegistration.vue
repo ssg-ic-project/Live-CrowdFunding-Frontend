@@ -317,7 +317,7 @@ export default {
       selectedPlan: null,
       pricingPlans: [
         {
-          id: "A",
+          id: "1",
           name: "베이직 플랜",
           price: 100000,
           features: [
@@ -328,7 +328,7 @@ export default {
           ],
         },
         {
-          id: "B",
+          id: "2",
           name: "스탠다드 플랜",
           price: 300000,
           features: [
@@ -340,7 +340,7 @@ export default {
           ],
         },
         {
-          id: "C",
+          id: "3",
           name: "프리미엄 플랜",
           price: 500000,
           features: [
@@ -484,16 +484,19 @@ export default {
     handleThumbnailUpload(event) {
       const file = event.target.files[0];
       if (file) {
+        this.thumbnailFile = file;
         this.thumbnailPreview = URL.createObjectURL(file);
       }
     },
     handleImagesUpload(event) {
       const files = Array.from(event.target.files).slice(0, 5);
+      this.additionalFiles = files;
       this.imagePreviews = files.map((file) => URL.createObjectURL(file));
     },
     handleContentImageUpload(event) {
       const file = event.target.files[0];
       if (file) {
+        this.contentImageFile = file;
         this.contentImagePreview = URL.createObjectURL(file);
       }
     },
@@ -577,12 +580,83 @@ export default {
         this.$router.push("/mypage/funding-status");
       }
     },
-    submitProject() {
+    async submitProject() {
       if (!this.validateForm()) {
         return;
       }
       this.showReviewModal = true;
-      this.startReview();
+      await this.startReview();
+
+      if (this.reviewSuccess) {
+        try {
+          // 1. 먼저 결제 진행
+          await this.handlePayment();
+          
+          // 2. 결제 성공 후 프로젝트 등록
+          const formData = new FormData();
+
+          // requestDTO를 JSON으로 직렬화하여 추가
+          const requestDTO = {
+            makerId: 1, // 실제 로그인된 사용자 ID
+            planId: parseInt(this.selectedPlan),
+            categoryId: parseInt(this.project.category),
+            productName: this.project.name,
+            summary: this.project.description,
+            price: parseInt(this.project.price),
+            discountPercentage: parseInt(this.project.discount || 0),
+            goalAmount: parseInt(this.project.targetAmount),
+          };
+
+          // requestDTO를 Blob으로 변환하여 추가
+          formData.append('requestDTO', 
+            new Blob([JSON.stringify(requestDTO)], { type: 'application/json' })
+          );
+
+          // 이미지 파일들 처리
+          if (this.thumbnailFile) {
+            formData.append('images', this.thumbnailFile);
+          }
+          if (this.additionalFiles) {
+            this.additionalFiles.forEach(file => {
+              formData.append('images', file);
+            });
+          }
+
+          // 내용 이미지 처리
+          if (this.contentImageFile) {
+            formData.append('contentImage', this.contentImageFile);
+          }
+
+          // 문서 파일들 처리 (순서 중요)
+          const documents = [
+            this.uploadedDocuments.projectPlan,
+            this.uploadedDocuments.developmentPlan,
+            this.uploadedDocuments.agreement,
+            this.uploadedDocuments.additional
+          ].filter(doc => doc !== null);
+
+          documents.forEach(doc => {
+            formData.append('documents', doc);
+          });
+
+          console.log('프로젝트 데이터:', requestDTO);
+          console.log('FormData:', formData);
+
+          // API 호출
+          await api.post("/api/project", formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            }
+          });
+
+          // 성공 모달 표시
+          this.showPaymentCompleteModal = true;
+
+        } catch (error) {
+          console.error('프로젝트 등록 중 오류 발생:', error);
+          alert('프로젝트 등록 중 오류가 발생했습니다.');
+        }
+      }
     },
     validateForm() {
       if (
@@ -597,6 +671,100 @@ export default {
         return false;
       }
       return true;
+    },
+    async submitProject() {
+      if (!this.validateForm()) {
+        return;
+      }
+
+      // 검토 모달 표시 및 검토 프로세스 시작
+      this.showReviewModal = true;
+      await this.startReview();
+
+      // 검토 성공 시 결제 진행
+      if (this.reviewSuccess) {
+        try {
+          // 프로젝트 데이터 저장
+          const projectData = {
+            selectedPlan: this.selectedPlan,
+            makerId: 1, // 실제 로그인된 사용자 ID로 교체 필요
+            orderName: this.project.name,
+            category: this.project.category,
+            amount: this.project.price,
+            targetAmount: this.project.targetAmount,
+            summary: this.project.description,
+            discount: this.project.discount
+          };
+
+          // 이미지 파일 처리
+          const imageFiles = [];
+          
+          // 썸네일 이미지를 첫 번째로 추가
+          if (this.thumbnailFile) {
+            imageFiles.push(this.thumbnailFile);
+          }
+          
+          // 추가 이미지들을 그 다음에 추가
+          if (this.additionalFiles) {
+            imageFiles.push(...this.additionalFiles);
+          }
+
+          // 문서 파일들을 순서대로 배열에 추가
+          const documentFiles = [
+            this.uploadedDocuments.projectPlan,
+            this.uploadedDocuments.developmentPlan,
+            this.uploadedDocuments.agreement,
+            this.uploadedDocuments.additional
+          ].filter(doc => doc !== null); // null 문서 제거
+
+          // FormData 생성
+          const formData = new FormData();
+          formData.append('requestDTO', new Blob([JSON.stringify({
+            makerId: projectData.makerId,
+            planId: parseInt(projectData.selectedPlan),
+            categoryId: parseInt(projectData.category),
+            productName: projectData.orderName,
+            summary: projectData.summary,
+            price: parseInt(projectData.amount),
+            discountPercentage: parseInt(projectData.discount),
+            goalAmount: parseInt(projectData.targetAmount)
+          })], { type: 'application/json' }));
+
+          // 내용 이미지 추가
+          if (this.contentImageFile) {
+            formData.append('contentImage', this.contentImageFile);
+          }
+
+          // 이미지 파일들 추가
+          imageFiles.forEach((file, index) => {
+            formData.append('images', file);
+          });
+
+          // 문서 파일들 추가
+          documentFiles.forEach((file, index) => {
+            formData.append('documents', file);
+          });
+
+          // 결제 진행
+          await this.handlePayment(projectData);
+          
+          console.log('프로젝트 데이터:', projectData);
+          // 프로젝트 등록 API 호출
+          await paymentApi.projectRegist(formData);
+        } catch (error) {
+          console.error('프로젝트 등록 중 오류 발생:', error);
+          alert('프로젝트 등록 중 오류가 발생했습니다.');
+        }
+      }
+    },
+
+    // 파일 업로드 핸들러 수정
+    handleThumbnailUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        this.thumbnailFile = file;
+        this.thumbnailPreview = URL.createObjectURL(file);
+      }
     },
     // async initTossPayments() {
     //   try {

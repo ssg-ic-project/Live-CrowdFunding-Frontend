@@ -71,7 +71,7 @@ export const paymentApi = {
         };
 
 
-        return api.post("/api/project/projectRegist", formData, {
+        return api.post("/api/project", formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             }
