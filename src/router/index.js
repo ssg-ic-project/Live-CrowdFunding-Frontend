@@ -72,7 +72,7 @@ const routes = [
       { path: 'terms', name: 'Terms', component: Terms },
       { path: '/payment', name: 'Payment', component: Payment, props: true,},
       { path: 'streaming', component: StreamingRoom, props: true },
-      { path: 'vod/:id', name: 'VodRoom', component: VodRoom, props: true }, 
+      { path: 'vod/:streamId',name: 'VODRoom', component: VodRoom, props: true}
     ],
   },
   {
