@@ -36,8 +36,8 @@
       </button>
     </div>
 
-     <!-- 프로젝트 정보 입력 폼 -->
-     <form
+    <!-- 프로젝트 정보 입력 폼 -->
+    <form
       v-if="step === 2"
       @submit.prevent="submitProject"
       class="project-form"
@@ -178,66 +178,66 @@
           />
         </div>
       </div>
-<!-- //여기 -->
-<div class="form-section">
-  <h3>필수 등록 서류</h3>
-  
-  <!-- 상품 기획서 -->
-  <div class="document-upload-group">
-    <label>상품 기획서</label>
-    <input
-      type="file"
-      @change="(e) => handleDocumentUpload('projectPlan', e)"
-      accept=".pdf,.doc,.docx"
-      required
-    />
-    <small v-if="uploadedDocuments.projectPlan">
-      {{ uploadedDocuments.projectPlan.name }}
-    </small>
-  </div>
+      <!-- //여기 -->
+      <div class="form-section">
+        <h3>필수 등록 서류</h3>
 
-  <!-- 펀딩 기획서 -->
-  <div class="document-upload-group">
-    <label>펀딩 기획서</label>
-    <input
-      type="file"
-      @change="(e) => handleDocumentUpload('developmentPlan', e)"
-      accept=".pdf,.doc,.docx"
-      required
-    />
-    <small v-if="uploadedDocuments.developmentPlan">
-      {{ uploadedDocuments.developmentPlan.name }}
-    </small>
-  </div>
+        <!-- 상품 기획서 -->
+        <div class="document-upload-group">
+          <label>상품 기획서</label>
+          <input
+            type="file"
+            @change="(e) => handleDocumentUpload('projectPlan', e)"
+            accept=".pdf,.doc,.docx"
+            required
+          />
+          <small v-if="uploadedDocuments.projectPlan">
+            {{ uploadedDocuments.projectPlan.name }}
+          </small>
+        </div>
 
-  <!-- 개인정보 이용동의서 -->
-  <div class="document-upload-group">
-    <label>개인정보 이용동의서</label>
-    <input
-      type="file"
-      @change="(e) => handleDocumentUpload('agreement', e)"
-      accept=".pdf,.doc,.docx"
-      required
-    />
-    <small v-if="uploadedDocuments.agreement">
-      {{ uploadedDocuments.agreement.name }}
-    </small>
-  </div>
+        <!-- 펀딩 기획서 -->
+        <div class="document-upload-group">
+          <label>펀딩 기획서</label>
+          <input
+            type="file"
+            @change="(e) => handleDocumentUpload('developmentPlan', e)"
+            accept=".pdf,.doc,.docx"
+            required
+          />
+          <small v-if="uploadedDocuments.developmentPlan">
+            {{ uploadedDocuments.developmentPlan.name }}
+          </small>
+        </div>
 
-  <!-- 추가 서류 -->
-  <div class="document-upload-group">
-    <label>추가 서류</label>
-    <input
-      type="file"
-      @change="(e) => handleDocumentUpload('additional', e)"
-      accept=".pdf,.doc,.docx"
-    />
-    <small v-if="uploadedDocuments.additional">
-      {{ uploadedDocuments.additional.name }}
-    </small>
-  </div>
-</div>
-<!-- 여기 -->
+        <!-- 개인정보 이용동의서 -->
+        <div class="document-upload-group">
+          <label>개인정보 이용동의서</label>
+          <input
+            type="file"
+            @change="(e) => handleDocumentUpload('agreement', e)"
+            accept=".pdf,.doc,.docx"
+            required
+          />
+          <small v-if="uploadedDocuments.agreement">
+            {{ uploadedDocuments.agreement.name }}
+          </small>
+        </div>
+
+        <!-- 추가 서류 -->
+        <div class="document-upload-group">
+          <label>추가 서류</label>
+          <input
+            type="file"
+            @change="(e) => handleDocumentUpload('additional', e)"
+            accept=".pdf,.doc,.docx"
+          />
+          <small v-if="uploadedDocuments.additional">
+            {{ uploadedDocuments.additional.name }}
+          </small>
+        </div>
+      </div>
+      <!-- 여기 -->
       <div class="form-buttons">
         <button type="button" class="cancel-btn" @click="cancelRegistration">
           취소
@@ -255,34 +255,30 @@
         </div>
         <p>{{ reviewMessage }}</p>
         <div v-if="reviewComplete" class="review-result">
-  <template v-if="reviewSuccess">
-    <p class="success">승인되었습니다!</p>
-    <div class="button-group">
-      <!-- 토스페이먼츠 결제 위젯 -->
-
-      <div>
-        <h2>서비스 이용 기본료 결제💸</h2>
-        <div id="payment-method" ></div>
-        <div id="agreement"></div>
-      </div>
-
-      <button @click="handlePayment" class="payment-btn">
-        결제하기
-      </button>
-      <button @click="closeModal" class="cancel-btn">
-        취소
-      </button>
-    </div>
-  </template>
-  <template v-else>
-    <p class="failure">반려되었습니다.</p>
-    <p class="reject-reason">{{ rejectReason }}</p>
-    <button @click="closeModal" class="close-btn">확인</button>
-  </template>
-</div>
+          <template v-if="reviewSuccess">
+            <p class="success">승인되었습니다!</p>
+            <div class="payment-section">
+              <h3>서비스 이용 기본료 결제</h3>
+              <div class="payment-container">
+                <div id="payment-method"></div>
+                <div id="agreement"></div>
+              </div>
+              <div class="payment-buttons">
+                <button @click="handlePayment" class="payment-btn">
+                  결제하기
+                </button>
+                <button @click="closeModal" class="cancel-btn">취소</button>
+              </div>
+            </div>
+          </template>
+          <template v-else>
+            <p class="failure">반려되었습니다.</p>
+            <p class="reject-reason">{{ rejectReason }}</p>
+            <button @click="closeModal" class="close-btn">확인</button>
+          </template>
+        </div>
       </div>
     </div>
-
 
     <!-- 결제 완료 모달 -->
     <div v-if="showPaymentCompleteModal" class="modal">
@@ -299,17 +295,16 @@
     </div>
   </div>
 
-<!--  &lt;!&ndash; 토스페이먼츠 결제 위젯 &ndash;&gt;-->
-<!--  <div v-if="showPaymentTossWidgetModal">-->
-<!--    <h2>결제 수단</h2>-->
-<!--    <div id="payment-method"></div>-->
-<!--  </div>-->
-
+  <!--  &lt;!&ndash; 토스페이먼츠 결제 위젯 &ndash;&gt;-->
+  <!--  <div v-if="showPaymentTossWidgetModal">-->
+  <!--    <h2>결제 수단</h2>-->
+  <!--    <div id="payment-method"></div>-->
+  <!--  </div>-->
 </template>
 
 <script>
-import axios from 'axios';
-import {ANONYMOUS, loadPaymentWidget} from "@tosspayments/payment-widget-sdk";
+import axios from "axios";
+import { ANONYMOUS, loadPaymentWidget } from "@tosspayments/payment-widget-sdk";
 
 export default {
   name: "ProjectRegistration",
@@ -396,7 +391,7 @@ export default {
         "최종 검토를 진행중입니다...",
       ],
       currentMessageIndex: 0,
-      clientKey: 'test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm',
+      clientKey: "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm",
       initialPrice: 70000,
       paymentWidget: null,
       showPaymentTossWidgetModal: false,
@@ -404,20 +399,27 @@ export default {
   },
   computed: {
     selectedPlanInfo() {
-      return this.pricingPlans.find(plan => plan.id === this.selectedPlan) || {name: '-', price: 0};
+      return (
+        this.pricingPlans.find((plan) => plan.id === this.selectedPlan) || {
+          name: "-",
+          price: 0,
+        }
+      );
     },
     formattedSelectedPrice() {
-      return this.selectedPlanInfo.price ?
-          new Intl.NumberFormat('ko-KR', {
-            style: 'currency',
-            currency: 'KRW'
-          }).format(this.selectedPlanInfo.price) : '0원';
-      return this.selectedPlanInfo.price ?
-          new Intl.NumberFormat('ko-KR', {
-            style: 'currency',
-            currency: 'KRW'
-          }).format(this.selectedPlanInfo.price) : '0원';
-    }
+      return this.selectedPlanInfo.price
+        ? new Intl.NumberFormat("ko-KR", {
+            style: "currency",
+            currency: "KRW",
+          }).format(this.selectedPlanInfo.price)
+        : "0원";
+      return this.selectedPlanInfo.price
+        ? new Intl.NumberFormat("ko-KR", {
+            style: "currency",
+            currency: "KRW",
+          }).format(this.selectedPlanInfo.price)
+        : "0원";
+    },
   },
 
   // async mounted() {
@@ -426,34 +428,32 @@ export default {
 
   watch: {
     reviewSuccess: {
-      async handler(newVal){
-        if(newVal){
+      async handler(newVal) {
+        if (newVal) {
           await this.initTossPayments();
         }
       },
-      immediate: false
+      immediate: false,
     },
 
     // URL query parameter 감시
-    '$route.query.showSuccessModal': {
+    "$route.query.showSuccessModal": {
       immediate: true,
       handler(newVal) {
-
-        if (newVal === 'true') {
+        if (newVal === "true") {
           this.showPaymentCompleteModal = true;
         }
-      }
+      },
     },
 
-    '$route.query.registerProject': {
+    "$route.query.registerProject": {
       immediate: true,
       handler(newVal) {
-        if (newVal === 'true') {
+        if (newVal === "true") {
           this.registerProject();
         }
-      }
-    }
-
+      },
+    },
   },
 
   // async mounted() {
@@ -464,99 +464,112 @@ export default {
       try {
         //project 데이터 저장
         const projectData = {
-          makerId: localStorage.getItem('userId'), // 실제 로그인된 사용자 ID
+          makerId: localStorage.getItem("userId"), // 실제 로그인된 사용자 ID
           selectedPlan: this.selectedPlan,
           category: this.project.category,
           orderName: this.project.name,
           summary: this.project.description,
           amount: this.project.price,
           discount: this.project.discount || 0,
-          targetAmount: this.project.targetAmount
+          targetAmount: this.project.targetAmount,
         };
 
         const fileData = {
           thumbnailFile: await this.fileToBase64(this.thumbnailFile),
-          additionalFiles: await Promise.all((this.additionalFiles || []).map(file => this.fileToBase64(file))),
+          additionalFiles: await Promise.all(
+            (this.additionalFiles || []).map((file) => this.fileToBase64(file))
+          ),
           contentImageFile: await this.fileToBase64(this.contentImageFile),
           documents: {
-            projectPlan: await this.fileToBase64(this.uploadedDocuments.projectPlan),
-            developmentPlan: await this.fileToBase64(this.uploadedDocuments.developmentPlan),
-            agreement: await this.fileToBase64(this.uploadedDocuments.agreement),
-            additional: await this.fileToBase64(this.uploadedDocuments.additional)
-          }
+            projectPlan: await this.fileToBase64(
+              this.uploadedDocuments.projectPlan
+            ),
+            developmentPlan: await this.fileToBase64(
+              this.uploadedDocuments.developmentPlan
+            ),
+            agreement: await this.fileToBase64(
+              this.uploadedDocuments.agreement
+            ),
+            additional: await this.fileToBase64(
+              this.uploadedDocuments.additional
+            ),
+          },
         };
 
         // 프로젝트 데이터만 sessionStorage에 저장
-        sessionStorage.setItem('projectData', JSON.stringify(projectData));
-        sessionStorage.setItem('fileData', JSON.stringify(fileData));
+        sessionStorage.setItem("projectData", JSON.stringify(projectData));
+        sessionStorage.setItem("fileData", JSON.stringify(fileData));
 
-        console.log('저장된 파일 데이터:', fileData); // 데이터 확인용 로그
+        console.log("저장된 파일 데이터:", fileData); // 데이터 확인용 로그
 
         await this.confirmPayment();
       } catch (error) {
-        console.error('결제 처리 중 오류 발생:', error);
+        console.error("결제 처리 중 오류 발생:", error);
       }
     },
     // File 객체를 Base64로 변환하는 유틸리티 함수
-  async fileToBase64(file) {
-    if (!file) return null;
-    
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        resolve({
-          name: file.name,
-          type: file.type,
-          data: reader.result,
-          lastModified: file.lastModified
-        });
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  },
+    async fileToBase64(file) {
+      if (!file) return null;
+
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          resolve({
+            name: file.name,
+            type: file.type,
+            data: reader.result,
+            lastModified: file.lastModified,
+          });
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    },
 
     async registerProject() {
       try {
         // sessionStorage에서 데이터 복원
-        const projectData = JSON.parse(sessionStorage.getItem('projectData'));
-        const formDataUrl = sessionStorage.getItem('formDataUrl');
-        const formDataBlob = await fetch(formDataUrl).then(r => r.blob());
+        const projectData = JSON.parse(sessionStorage.getItem("projectData"));
+        const formDataUrl = sessionStorage.getItem("formDataUrl");
+        const formDataBlob = await fetch(formDataUrl).then((r) => r.blob());
         const formData = new FormData();
 
         // FormData 재구성
-        formData.append('requestDTO', new Blob([JSON.stringify(projectData)], { type: 'application/json' }));
-        
+        formData.append(
+          "requestDTO",
+          new Blob([JSON.stringify(projectData)], { type: "application/json" })
+        );
+
         // 원본 FormData의 파일들 복원
         const originalFormData = new FormData();
-        originalFormData.append('temp', formDataBlob);
+        originalFormData.append("temp", formDataBlob);
         // FormData 복원 로직...
 
         // API 호출
         await api.post("/api/project", formData, {
           headers: {
-            'Content-Type': 'multipart/form-data',
-          }
+            "Content-Type": "multipart/form-data",
+          },
         });
 
         // 저장된 데이터 삭제
-        sessionStorage.removeItem('projectData');
-        sessionStorage.removeItem('formDataUrl');
+        sessionStorage.removeItem("projectData");
+        sessionStorage.removeItem("formDataUrl");
 
         this.showPaymentCompleteModal = true;
       } catch (error) {
-        console.error('프로젝트 등록 중 오류 발생:', error);
-        alert('프로젝트 등록 중 오류가 발생했습니다.');
+        console.error("프로젝트 등록 중 오류 발생:", error);
+        alert("프로젝트 등록 중 오류가 발생했습니다.");
       }
     },
-    
+
     sout() {
-      console.log('checking Yejin')
+      console.log("checking Yejin");
     },
     formatPrice(price) {
-      return new Intl.NumberFormat('ko-KR', {
-        style: 'currency',
-        currency: 'KRW'
+      return new Intl.NumberFormat("ko-KR", {
+        style: "currency",
+        currency: "KRW",
       }).format(price);
     },
     selectPlan(planId) {
@@ -583,7 +596,7 @@ export default {
     },
     handleDocumentUpload(type, event) {
       if (!event || !event.target || !event.target.files) {
-        console.error('Invalid event object');
+        console.error("Invalid event object");
         return;
       }
 
@@ -596,48 +609,57 @@ export default {
       this.uploadedDocuments[type] = file;
       console.log(`${type} 문서 저장됨:`, file);
 
-      if (type === 'projectPlan' || type === 'developmentPlan') {
-        if (file.type === 'text/plain') {
+      if (type === "projectPlan" || type === "developmentPlan") {
+        if (file.type === "text/plain") {
           const reader = new FileReader();
           reader.onload = (e) => {
             try {
               let content = e.target.result;
 
-              content = content.replace(/\r\n|\r|\n/g, '\n');
+              content = content.replace(/\r\n|\r|\n/g, "\n");
               content = content.replace(/[\u0000-\u0019]+/g, " ");
               content = content.replace(/\\/g, "\\\\");
               content = content.replace(/"/g, '\\"');
 
               const jsonResult = {
-                [type === 'projectPlan' ? 'projectDocument' : 'fundingDocument']: content.trim()
+                [type === "projectPlan"
+                  ? "projectDocument"
+                  : "fundingDocument"]: content.trim(),
               };
 
               console.log(JSON.stringify(jsonResult));
 
               return jsonResult;
             } catch (error) {
-              console.error('텍스트 파일 처리 중 오류:', error);
+              console.error("텍스트 파일 처리 중 오류:", error);
             }
           };
-          reader.readAsText(file, 'UTF-8');
-        } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-            || file.type === 'application/msword') {
+          reader.readAsText(file, "UTF-8");
+        } else if (
+          file.type ===
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+          file.type === "application/msword"
+        ) {
           const reader = new FileReader();
           reader.onload = async (e) => {
             try {
               const arrayBuffer = e.target.result;
-              const result = await window.mammoth.extractRawText({arrayBuffer});
+              const result = await window.mammoth.extractRawText({
+                arrayBuffer,
+              });
 
               if (result.value) {
                 let content = result.value;
 
-                content = content.replace(/\r\n|\r|\n/g, '\n');
+                content = content.replace(/\r\n|\r|\n/g, "\n");
                 content = content.replace(/[\u0000-\u0019]+/g, " ");
                 content = content.replace(/\\/g, "\\\\");
                 content = content.replace(/"/g, '\\"');
 
                 const jsonResult = {
-                  [type === 'projectPlan' ? 'projectDocument' : 'fundingDocument']: content.trim()
+                  [type === "projectPlan"
+                    ? "projectDocument"
+                    : "fundingDocument"]: content.trim(),
                 };
 
                 console.log(JSON.stringify(jsonResult));
@@ -645,22 +667,25 @@ export default {
                 return jsonResult;
               }
             } catch (error) {
-              console.error('Word 문서 처리 중 오류:', error);
+              console.error("Word 문서 처리 중 오류:", error);
             }
           };
           reader.readAsArrayBuffer(file);
         } else {
-          console.log('지원하지 않는 파일 형식입니다:', file.type);
+          console.log("지원하지 않는 파일 형식입니다:", file.type);
         }
-      } else if (type === 'agreement' || type === 'additional') {
-        console.log(`${type === 'agreement' ? '개인정보 동의서' : '추가 서류'} 첨부됨:`, file.name);
+      } else if (type === "agreement" || type === "additional") {
+        console.log(
+          `${type === "agreement" ? "개인정보 동의서" : "추가 서류"} 첨부됨:`,
+          file.name
+        );
       }
     },
     cancelRegistration() {
       if (
-          confirm(
-              "프로젝트 등록을 취소하시겠습니까?\n입력된 내용은 저장되지 않습니다."
-          )
+        confirm(
+          "프로젝트 등록을 취소하시겠습니까?\n입력된 내용은 저장되지 않습니다."
+        )
       ) {
         this.$router.push("/mypage/funding-status");
       }
@@ -676,14 +701,14 @@ export default {
         try {
           // 1. 먼저 결제 진행
           await this.handlePayment();
-          
+
           // 2. 결제 성공 후 프로젝트 등록
           const formData = new FormData();
-          console.log('유저 아이디:', localStorage.getItem('userId'));
+          console.log("유저 아이디:", localStorage.getItem("userId"));
 
           // requestDTO를 JSON으로 직렬화하여 추가
           const requestDTO = {
-            makerId: localStorage.getItem('userId'), // 실제 로그인된 사용자 ID
+            makerId: localStorage.getItem("userId"), // 실제 로그인된 사용자 ID
             planId: parseInt(this.selectedPlan),
             categoryId: parseInt(this.project.category),
             productName: this.project.name,
@@ -694,23 +719,24 @@ export default {
           };
 
           // requestDTO를 Blob으로 변환하여 추가
-          formData.append('requestDTO', 
-            new Blob([JSON.stringify(requestDTO)], { type: 'application/json' })
+          formData.append(
+            "requestDTO",
+            new Blob([JSON.stringify(requestDTO)], { type: "application/json" })
           );
 
           // 이미지 파일들 처리
           if (this.thumbnailFile) {
-            formData.append('images', this.thumbnailFile);
+            formData.append("images", this.thumbnailFile);
           }
           if (this.additionalFiles) {
-            this.additionalFiles.forEach(file => {
-              formData.append('images', file);
+            this.additionalFiles.forEach((file) => {
+              formData.append("images", file);
             });
           }
 
           // 내용 이미지 처리
           if (this.contentImageFile) {
-            formData.append('contentImage', this.contentImageFile);
+            formData.append("contentImage", this.contentImageFile);
           }
 
           // 문서 파일들 처리 (순서 중요)
@@ -718,40 +744,39 @@ export default {
             this.uploadedDocuments.projectPlan,
             this.uploadedDocuments.developmentPlan,
             this.uploadedDocuments.agreement,
-            this.uploadedDocuments.additional
-          ].filter(doc => doc !== null);
+            this.uploadedDocuments.additional,
+          ].filter((doc) => doc !== null);
 
-          documents.forEach(doc => {
-            formData.append('documents', doc);
+          documents.forEach((doc) => {
+            formData.append("documents", doc);
           });
 
-          console.log('프로젝트 데이터:', requestDTO);
-          console.log('FormData:', formData);
+          console.log("프로젝트 데이터:", requestDTO);
+          console.log("FormData:", formData);
 
           // API 호출
           await api.post("/api/project", formData, {
             headers: {
-              'Content-Type': 'multipart/form-data',
-            }
+              "Content-Type": "multipart/form-data",
+            },
           });
 
           // 성공 모달 표시
           this.showPaymentCompleteModal = true;
-
         } catch (error) {
-          console.error('프로젝트 등록 중 오류 발생:', error);
-          alert('프로젝트 등록 중 오류가 발생했습니다.');
+          console.error("프로젝트 등록 중 오류 발생:", error);
+          alert("프로젝트 등록 중 오류가 발생했습니다.");
         }
       }
     },
     validateForm() {
       if (
-          !this.project.name ||
-          !this.project.category ||
-          !this.project.description ||
-          !this.project.price ||
-          !this.project.targetAmount ||
-          !this.thumbnailPreview
+        !this.project.name ||
+        !this.project.category ||
+        !this.project.description ||
+        !this.project.price ||
+        !this.project.targetAmount ||
+        !this.thumbnailPreview
       ) {
         alert("모든 필수 항목을 입력해주세요.");
         return false;
@@ -773,23 +798,23 @@ export default {
           // 프로젝트 데이터 저장
           const projectData = {
             selectedPlan: this.selectedPlan,
-            makerId: localStorage.getItem('userId'), // 실제 로그인된 사용자 ID로 교체 필요
+            makerId: localStorage.getItem("userId"), // 실제 로그인된 사용자 ID로 교체 필요
             orderName: this.project.name,
             category: this.project.category,
             amount: this.project.price,
             targetAmount: this.project.targetAmount,
             summary: this.project.description,
-            discount: this.project.discount
+            discount: this.project.discount,
           };
 
           // 이미지 파일 처리
           const imageFiles = [];
-          
+
           // 썸네일 이미지를 첫 번째로 추가
           if (this.thumbnailFile) {
             imageFiles.push(this.thumbnailFile);
           }
-          
+
           // 추가 이미지들을 그 다음에 추가
           if (this.additionalFiles) {
             imageFiles.push(...this.additionalFiles);
@@ -800,46 +825,54 @@ export default {
             this.uploadedDocuments.projectPlan,
             this.uploadedDocuments.developmentPlan,
             this.uploadedDocuments.agreement,
-            this.uploadedDocuments.additional
-          ].filter(doc => doc !== null); // null 문서 제거
+            this.uploadedDocuments.additional,
+          ].filter((doc) => doc !== null); // null 문서 제거
 
           // FormData 생성
           const formData = new FormData();
-          formData.append('requestDTO', new Blob([JSON.stringify({
-            makerId: projectData.makerId,
-            planId: parseInt(projectData.selectedPlan),
-            categoryId: parseInt(projectData.category),
-            productName: projectData.orderName,
-            summary: projectData.summary,
-            price: parseInt(projectData.amount),
-            discountPercentage: parseInt(projectData.discount),
-            goalAmount: parseInt(projectData.targetAmount)
-          })], { type: 'application/json' }));
+          formData.append(
+            "requestDTO",
+            new Blob(
+              [
+                JSON.stringify({
+                  makerId: projectData.makerId,
+                  planId: parseInt(projectData.selectedPlan),
+                  categoryId: parseInt(projectData.category),
+                  productName: projectData.orderName,
+                  summary: projectData.summary,
+                  price: parseInt(projectData.amount),
+                  discountPercentage: parseInt(projectData.discount),
+                  goalAmount: parseInt(projectData.targetAmount),
+                }),
+              ],
+              { type: "application/json" }
+            )
+          );
 
           // 내용 이미지 추가
           if (this.contentImageFile) {
-            formData.append('contentImage', this.contentImageFile);
+            formData.append("contentImage", this.contentImageFile);
           }
 
           // 이미지 파일들 추가
           imageFiles.forEach((file, index) => {
-            formData.append('images', file);
+            formData.append("images", file);
           });
 
           // 문서 파일들 추가
           documentFiles.forEach((file, index) => {
-            formData.append('documents', file);
+            formData.append("documents", file);
           });
 
           // 결제 진행
           await this.handlePayment(projectData);
-          
-          console.log('프로젝트 데이터:', projectData);
+
+          console.log("프로젝트 데이터:", projectData);
           // 프로젝트 등록 API 호출
           await paymentApi.projectRegist(formData);
         } catch (error) {
-          console.error('프로젝트 등록 중 오류 발생:', error);
-          alert('프로젝트 등록 중 오류가 발생했습니다.');
+          console.error("프로젝트 등록 중 오류 발생:", error);
+          alert("프로젝트 등록 중 오류가 발생했습니다.");
         }
       }
     },
@@ -866,31 +899,30 @@ export default {
     //     console.error('토스페이먼츠 초기화 실패:', error)
     //   }
     // },
-  //   async confirmPayment() {
-  //   console.log("탱큐 포 결제💸")
-  //   const orderId = this.generateOrderId();
-  //   if(this.paymentWidget){
-  //     try{
-  //       const paymentConfig = {
-  //         orderId: orderId, //토스에서 필요함
-  //         orderName: this.project.name, //토스에서 필요함
-  //         amount:this.initialPrice,
-  //         successUrl: `${window.location.origin}${this.$router.resolve({ name: 'PaymentSuccessBF'
-  //         }).href}`,
-  //         failUrl: `${window.location.origin}${this.$router.resolve({ name: 'PaymentFailBF' }).href}`
-  //       };
-  //         // 결제 요청
-  //         await this.paymentWidget.requestPayment(paymentConfig);
-  //     }catch(error){
-  //       console.error(error);
-  //     }
-  //   }else{
-  //     alert('결제가 진행되지 않았습니다.');
-  //   }
-  // },
+    //   async confirmPayment() {
+    //   console.log("탱큐 포 결제💸")
+    //   const orderId = this.generateOrderId();
+    //   if(this.paymentWidget){
+    //     try{
+    //       const paymentConfig = {
+    //         orderId: orderId, //토스에서 필요함
+    //         orderName: this.project.name, //토스에서 필요함
+    //         amount:this.initialPrice,
+    //         successUrl: `${window.location.origin}${this.$router.resolve({ name: 'PaymentSuccessBF'
+    //         }).href}`,
+    //         failUrl: `${window.location.origin}${this.$router.resolve({ name: 'PaymentFailBF' }).href}`
+    //       };
+    //         // 결제 요청
+    //         await this.paymentWidget.requestPayment(paymentConfig);
+    //     }catch(error){
+    //       console.error(error);
+    //     }
+    //   }else{
+    //     alert('결제가 진행되지 않았습니다.');
+    //   }
+    // },
 
-    async simulateReviewProcess() {
-    },
+    async simulateReviewProcess() {},
     startReview() {
       let progress = 0;
       this.currentMessageIndex = 0;
@@ -900,8 +932,8 @@ export default {
         this.reviewProgress = progress;
 
         if (
-            progress % 20 === 0 &&
-            this.currentMessageIndex < this.reviewMessages.length
+          progress % 20 === 0 &&
+          this.currentMessageIndex < this.reviewMessages.length
         ) {
           this.reviewMessage = this.reviewMessages[this.currentMessageIndex];
           this.currentMessageIndex++;
@@ -930,27 +962,27 @@ export default {
     // },
     async initTossPayments() {
       try {
+        const paymentWidget = await loadPaymentWidget(
+          this.clientKey,
+          ANONYMOUS
+        );
 
-        const paymentWidget = await loadPaymentWidget(this.clientKey, ANONYMOUS)
-
-        await paymentWidget.renderPaymentMethods('#payment-method', {
+        await paymentWidget.renderPaymentMethods("#payment-method", {
           value: this.initialPrice,
-          currency: 'KRW',
-          country: 'KR'
-        })
+          currency: "KRW",
+          country: "KR",
+        });
 
-        await paymentWidget.renderAgreement('#agreement')
+        await paymentWidget.renderAgreement("#agreement");
 
-        this.paymentWidget = paymentWidget
+        this.paymentWidget = paymentWidget;
       } catch (error) {
-        console.error('토스페이먼츠 초기화 실패:', error)
+        console.error("토스페이먼츠 초기화 실패:", error);
       }
     },
 
-
     async showPaymentModal() {
-
-      console.log("탱큐 포 결제💸")
+      console.log("탱큐 포 결제💸");
 
       this.showReviewModal = false;
       // this.showPaymentCompleteModal = true;
@@ -966,64 +998,63 @@ export default {
     //   failUrl: `${window.location.origin}/fail`
     // });
 
-  async confirmPayment() {
-    console.log("탱큐 포 결제💸")
-    const orderId = this.generateOrderId();
+    async confirmPayment() {
+      console.log("탱큐 포 결제💸");
+      const orderId = this.generateOrderId();
 
-    if(this.paymentWidget){
-      try{
-        const paymentConfig = {
-          orderId: orderId, //토스에서 필요함
-          orderName: this.project.name, //토스에서 필요함
-          // selectedPlan:this.pricingPlans.id,
-          amount:this.initialPrice,
-          // category: this.project.category,
-          // makerId: 1, //이 부분은 어떻게 가지고 와야하는거지? 로그인된 정보 활용하기
-          // summary: this.project.description,
-          // discount: this.project.discount,
-          // targetAmount: this.project.targetAmount,
-          // contentImage: this.imagePreviews,
-          successUrl: `${window.location.origin}${this.$router.resolve({ name: 'PaymentSuccessBF'
-          }).href}`,
-          failUrl: `${window.location.origin}${this.$router.resolve({ name: 'PaymentFailBF' }).href}`
-        };
-
+      if (this.paymentWidget) {
+        try {
+          const paymentConfig = {
+            orderId: orderId, //토스에서 필요함
+            orderName: this.project.name, //토스에서 필요함
+            // selectedPlan:this.pricingPlans.id,
+            amount: this.initialPrice,
+            // category: this.project.category,
+            // makerId: 1, //이 부분은 어떻게 가지고 와야하는거지? 로그인된 정보 활용하기
+            // summary: this.project.description,
+            // discount: this.project.discount,
+            // targetAmount: this.project.targetAmount,
+            // contentImage: this.imagePreviews,
+            successUrl: `${window.location.origin}${
+              this.$router.resolve({ name: "PaymentSuccessBF" }).href
+            }`,
+            failUrl: `${window.location.origin}${
+              this.$router.resolve({ name: "PaymentFailBF" }).href
+            }`,
+          };
 
           // 결제 요청
           await this.paymentWidget.requestPayment(paymentConfig);
 
           // 결제 성공시 모달 표시
           // this.showPaymentCompleteModal = true;
-
-
-      }catch(error){
-        console.error(error);
+        } catch (error) {
+          console.error(error);
+        }
+      } else {
+        alert("결제가 진행되지 않았습니다.");
       }
-    }else{
-      alert('결제가 진행되지 않았습니다.');
-    }
-  },
+    },
 
-
-  goToProjectList() {
-    this.showPaymentCompleteModal = false;
-    this.$nextTick(()=> {
-      this.$router.push("/mypage/funding-status");
-    });
-  },
+    goToProjectList() {
+      this.showPaymentCompleteModal = false;
+      this.$nextTick(() => {
+        this.$router.push("/mypage/funding-status");
+      });
+    },
     closeModal() {
       this.showReviewModal = false;
       this.reviewProgress = 0;
       this.reviewComplete = false;
       this.reviewMessage = "프로젝트를 검토중입니다...";
     },
-    generateOrderId(){
+    generateOrderId() {
       const timestamp = Date.now().toString();
-      const random = Math.random().toString().slice(2,8);
+      const random = Math.random().toString().slice(2, 8);
       return timestamp + random;
     },
-  }
-}
+  },
+};
 </script>
 
 <style scoped>
@@ -1079,11 +1110,11 @@ h3 {
 
 .pricing-card:hover {
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-  border-color: #FFD74E;
+  border-color: #ffd74e;
 }
 
 .pricing-card.selected {
-  border: 2px solid #FF5151;
+  border: 2px solid #ff5151;
   box-shadow: 0 0 0 2px rgba(255, 81, 81, 0.1);
 }
 
@@ -1097,7 +1128,7 @@ h3 {
 .plan-price {
   font-size: 1.8rem;
   font-weight: bold;
-  color: #FF5151;
+  color: #ff5151;
   margin: 1.5rem 0;
 }
 
@@ -1120,7 +1151,7 @@ h3 {
   content: "✓";
   position: absolute;
   left: 0;
-  color: #FFD74E;
+  color: #ffd74e;
   font-weight: bold;
 }
 
@@ -1144,7 +1175,7 @@ h3 {
 }
 
 .select-plan-btn:not(.selected) {
-  background-color: #FF5151; /* 선택되지 않은 상태의 배경색 */
+  background-color: #ff5151; /* 선택되지 않은 상태의 배경색 */
 }
 
 .select-plan-btn:hover {
@@ -1152,7 +1183,7 @@ h3 {
 }
 
 .next-step-btn {
-  background-color: #FF5151;
+  background-color: #ff5151;
   color: white;
   border: none;
   border-radius: 8px;
@@ -1201,7 +1232,7 @@ input:focus,
 select:focus,
 textarea:focus {
   outline: none;
-  border-color: #FF5151;
+  border-color: #ff5151;
   box-shadow: 0 0 0 3px rgba(255, 81, 81, 0.1);
 }
 
@@ -1259,7 +1290,7 @@ small {
 
 .submit-btn,
 .confirm-btn {
-  background-color: #FF5151;
+  background-color: #ff5151;
   color: white;
   border: none;
   border-radius: 8px;
@@ -1311,10 +1342,10 @@ button:disabled {
 
 .modal-content {
   background: white;
-  padding: 2rem;
+  padding: 2.5rem;
   border-radius: 12px;
-  width: 90%;
-  max-width: 500px;
+  width: 95%;
+  max-width: 800px; /* 모달 최대 너비 증가 */
   text-align: center;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
@@ -1330,7 +1361,7 @@ button:disabled {
 
 .progress {
   height: 100%;
-  background-color: #FF5151;
+  background-color: #ff5151;
   transition: width 0.3s ease;
 }
 
@@ -1343,7 +1374,7 @@ button:disabled {
 .check-icon {
   width: 60px;
   height: 60px;
-  background-color: #FFD74E;
+  background-color: #ffd74e;
   color: #333333;
   border-radius: 50%;
   display: flex;
@@ -1354,7 +1385,7 @@ button:disabled {
 }
 
 .success {
-  color: #FF5151;
+  color: #ff5151;
   font-size: 1.4rem;
   font-weight: bold;
   margin-bottom: 1rem;
@@ -1371,7 +1402,57 @@ button:disabled {
   color: #666666;
   margin-bottom: 1.5rem;
 }
+/* 결제 섹션 스타일 */
+.payment-section {
+  width: 100%;
+  max-width: 450px; /* 결제 섹션 최대 너비 제한 */
+  margin: 0 auto;
+  padding: 1rem 0;
+}
 
+.payment-container {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1rem 0;
+}
+
+.payment-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+
+
+/* 모달 content 크기 조정 */
+
+
+/* 결제 위젯 커스텀 스타일 */
+:deep(#payment-method) {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+:deep(#agreement) {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 0.5rem;
+}
+
+.payment-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  justify-content: center;
+}
+
+.payment-btn, .cancel-btn {
+  flex: 1;
+  max-width: 200px; /* 버튼 최대 너비 제한 */
+  padding: 0.8rem 1.5rem;
+}
 /* 반응형 디자인 */
 @media (max-width: 768px) {
   .pricing-plans {
