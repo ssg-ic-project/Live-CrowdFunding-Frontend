@@ -73,10 +73,10 @@
             <option value="">카테고리 선택</option>
             <option
               v-for="category in categories"
-              :key="category"
-              :value="category"
+              :key="category.id"
+              :value="category.id"
             >
-              {{ category }}
+              {{ category.name }}
             </option>
           </select>
         </div>
@@ -215,6 +215,7 @@
     <label>개인정보 이용동의서</label>
     <input
       type="file"
+      @change="(e) => handleDocumentUpload('agreement', e)"
       accept=".pdf,.doc,.docx"
       required
     />
@@ -228,6 +229,7 @@
     <label>추가 서류</label>
     <input
       type="file"
+      @change="(e) => handleDocumentUpload('additional', e)"
       accept=".pdf,.doc,.docx"
     />
     <small v-if="uploadedDocuments.additional">
@@ -317,7 +319,7 @@ export default {
       selectedPlan: null,
       pricingPlans: [
         {
-          id: "A",
+          id: "1",
           name: "베이직 플랜",
           price: 100000,
           features: [
@@ -328,7 +330,7 @@ export default {
           ],
         },
         {
-          id: "B",
+          id: "2",
           name: "스탠다드 플랜",
           price: 300000,
           features: [
@@ -340,7 +342,7 @@ export default {
           ],
         },
         {
-          id: "C",
+          id: "3",
           name: "프리미엄 플랜",
           price: 500000,
           features: [
@@ -362,13 +364,13 @@ export default {
         targetAmount: "",
       },
       categories: [
-        "생활 가전",
-        "주방 가전",
-        "스마트 가전",
-        "DIY",
-        "엔터테인먼트",
-        "웨어러블",
-        "주변 기기",
+        { id: 1, name: "생활 가전" },
+        { id: 2, name: "주방 가전" },
+        { id: 3, name: "스마트 가전" },
+        { id: 4, name: "DIY" },
+        { id: 5, name: "엔터테인먼트" },
+        { id: 6, name: "웨어러블" },
+        { id: 7, name: "주변 기기" },
       ],
       thumbnailPreview: null,
       imagePreviews: [],
@@ -394,10 +396,6 @@ export default {
         "최종 검토를 진행중입니다...",
       ],
       currentMessageIndex: 0,
-      clientKey: 'test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm',
-      initialPrice: 70000,
-      paymentWidget: null,
-      showPaymentTossWidgetModal: false,
       clientKey: 'test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm',
       initialPrice: 70000,
       paymentWidget: null,
@@ -445,6 +443,15 @@ export default {
           this.showPaymentCompleteModal = true;
         }
       }
+    },
+
+    '$route.query.registerProject': {
+      immediate: true,
+      handler(newVal) {
+        if (newVal === 'true') {
+          this.registerProject();
+        }
+      }
     }
 
   },
@@ -452,46 +459,97 @@ export default {
   // async mounted() {
   //   await this.initTossPayments()
   // },
-  watch: {
-    reviewSuccess: {
-      async handler(newVal){
-        if(newVal){
-          await this.initTossPayments();
-        }
-      },
-      immediate: false
-    },
-    // URL query parameter 감시
-    '$route.query.showSuccessModal': {
-      immediate: true,
-      handler(newVal) {
-        if (newVal === 'true') {
-          this.showPaymentCompleteModal = true;
-        }
-      }
-    }
-  },
   methods: {
     async handlePayment() {
       try {
         //project 데이터 저장
         const projectData = {
+          makerId: localStorage.getItem('userId'), // 실제 로그인된 사용자 ID
           selectedPlan: this.selectedPlan,
-          makerId: this.makerId, //로그인한 사용자의 정보 가지고 오기
-          orderName: this.orderName, //project name
-          category: this.category,
-          amount: this.amount,
-          targetAmount: this.targetAmount,
-          summary: this.summary,
-          discount: this.discount,
-          contentImage: this.contentImage
-        }
+          category: this.project.category,
+          orderName: this.project.name,
+          summary: this.project.description,
+          amount: this.project.price,
+          discount: this.project.discount || 0,
+          targetAmount: this.project.targetAmount
+        };
+
+        const fileData = {
+          thumbnailFile: await this.fileToBase64(this.thumbnailFile),
+          additionalFiles: await Promise.all((this.additionalFiles || []).map(file => this.fileToBase64(file))),
+          contentImageFile: await this.fileToBase64(this.contentImageFile),
+          documents: {
+            projectPlan: await this.fileToBase64(this.uploadedDocuments.projectPlan),
+            developmentPlan: await this.fileToBase64(this.uploadedDocuments.developmentPlan),
+            agreement: await this.fileToBase64(this.uploadedDocuments.agreement),
+            additional: await this.fileToBase64(this.uploadedDocuments.additional)
+          }
+        };
+
+        // 프로젝트 데이터만 sessionStorage에 저장
         sessionStorage.setItem('projectData', JSON.stringify(projectData));
+        sessionStorage.setItem('fileData', JSON.stringify(fileData));
+
+        console.log('저장된 파일 데이터:', fileData); // 데이터 확인용 로그
+
         await this.confirmPayment();
       } catch (error) {
         console.error('결제 처리 중 오류 발생:', error);
       }
     },
+    // File 객체를 Base64로 변환하는 유틸리티 함수
+  async fileToBase64(file) {
+    if (!file) return null;
+    
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        resolve({
+          name: file.name,
+          type: file.type,
+          data: reader.result,
+          lastModified: file.lastModified
+        });
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  },
+
+    async registerProject() {
+      try {
+        // sessionStorage에서 데이터 복원
+        const projectData = JSON.parse(sessionStorage.getItem('projectData'));
+        const formDataUrl = sessionStorage.getItem('formDataUrl');
+        const formDataBlob = await fetch(formDataUrl).then(r => r.blob());
+        const formData = new FormData();
+
+        // FormData 재구성
+        formData.append('requestDTO', new Blob([JSON.stringify(projectData)], { type: 'application/json' }));
+        
+        // 원본 FormData의 파일들 복원
+        const originalFormData = new FormData();
+        originalFormData.append('temp', formDataBlob);
+        // FormData 복원 로직...
+
+        // API 호출
+        await api.post("/api/project", formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          }
+        });
+
+        // 저장된 데이터 삭제
+        sessionStorage.removeItem('projectData');
+        sessionStorage.removeItem('formDataUrl');
+
+        this.showPaymentCompleteModal = true;
+      } catch (error) {
+        console.error('프로젝트 등록 중 오류 발생:', error);
+        alert('프로젝트 등록 중 오류가 발생했습니다.');
+      }
+    },
+    
     sout() {
       console.log('checking Yejin')
     },
@@ -507,16 +565,19 @@ export default {
     handleThumbnailUpload(event) {
       const file = event.target.files[0];
       if (file) {
+        this.thumbnailFile = file;
         this.thumbnailPreview = URL.createObjectURL(file);
       }
     },
     handleImagesUpload(event) {
       const files = Array.from(event.target.files).slice(0, 5);
+      this.additionalFiles = files;
       this.imagePreviews = files.map((file) => URL.createObjectURL(file));
     },
     handleContentImageUpload(event) {
       const file = event.target.files[0];
       if (file) {
+        this.contentImageFile = file;
         this.contentImagePreview = URL.createObjectURL(file);
       }
     },
@@ -530,6 +591,10 @@ export default {
       if (!file) return;
 
       this.uploadedDocuments[type] = file;
+      if (!file) return;
+
+      this.uploadedDocuments[type] = file;
+      console.log(`${type} 문서 저장됨:`, file);
 
       if (type === 'projectPlan' || type === 'developmentPlan') {
         if (file.type === 'text/plain') {
@@ -600,12 +665,84 @@ export default {
         this.$router.push("/mypage/funding-status");
       }
     },
-    submitProject() {
+    async submitProject() {
       if (!this.validateForm()) {
         return;
       }
       this.showReviewModal = true;
-      this.startReview();
+      await this.startReview();
+
+      if (this.reviewSuccess) {
+        try {
+          // 1. 먼저 결제 진행
+          await this.handlePayment();
+          
+          // 2. 결제 성공 후 프로젝트 등록
+          const formData = new FormData();
+          console.log('유저 아이디:', localStorage.getItem('userId'));
+
+          // requestDTO를 JSON으로 직렬화하여 추가
+          const requestDTO = {
+            makerId: localStorage.getItem('userId'), // 실제 로그인된 사용자 ID
+            planId: parseInt(this.selectedPlan),
+            categoryId: parseInt(this.project.category),
+            productName: this.project.name,
+            summary: this.project.description,
+            price: parseInt(this.project.price),
+            discountPercentage: parseInt(this.project.discount || 0),
+            goalAmount: parseInt(this.project.targetAmount),
+          };
+
+          // requestDTO를 Blob으로 변환하여 추가
+          formData.append('requestDTO', 
+            new Blob([JSON.stringify(requestDTO)], { type: 'application/json' })
+          );
+
+          // 이미지 파일들 처리
+          if (this.thumbnailFile) {
+            formData.append('images', this.thumbnailFile);
+          }
+          if (this.additionalFiles) {
+            this.additionalFiles.forEach(file => {
+              formData.append('images', file);
+            });
+          }
+
+          // 내용 이미지 처리
+          if (this.contentImageFile) {
+            formData.append('contentImage', this.contentImageFile);
+          }
+
+          // 문서 파일들 처리 (순서 중요)
+          const documents = [
+            this.uploadedDocuments.projectPlan,
+            this.uploadedDocuments.developmentPlan,
+            this.uploadedDocuments.agreement,
+            this.uploadedDocuments.additional
+          ].filter(doc => doc !== null);
+
+          documents.forEach(doc => {
+            formData.append('documents', doc);
+          });
+
+          console.log('프로젝트 데이터:', requestDTO);
+          console.log('FormData:', formData);
+
+          // API 호출
+          await api.post("/api/project", formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            }
+          });
+
+          // 성공 모달 표시
+          this.showPaymentCompleteModal = true;
+
+        } catch (error) {
+          console.error('프로젝트 등록 중 오류 발생:', error);
+          alert('프로젝트 등록 중 오류가 발생했습니다.');
+        }
+      }
     },
     validateForm() {
       if (
@@ -621,42 +758,136 @@ export default {
       }
       return true;
     },
-    async initTossPayments() {
-      try {
-        const paymentWidget = await loadPaymentWidget(this.clientKey, ANONYMOUS)
-        await paymentWidget.renderPaymentMethods('#payment-method', {
-          value: this.initialPrice,
-          currency: 'KRW',
-          country: 'KR'
-        })
-        await paymentWidget.renderAgreement('#agreement')
-        this.paymentWidget = paymentWidget
-      } catch (error) {
-        console.error('토스페이먼츠 초기화 실패:', error)
+    async submitProject() {
+      if (!this.validateForm()) {
+        return;
+      }
+
+      // 검토 모달 표시 및 검토 프로세스 시작
+      this.showReviewModal = true;
+      await this.startReview();
+
+      // 검토 성공 시 결제 진행
+      if (this.reviewSuccess) {
+        try {
+          // 프로젝트 데이터 저장
+          const projectData = {
+            selectedPlan: this.selectedPlan,
+            makerId: localStorage.getItem('userId'), // 실제 로그인된 사용자 ID로 교체 필요
+            orderName: this.project.name,
+            category: this.project.category,
+            amount: this.project.price,
+            targetAmount: this.project.targetAmount,
+            summary: this.project.description,
+            discount: this.project.discount
+          };
+
+          // 이미지 파일 처리
+          const imageFiles = [];
+          
+          // 썸네일 이미지를 첫 번째로 추가
+          if (this.thumbnailFile) {
+            imageFiles.push(this.thumbnailFile);
+          }
+          
+          // 추가 이미지들을 그 다음에 추가
+          if (this.additionalFiles) {
+            imageFiles.push(...this.additionalFiles);
+          }
+
+          // 문서 파일들을 순서대로 배열에 추가
+          const documentFiles = [
+            this.uploadedDocuments.projectPlan,
+            this.uploadedDocuments.developmentPlan,
+            this.uploadedDocuments.agreement,
+            this.uploadedDocuments.additional
+          ].filter(doc => doc !== null); // null 문서 제거
+
+          // FormData 생성
+          const formData = new FormData();
+          formData.append('requestDTO', new Blob([JSON.stringify({
+            makerId: projectData.makerId,
+            planId: parseInt(projectData.selectedPlan),
+            categoryId: parseInt(projectData.category),
+            productName: projectData.orderName,
+            summary: projectData.summary,
+            price: parseInt(projectData.amount),
+            discountPercentage: parseInt(projectData.discount),
+            goalAmount: parseInt(projectData.targetAmount)
+          })], { type: 'application/json' }));
+
+          // 내용 이미지 추가
+          if (this.contentImageFile) {
+            formData.append('contentImage', this.contentImageFile);
+          }
+
+          // 이미지 파일들 추가
+          imageFiles.forEach((file, index) => {
+            formData.append('images', file);
+          });
+
+          // 문서 파일들 추가
+          documentFiles.forEach((file, index) => {
+            formData.append('documents', file);
+          });
+
+          // 결제 진행
+          await this.handlePayment(projectData);
+          
+          console.log('프로젝트 데이터:', projectData);
+          // 프로젝트 등록 API 호출
+          await paymentApi.projectRegist(formData);
+        } catch (error) {
+          console.error('프로젝트 등록 중 오류 발생:', error);
+          alert('프로젝트 등록 중 오류가 발생했습니다.');
+        }
       }
     },
-    async confirmPayment() {
-    console.log("탱큐 포 결제💸")
-    const orderId = this.generateOrderId();
-    if(this.paymentWidget){
-      try{
-        const paymentConfig = {
-          orderId: orderId, //토스에서 필요함
-          orderName: this.project.name, //토스에서 필요함
-          amount:this.initialPrice,
-          successUrl: `${window.location.origin}${this.$router.resolve({ name: 'PaymentSuccessBF'
-          }).href}`,
-          failUrl: `${window.location.origin}${this.$router.resolve({ name: 'PaymentFailBF' }).href}`
-        };
-          // 결제 요청
-          await this.paymentWidget.requestPayment(paymentConfig);
-      }catch(error){
-        console.error(error);
+
+    // 파일 업로드 핸들러 수정
+    handleThumbnailUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        this.thumbnailFile = file;
+        this.thumbnailPreview = URL.createObjectURL(file);
       }
-    }else{
-      alert('결제가 진행되지 않았습니다.');
-    }
-  },
+    },
+    // async initTossPayments() {
+    //   try {
+    //     const paymentWidget = await loadPaymentWidget(this.clientKey, ANONYMOUS)
+    //     await paymentWidget.renderPaymentMethods('#payment-method', {
+    //       value: this.initialPrice,
+    //       currency: 'KRW',
+    //       country: 'KR'
+    //     })
+    //     await paymentWidget.renderAgreement('#agreement')
+    //     this.paymentWidget = paymentWidget
+    //   } catch (error) {
+    //     console.error('토스페이먼츠 초기화 실패:', error)
+    //   }
+    // },
+  //   async confirmPayment() {
+  //   console.log("탱큐 포 결제💸")
+  //   const orderId = this.generateOrderId();
+  //   if(this.paymentWidget){
+  //     try{
+  //       const paymentConfig = {
+  //         orderId: orderId, //토스에서 필요함
+  //         orderName: this.project.name, //토스에서 필요함
+  //         amount:this.initialPrice,
+  //         successUrl: `${window.location.origin}${this.$router.resolve({ name: 'PaymentSuccessBF'
+  //         }).href}`,
+  //         failUrl: `${window.location.origin}${this.$router.resolve({ name: 'PaymentFailBF' }).href}`
+  //       };
+  //         // 결제 요청
+  //         await this.paymentWidget.requestPayment(paymentConfig);
+  //     }catch(error){
+  //       console.error(error);
+  //     }
+  //   }else{
+  //     alert('결제가 진행되지 않았습니다.');
+  //   }
+  // },
 
     async simulateReviewProcess() {
     },
@@ -694,9 +925,9 @@ export default {
         this.rejectReason = reasons[Math.floor(Math.random() * reasons.length)];
       }
     },
-    selectedPlanInfo() {
-      return this.pricingPlans.find(plan => plan.id === this.selectedPlan) || {name: '', price: 0};
-    },
+    // selectedPlanInfo() {
+    //   return this.pricingPlans.find(plan => plan.id === this.selectedPlan) || {name: '', price: 0};
+    // },
     async initTossPayments() {
       try {
 

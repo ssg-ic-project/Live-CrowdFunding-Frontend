@@ -30,7 +30,7 @@
             <button @click.stop="prevImage" class="slider-button prev-button" aria-label="이전 이미지">
               &#10094;
             </button>
-            <img :src="currentImage.imageUrl" :alt="`${product.productName} 이미지 ${currentImageIndex + 1}`" class="product-main-image" />
+            <img :src="currentImage.url" :alt="`${product.productName} 이미지 ${currentImage.imageNumber}`" class="product-main-image" />
             <button @click.stop="nextImage" class="slider-button next-button" aria-label="다음 이미지">
               &#10095;
             </button>
@@ -38,7 +38,7 @@
 
           <!-- 단일 이미지 표시 -->
           <div v-else class="single-image">
-            <img :src="product.images[0].imageUrl" :alt="product.productName" class="product-main-image" />
+            <img :src="product.images[0].url" :alt="product.productName" class="product-main-image" />
           </div>
         </div>
 
@@ -50,7 +50,7 @@
               <span>{{ product.percentage }}% 펀딩 달성</span>
             </div>
             <div class="category">
-              <span>카테고리: {{ product.category }}</span>
+              <span> {{ product.maker }} | {{ product.category }}</span>
             </div>
             <div class="icons">
               <button @click="handleNotification" aria-label="알림" class="icon-button">
@@ -67,9 +67,9 @@
 
           <div class="funding-info">
             <div class="price-info">
-              <span class="funding-price">{{ calculateDiscountedPrice }}원</span>
+              <span class="funding-price">{{ product.price }}원</span>
               <span v-if="product.discountPercentage" class="original-price">
-                {{ product.price.toLocaleString() }}원
+                {{  }}원
               </span>
               <span v-if="product.discountPercentage" class="discount-percentage">
                 {{ product.discountPercentage }}% 할인
@@ -166,14 +166,14 @@ export default {
       return Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
     },
     
-    calculateDiscountedPrice() {
-      if (!this.product) return 0;
-      if (!this.product.discountPercentage)
-        return this.product.price.toLocaleString();
-      const discountedPrice =
-        this.product.price * (1 - this.product.discountPercentage / 100);
-      return Math.floor(discountedPrice).toLocaleString();
-    },
+    // calculateDiscountedPrice() { // 나중 라이브 시 적용 예정
+    //   if (!this.product) return 0;
+    //   if (!this.product.discountPercentage)
+    //     return this.product.price.toLocaleString();
+    //   const discountedPrice =
+    //     this.product.price * (1 - this.product.discountPercentage / 100);
+    //   return Math.floor(discountedPrice).toLocaleString();
+    // },
       // 수량 증가 버튼 비활성화 여부
       isIncrementDisabled() {
       return this.selectedQuantity >= 100;
@@ -319,10 +319,10 @@ incrementQuantity() {
       }
     },
 
-    calculateTotalPrice() {
-      const discountedPrice = this.product.price * (1 - (this.product.discountPercentage || 0) / 100);
-      return Math.floor(discountedPrice * this.selectedQuantity);
-    },
+    // calculateTotalPrice() {
+    //   const discountedPrice = this.product.price * (1 - (this.product.discountPercentage || 0) / 100);
+    //   return Math.floor(discountedPrice * this.selectedQuantity);
+    // },
 
     async handleFunding() {
       try {
@@ -336,7 +336,7 @@ incrementQuantity() {
           userId: Number(userId),
           projectId: this.product.id,
           amount: this.selectedQuantity,
-          totalPrice: this.calculateTotalPrice()
+          totalPrice: this.product.price * this.selectedQuantity,
         };
 
         console.log("주문 생성 요청:", orderRequestDTO); // 요청 데이터 구조 확인용
