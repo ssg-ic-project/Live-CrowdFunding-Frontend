@@ -166,14 +166,14 @@ export default {
       return Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
     },
     
-    calculateDiscountedPrice() { // 나중 라이브 시 적용 예정
-      if (!this.product) return 0;
-      if (!this.product.discountPercentage)
-        return this.product.price.toLocaleString();
-      const discountedPrice =
-        this.product.price * (1 - this.product.discountPercentage / 100);
-      return Math.floor(discountedPrice).toLocaleString();
-    },
+    // calculateDiscountedPrice() { // 나중 라이브 시 적용 예정
+    //   if (!this.product) return 0;
+    //   if (!this.product.discountPercentage)
+    //     return this.product.price.toLocaleString();
+    //   const discountedPrice =
+    //     this.product.price * (1 - this.product.discountPercentage / 100);
+    //   return Math.floor(discountedPrice).toLocaleString();
+    // },
       // 수량 증가 버튼 비활성화 여부
       isIncrementDisabled() {
       return this.selectedQuantity >= 100;
@@ -319,10 +319,10 @@ incrementQuantity() {
       }
     },
 
-    calculateTotalPrice() {
-      const discountedPrice = this.product.price * (1 - (this.product.discountPercentage || 0) / 100);
-      return Math.floor(discountedPrice * this.selectedQuantity);
-    },
+    // calculateTotalPrice() {
+    //   const discountedPrice = this.product.price * (1 - (this.product.discountPercentage || 0) / 100);
+    //   return Math.floor(discountedPrice * this.selectedQuantity);
+    // },
 
     async handleFunding() {
       try {
@@ -336,7 +336,7 @@ incrementQuantity() {
           userId: Number(userId),
           projectId: this.product.id,
           amount: this.selectedQuantity,
-          totalPrice: this.calculateTotalPrice()
+          totalPrice: this.product.price * this.selectedQuantity,
         };
 
         console.log("주문 생성 요청:", orderRequestDTO); // 요청 데이터 구조 확인용

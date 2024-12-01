@@ -14,9 +14,9 @@
             <p class="original-price">
               가격: ₩{{ product.price.toLocaleString() }}
             </p>
-            <p class="discounted-price">
+            <!-- <p class="discounted-price">
               할인가격: ₩{{ discountedPrice.toLocaleString() }}
-            </p>
+            </p> -->
           </div>
         </div>
         <div class="quantity-selector">
@@ -107,9 +107,9 @@ export default {
   },
 
   computed: {
-    discountedPrice() {
-      return this.product.price * 0.9;
-    },
+    // discountedPrice() {
+    //   return this.product.price * 0.9;
+    // },
 
     totalPayment() {
       return this.totalPrice; 
