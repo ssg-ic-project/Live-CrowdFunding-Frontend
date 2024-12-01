@@ -697,8 +697,15 @@ export default {
         this.closeBroadcastModal();
       } catch (error) {
         console.error('방송 예약 실패:', error);
-        console.log('요청 데이터:', requestDTO); // 디버깅용
-        alert('방송 예약 중 오류가 발생했습니다. 다시 시도해주세요.');
+        if (error.response?.status === 400) {
+            if (error.response.data?.message) {
+                alert(error.response.data.message);
+            } else {
+                alert('해당 시간대는 예약이 불가능합니다.');
+            }
+        } else {
+            alert('방송 예약 중 오류가 발생했습니다. 다시 시도해주세요.');
+       }
       }
     },
   }
