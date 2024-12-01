@@ -15,14 +15,25 @@
             검토받기
           </button>
         </template>
-        <button 
-          class="btn broadcast-btn"
-          @click="openBroadcastModal"
-          :disabled="loading || error"
-        >
-          방송예약
-        </button>
-        <!-- <button class="btn back-btn" @click="goToList">방송하기</button> -->
+        <template v-if="project?.showStatus === '펀딩중' && project.remainingLiveCount > 0">
+          <!-- 예약하기 버튼 -->
+          <button 
+            v-if="[2, 3].includes(project.isStreaming)"
+            class="btn broadcast-btn"
+            @click="openBroadcastModal"
+            :disabled="loading || error"
+          >
+            방송예약
+          </button>
+          <!-- 방송하기 버튼 -->
+          <button 
+            v-if="project.isStreaming === 0"
+            class="btn broadcast-btn"
+            @click="startBroadcast"
+          >
+            방송하기
+          </button>
+        </template>
         <button class="btn back-btn" @click="goToList">목록으로</button>
       </div>
     </div>
@@ -396,6 +407,7 @@ export default {
           `/api/project/${this.$route.params.id}/maker`
         );
         this.project = response.data;
+        console.log("프로젝트 정보:", this.project);
       } catch (error) {
         console.error("프로젝트 조회 실패:", error);
         this.error = "프로젝트 정보를 불러오는데 실패했습니다.";
@@ -700,6 +712,10 @@ export default {
         console.log('요청 데이터:', requestDTO); // 디버깅용
         alert('방송 예약 중 오류가 발생했습니다. 다시 시도해주세요.');
       }
+    },
+    async startBroadcast() {
+      // 방송 시작 API 호출 로직은 나중에 구현
+      console.log('방송 시작');
     },
   }
 }
