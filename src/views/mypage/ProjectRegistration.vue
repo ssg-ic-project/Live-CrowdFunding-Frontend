@@ -1024,8 +1024,6 @@ export default {
     },
   }
 }
-
-
 </script>
 
 <style scoped>
@@ -1037,17 +1035,21 @@ export default {
 
 h2 {
   font-size: 1.8rem;
-  color: #333;
+  color: #333333;
   margin-bottom: 2rem;
+  font-weight: bold;
   text-align: center;
 }
 
 h3 {
   font-size: 1.4rem;
-  color: #333;
+  color: #333333;
   margin-bottom: 1.5rem;
+  font-weight: 600;
+  text-align: center;
 }
 
+/* 요금제 섹션 스타일 */
 .pricing-section {
   margin-bottom: 3rem;
 }
@@ -1060,76 +1062,42 @@ h3 {
 }
 
 .pricing-card {
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  border: 1px solid #dee2e6;
+  border-radius: 12px;
   padding: 2rem;
   text-align: center;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
   background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 500px;
+  position: relative;
 }
 
 .pricing-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  border-color: #FFD74E;
 }
 
 .pricing-card.selected {
-  border: 2px solid #007bff;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
-}
-
-.selected-plan-info {
-  background-color: #f8f9fa;
-  padding: 1rem;
-  margin-bottom: 1.5rem;
-  border-radius: 4px;
-  border: 1px solid #e9ecef;
-}
-
-.selected-plan-info .plan-name,
-.selected-plan-info .plan-price {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-}
-
-.selected-plan-info .label {
-  color: #6c757d;
-  font-weight: 500;
-}
-
-.selected-plan-info .value {
-  color: #212529;
-  font-weight: 600;
-}
-
-.selected-plan-info .plan-price {
-  margin-bottom: 0;
+  border: 2px solid #FF5151;
+  box-shadow: 0 0 0 2px rgba(255, 81, 81, 0.1);
 }
 
 .pricing-card h4 {
   font-size: 1.4rem;
-  color: #333;
+  color: #333333;
   margin-bottom: 1rem;
+  font-weight: 600;
 }
 
-.button-group {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  margin-top: 1rem;
-}
-
-.button-group .payment-btn,
-.button-group .cancel-btn {
-  flex: 1;
-  max-width: 150px;
-}
 .plan-price {
   font-size: 1.8rem;
   font-weight: bold;
-  color: #007bff;
+  color: #FF5151;
   margin: 1.5rem 0;
 }
 
@@ -1138,11 +1106,12 @@ h3 {
   padding: 0;
   margin: 1.5rem 0;
   text-align: left;
+  flex-grow: 1;
 }
 
 .plan-features li {
   margin: 0.8rem 0;
-  color: #666;
+  color: #666666;
   padding-left: 1.5rem;
   position: relative;
 }
@@ -1151,50 +1120,59 @@ h3 {
   content: "✓";
   position: absolute;
   left: 0;
-  color: #28a745;
+  color: #FFD74E;
+  font-weight: bold;
 }
 
 .select-plan-btn {
-  width: 100%;
+  width: calc(100% - 4rem);
   padding: 0.8rem;
   border: none;
-  border-radius: 4px;
-  background-color: #007bff;
-  color: white;
+  border-radius: 8px;
   font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s ease; /* transform 제거하고 background-color만 변경 */
+  position: absolute;
+  bottom: 2rem;
+  left: 2rem; /* transform 대신 좌측 여백으로 조정 */
+  right: 2rem; /* 우측 여백 추가 */
+}
+
+.select-plan-btn.selected {
+  background-color: #666666; /* 선택된 상태의 배경색 */
+}
+
+.select-plan-btn:not(.selected) {
+  background-color: #FF5151; /* 선택되지 않은 상태의 배경색 */
 }
 
 .select-plan-btn:hover {
-  background-color: #0056b3;
+  filter: brightness(110%);
 }
 
 .next-step-btn {
-  display: block;
-  margin: 2rem auto 0;
-  padding: 1rem 2rem;
-  background-color: #28a745;
+  background-color: #FF5151;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
+  padding: 1rem 3rem;
   font-size: 1.1rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s ease;
+  display: block;
+  margin: 3rem auto 0;
 }
 
-.next-step-btn:disabled {
-  background-color: #6c757d;
-  cursor: not-allowed;
-}
-
+/* 폼 섹션 스타일 */
 .form-section {
   background: white;
-  border: 1px solid #eee;
-  border-radius: 8px;
+  border: 1px solid #dee2e6;
+  border-radius: 12px;
   padding: 2rem;
   margin-bottom: 2rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .input-group {
@@ -1205,7 +1183,7 @@ label {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
-  color: #333;
+  color: #333333;
 }
 
 input,
@@ -1213,24 +1191,26 @@ select,
 textarea {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
   font-size: 1rem;
-  transition: border-color 0.3s;
+  transition: all 0.3s ease;
 }
 
 input:focus,
 select:focus,
 textarea:focus {
   outline: none;
-  border-color: #007bff;
+  border-color: #FF5151;
+  box-shadow: 0 0 0 3px rgba(255, 81, 81, 0.1);
 }
 
 textarea {
-  height: 150px;
+  min-height: 150px;
   resize: vertical;
 }
 
+/* 이미지 업로드 영역 */
 .image-upload-group {
   margin-bottom: 2rem;
 }
@@ -1240,63 +1220,82 @@ textarea {
   height: 200px;
   object-fit: cover;
   margin-top: 1rem;
-  border-radius: 4px;
-  border: 1px solid #ddd;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
 }
 
 .image-previews {
   display: flex;
   gap: 1rem;
+  flex-wrap: wrap;
   margin-top: 1rem;
-  overflow-x: auto;
-  padding-bottom: 1rem;
 }
 
+/* 문서 업로드 영역 */
 .document-upload-group {
   margin-bottom: 1.5rem;
 }
 
 input[type="file"] {
   padding: 0.5rem;
-  border: 1px dashed #ddd;
   background-color: #f8f9fa;
+  border: 2px dashed #dee2e6;
+  cursor: pointer;
 }
 
+small {
+  display: block;
+  margin-top: 0.5rem;
+  color: #666666;
+}
+
+/* 버튼 스타일 */
 .form-buttons {
   display: flex;
   gap: 1rem;
   justify-content: center;
-  margin-top: 3rem;
+  margin-top: 2rem;
+}
+
+.submit-btn,
+.confirm-btn {
+  background-color: #FF5151;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.8rem 2.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 150px;
 }
 
 .cancel-btn,
-.submit-btn {
-  padding: 0.75rem 2.5rem;
+.close-btn {
+  background-color: #666666;
+  color: white;
   border: none;
-  border-radius: 4px;
-  font-size: 1.1rem;
+  border-radius: 8px;
+  padding: 0.8rem 2.5rem;
+  font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.3s ease;
+  min-width: 150px;
 }
 
-.cancel-btn {
-  background-color: #6c757d;
-  color: white;
+button:hover:not(:disabled) {
+  filter: brightness(110%);
+  transform: translateY(-1px);
 }
 
-.submit-btn {
-  background-color: #007bff;
-  color: white;
+button:disabled {
+  background-color: #dee2e6;
+  cursor: not-allowed;
 }
 
-.cancel-btn:hover {
-  background-color: #5a6268;
-}
-
-.submit-btn:hover {
-  background-color: #0056b3;
-}
-
+/* 모달 스타일 */
 .modal {
   position: fixed;
   top: 0;
@@ -1313,127 +1312,39 @@ input[type="file"] {
 .modal-content {
   background: white;
   padding: 2rem;
-  border-radius: 8px;
+  border-radius: 12px;
   width: 90%;
   max-width: 500px;
   text-align: center;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
 .progress-bar {
   width: 100%;
-  height: 10px;
-  background-color: #e9ecef;
-  border-radius: 5px;
+  height: 8px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
   margin: 1.5rem 0;
   overflow: hidden;
 }
 
 .progress {
   height: 100%;
-  background-color: #007bff;
+  background-color: #FF5151;
   transition: width 0.3s ease;
 }
 
-.review-result {
-  margin-top: 1.5rem;
-}
-
-.success {
-  color: #28a745;
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-}
-
-.failure {
-  color: #dc3545;
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-}
-
-.reject-reason {
-  color: #666;
-  margin-bottom: 1.5rem;
-}
-
-.payment-btn,
-.close-btn {
-  padding: 0.75rem 2rem;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.payment-btn {
-  background-color: #28a745;
-  color: white;
-}
-
-.close-btn {
-  background-color: #6c757d;
-  color: white;
-}
-
-.payment-btn:hover {
-  background-color: #218838;
-}
-
-.close-btn:hover {
-  background-color: #5a6268;
-}
-
-@media (max-width: 768px) {
-  .pricing-plans {
-    grid-template-columns: 1fr;
-  }
-
-  .form-buttons {
-    flex-direction: column;
-  }
-
-  .cancel-btn,
-  .submit-btn {
-    width: 100%;
-  }
-
-  .image-preview {
-    width: 150px;
-    height: 150px;
-  }
-}
-
-@media (max-width: 480px) {
-  .project-registration-page {
-    padding: 1rem;
-  }
-
-  .form-section {
-    padding: 1rem;
-  }
-
-  h2 {
-    font-size: 1.5rem;
-  }
-
-  h3 {
-    font-size: 1.2rem;
-  }
-}
-
+/* 결제 완료 모달 */
 .payment-complete {
   text-align: center;
-  padding: 1rem;
+  padding: 2rem;
 }
 
 .check-icon {
   width: 60px;
   height: 60px;
-  background-color: #28a745;
-  color: white;
+  background-color: #FFD74E;
+  color: #333333;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -1442,28 +1353,61 @@ input[type="file"] {
   margin: 0 auto 1.5rem;
 }
 
-.payment-complete h3 {
-  color: #28a745;
+.success {
+  color: #FF5151;
+  font-size: 1.4rem;
+  font-weight: bold;
   margin-bottom: 1rem;
 }
 
-.payment-complete p {
-  color: #666;
+.failure {
+  color: #dc3545;
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.reject-reason {
+  color: #666666;
   margin-bottom: 1.5rem;
 }
 
-.confirm-btn {
-  padding: 0.75rem 2rem;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .pricing-plans {
+    grid-template-columns: 1fr;
+  }
 
-.confirm-btn:hover {
-  background-color: #218838;
+  .pricing-card {
+    min-height: auto;
+    padding-bottom: 5rem;
+  }
+
+  .form-section {
+    padding: 1.5rem;
+  }
+
+  .image-preview {
+    width: 150px;
+    height: 150px;
+  }
+
+  .form-buttons {
+    flex-direction: column;
+  }
+
+  .submit-btn,
+  .cancel-btn,
+  .confirm-btn,
+  .close-btn {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .next-step-btn {
+    width: 100%;
+    padding: 0.8rem;
+    font-size: 1rem;
+  }
 }
 </style>
