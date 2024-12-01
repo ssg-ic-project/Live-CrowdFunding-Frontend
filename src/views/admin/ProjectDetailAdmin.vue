@@ -33,7 +33,7 @@
         <!-- 우측 패널: 프로젝트 정보 -->
         <div class="right-panel">
           <div class="project-info">
-            <h2>{{ project.name }}</h2>
+            <h2>{{ project.productName }}</h2>
             
             <!-- 기본 정보 섹션 -->
             <div class="info-section">
@@ -41,15 +41,15 @@
               <div class="info-grid">
                 <div class="info-item">
                   <label>판매자</label>
-                  <p>{{ project.seller }}</p>
+                  <p>{{ project.maker.name }}</p>
                 </div>
                 <div class="info-item">
                   <label>카테고리</label>
-                  <p>{{ project.category }}</p>
+                  <p>{{ project.category.classification }}</p>
                 </div>
                 <div class="info-item">
                   <label>선택 요금제</label>
-                  <p>{{ project.plan }}</p>
+                  <p>{{ project.ratePlan.planName }}</p>
                 </div>
                 <div class="info-item">
                   <label>판매가</label>
@@ -57,11 +57,11 @@
                 </div>
                 <div class="info-item">
                   <label>할인율</label>
-                  <p>{{ project.discount }}%</p>
+                  <p>{{ project.discountPercentage }}%</p>
                 </div>
                 <div class="info-item">
                   <label>목표 금액</label>
-                  <p>{{ formatPrice(project.targetAmount) }}</p>
+                  <p>{{ formatPrice(project.goalAmount) }}</p>
                 </div>
               </div>
             </div>
@@ -69,7 +69,7 @@
             <!-- 상품 설명 -->
             <div class="description-section">
               <h3>상품 설명</h3>
-              <p>{{ project.description }}</p>
+              <p>{{ project.summary }}</p>
             </div>
 
             <!-- 문서 검토 섹션 -->
@@ -184,46 +184,54 @@ export default {
       userId: 'admin123',
       userName: '관리자',
       project: {
-        id: this.id,
-        name: '프로젝트 A',
-        seller: '판매자 A',
-        category: '생활 가전',
-        plan: '스탠다드 플랜',
-        price: 100000,
-        discount: 10,
-        targetAmount: 1000000,
-        description: '프로젝트 상세 설명입니다...',
-        thumbnailImage: 'https://via.placeholder.com/300',
-        additionalImages: [
-          'https://via.placeholder.com/150',
-          'https://via.placeholder.com/150',
-          'https://via.placeholder.com/150'
-        ],
-        contentImage: 'https://via.placeholder.com/600',
+        id: null,
+        productName: '',
+        maker: {},
+        manager: {},
+        ratePlan: {},
+        category: {},
+        contentImage: '',
+        discountPercentage: 0,
+        endAt: '',
+        goalAmount: 0,
+        percentage: 0,
+        price: 0,
+        progressProjectStatus: '',
+        rejectionReason: null,
+        reviewProjectStatus: '',
+        startAt: '',
+        summary: '',
+        thumbnailImage: '',
+      //   thumbnailImage: 'https://via.placeholder.com/300',
+      //   additionalImages: [
+      //     'https://via.placeholder.com/150',
+      //     'https://via.placeholder.com/150',
+      //     'https://via.placeholder.com/150'
+      //   ],
         documents: [
-          { 
-            name: '상품 기획서.pdf', 
-            content: '상품 기획서 내용', 
+          {
+            name: '상품 기획서.pdf',
+            content: '상품 기획서 내용',
             reviewed: false,
-            memo: '' 
+            memo: ''
           },
-          { 
-            name: '펀딩 기획서.pdf', 
-            content: '펀딩 기획서 내용', 
+          {
+            name: '펀딩 기획서.pdf',
+            content: '펀딩 기획서 내용',
             reviewed: false,
-            memo: '' 
+            memo: ''
           },
-          { 
-            name: '개인정보 이용동의서.pdf', 
-            content: '개인정보 이용동의서 내용', 
+          {
+            name: '개인정보 이용동의서.pdf',
+            content: '개인정보 이용동의서 내용',
             reviewed: false,
-            memo: '' 
+            memo: ''
           },
-          { 
-            name: '추가 서류.pdf', 
-            content: '추가 서류 내용', 
+          {
+            name: '추가 서류.pdf',
+            content: '추가 서류 내용',
             reviewed: false,
-            memo: '' 
+            memo: ''
           }
         ],
         reviewStatus: '승인 대기'
@@ -244,6 +252,10 @@ export default {
     }
   },
   methods: {
+    formateDate(dateString){
+      const date = new Date(dateString);
+      return date.toLocaleDateString();
+    },
     formatPrice(price) {
       return new Intl.NumberFormat('ko-KR', { 
         style: 'currency', 
@@ -286,10 +298,23 @@ export default {
     closeApproveModal() {
       this.showApproveModal = false;
     },
-    confirmApproval() {
-      this.project.reviewStatus = '승인';
-      this.closeApproveModal();
-      this.$router.push({ name: 'ProjectManagement' });
+    async confirmApproval() {
+      try{
+        const request = {
+          status: '승인',
+          rejectionReason: null
+        };
+        await projectApi.updateApprovalStatus(this.project.id, request);
+        this.closeApproveModal();
+        this.$router.push({ name: 'ProjectManagement' });
+      }catch(error){
+        console.error('프로젝트 승인 실패: ', error);
+        alert('프로젝트 승인 처리 중 오류가 발생했습니다');
+      }
+
+      // //this.project.reviewStatus = '승인';
+      // this.closeApproveModal();
+      // this.$router.push({ name: 'ProjectManagement' });
     },
     openRejectModal() {
       this.showRejectModal = true;
@@ -298,19 +323,49 @@ export default {
       this.showRejectModal = false;
       this.rejectReason = '';
     },
-    submitRejection() {
+    async submitRejection() {
       if (!this.rejectReason.trim()) {
         alert('반려 사유를 입력해주세요.');
         return;
       }
-      this.project.reviewStatus = '반려';
-      this.closeRejectModal();
-      this.$router.push({ name: 'ProjectManagement' });
+      try{
+        const request = {
+          status: '반려',
+          rejectionReason: this.rejectReason
+        };
+        await projectApi.updateApprovalStatus(this.project.id, request);
+        this.closeRejectModal();
+        this.$router.push({name: 'ProjectManagement'});
+      }catch(error){
+        console.error('프로젝트 반려 실패: ', error);
+        alert('프로젝트 반려 처리 중 오류가 발생했습니다.');
+      }
+
+
+      // this.project.reviewStatus = '반려';
+      // this.closeRejectModal();
+      // this.$router.push({ name: 'ProjectManagement' });
     },
     goBack() {
       this.$router.push({ name: 'ProjectManagement' });
     }
-  }
+  },
+  async created() {
+    try {
+      const response = await projectApi.getProject(this.id);
+      //this.project = response.data;
+      this.project = {
+        ...response.data,
+        documents: this.project.documents
+      }
+      console.log("check: ", this.project);
+      console.log(response.data.productName);
+    } catch (error) {
+      console.error('프로젝트 상세 정보 조회 실패:', error);
+      // 에러 처리 로직 작성
+    }
+  },
+
 };
 
 </script>

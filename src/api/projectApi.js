@@ -1,7 +1,7 @@
 import api from "./axios";
 
 export const projectApi = {
-    getFilteredProjects(params){
+    getFilteredProjects(params) {
         return api.get(
             "/api/projects",
             {
@@ -13,17 +13,19 @@ export const projectApi = {
                 projname: params.projname,
             },
             {
-                headers:{
+                headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 },
             }
         );
     },
-    getProject(id){
+    getProject(id) {
         return api.get(
             `/api/project/admin/${id}`);
+    },
+    updateApprovalStatus(id, request) {
+        console.log('API 요청 확인: ', id, request);
+        return api.post(`/api/project/${id}/approval-status`, request);
     }
-
-
-}
+};

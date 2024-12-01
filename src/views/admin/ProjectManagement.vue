@@ -50,6 +50,28 @@
           </div>
         </div>
       </section>
+<!--      페이지네이션 추가-->
+      <div class="pagination">
+        <button
+          :disabled="currentPage === 1"
+          @click="prevPage"
+          class="pagination-btn">
+          이전
+        </button>
+        <span v-for="pageNum in totalPages":key="pageNum">
+          <button
+            @click="goToPage(pageNum)"
+            :class="['page-btn', {active:currentPage === pageNum}]">
+            {{pageNum}}
+          </button>
+        </span>
+        <button
+          :disabled="currentPage === totalPages"
+          @click="nextPage"
+          class="pagination-btn">
+          다음
+        </button>
+      </div>
     </main>
   </div>
 </template>
@@ -75,6 +97,11 @@ export default {
 
   }
 },
+  computed: {
+    totalPages(){
+      return Math.ceil(this.total/10);
+    }
+  },
 
   methods: {
     async filteredProjects() {
@@ -87,6 +114,8 @@ export default {
           ED: this.endDate,
           projname: this.searchQuery
         };
+        // console.log('inside method');
+        // console.log(page);
         // API 요청 전 파라미터 확인
         console.log('Request params:', params);
         //
@@ -123,6 +152,26 @@ export default {
     filterProjects() {
       console.log("필터링된 프로젝트 수:", this.filteredProjects.length);
     },
+
+    prevPage(){
+      console.log('이전 페이지, 현재: ', this.currentPage);
+      if(this.currentPage > 1){
+        this.currentPage--;
+        console.log('변경 후 ', this.currentPage);
+        this.filterProjects();
+      }
+    },
+    nextPage(){
+      if(this.currentPage < this.totalPages){
+        this.currentPage++;
+        this.filteredProjects();
+      }
+    },
+    goToPage(pageNum){
+      this.currentPage = pageNum;
+      this.filteredProjects();
+    }
+
   },
 
   async created() {
@@ -229,4 +278,46 @@ header button:hover {
   margin: 0;
   color: #555;
 }
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+}
+
+.pagination-btn {
+  padding: 0.5rem 1rem;
+  background-color: #0065cb;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.pagination-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.page-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #0065cb;
+  background-color: white;
+  color: #0065cb;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.page-btn.active {
+  background-color: #0065cb;
+  color: white;
+}
+
+.page-btn:hover {
+  background-color: #e6f0ff;
+}
+
+
+
 </style>
