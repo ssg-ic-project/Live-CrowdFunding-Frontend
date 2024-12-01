@@ -21,6 +21,7 @@ import Terms from '../views/main/Terms.vue';
 // 스트리밍 페이지 컴포넌트
 import Streaming from '../views/main/Streaming.vue';
 import StreamingRoom from '@/views/StreamingRoom.vue';
+import VodRoom from '@/views/VodRoom.vue'; 
 
 //결제 페이지 컴포넌트
 import Payment from '@/views/main/Payment.vue'; 
@@ -71,6 +72,7 @@ const routes = [
       { path: 'terms', name: 'Terms', component: Terms },
       { path: '/payment', name: 'Payment', component: Payment, props: true,},
       { path: 'streaming', component: StreamingRoom, props: true },
+      { path: 'vod/:streamId',name: 'VODRoom', component: VodRoom, props: true}
     ],
   },
   {
