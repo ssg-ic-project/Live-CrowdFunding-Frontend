@@ -15,7 +15,13 @@
             검토받기
           </button>
         </template>
-        <button class="btn reservation-btn" @click="goToList">방송예약</button>
+        <button 
+          class="btn broadcast-btn"
+          @click="openBroadcastModal"
+          :disabled="loading || error"
+        >
+          방송예약
+        </button>
         <!-- <button class="btn back-btn" @click="goToList">방송하기</button> -->
         <button class="btn back-btn" @click="goToList">목록으로</button>
       </div>
@@ -316,13 +322,23 @@
       </div>
     </div>
   </div>
+  <BroadcastScheduleModal
+      :show="showBroadcastModal"
+      :scheduleData="scheduleData"
+      @close="closeBroadcastModal"
+      @confirm="handleBroadcastConfirm"
+    />
 </template>
 
 <script>
 import axios from "axios";
+import BroadcastScheduleModal from '../../components/BroadcastScheduleModal.vue';
 
 export default {
   name: "ProjectDetail",
+  components: {
+    BroadcastScheduleModal  // 컴포넌트 등록
+  },
 
   data() {
     return {
@@ -344,6 +360,9 @@ export default {
       thumbnailFile: null,
       additionalFiles: [],
       contentImageFile: null,
+      // 방송 예약 관련 데이터 추가
+      showBroadcastModal: false,
+      scheduleData: [],
     }
   },
 
@@ -623,7 +642,65 @@ export default {
         this.additionalFiles = [];
         this.contentImageFile = null;
       }
-    }
+    },
+
+    async openBroadcastModal() {
+      try {
+        const response = await axios.get(`/api/schedule`);
+        console.log('스케줄 데이터:', response.data);
+        this.scheduleData = this.transformScheduleData(response.data);
+        this.showBroadcastModal = true;
+      } catch (error) {
+        console.error('스케줄 데이터 로딩 실패:', error);
+        alert('방송 예약 정보를 불러오는데 실패했습니다.');
+      }
+    },
+
+    closeBroadcastModal() {
+      this.showBroadcastModal = false;
+    },
+
+    // API 응답 데이터 변환 (필요한 경우)
+    transformScheduleData(data) {
+      return data.map(schedule => ({
+        date: schedule.date,
+        timeSlot: schedule.timeSlot.map(slot => ({
+          time: slot.time.trim(), // "12: 00" -> "12:00" 형식으로 정리
+          available: slot.available,
+          remainingSlots: slot.remainingSlots
+        }))
+      }));
+    },
+
+    async handleBroadcastConfirm(reservationData) {
+      try {
+        // 날짜와 시간을 조합하여 LocalDateTime 형식으로 변환
+        const [hour, minute] = reservationData.time.split(':');
+        const date = new Date(reservationData.date);
+        date.setHours(parseInt(hour), 0, 0, 0); // 분과 초를 00:00으로 설정
+        
+        // 한국 시간대 유지하면서 포맷팅
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        
+        const formattedDate = `${year}-${month}-${day}T${hours}:00:00`;
+
+        const requestDTO = {
+          projectId: parseInt(this.$route.params.id),
+          date: formattedDate // "2024-12-02T13:00:00" 형식 (KST 기준)
+        };
+
+        await axios.post('/api/schedule/create', requestDTO);
+        alert('방송 예약이 완료되었습니다.');
+        this.closeBroadcastModal();
+      } catch (error) {
+        console.error('방송 예약 실패:', error);
+        console.log('요청 데이터:', requestDTO); // 디버깅용
+        alert('방송 예약 중 오류가 발생했습니다. 다시 시도해주세요.');
+      }
+    },
   }
 }
 </script>
@@ -940,6 +1017,31 @@ export default {
 
 .error {
   color: #dc3545;
+}
+
+.broadcast-btn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.broadcast-btn:hover {
+  background-color: #45a049;
+}
+
+.broadcast-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.header-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
 }
 
 @media (max-width: 768px) {
