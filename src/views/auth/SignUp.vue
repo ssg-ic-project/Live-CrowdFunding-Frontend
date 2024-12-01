@@ -54,16 +54,15 @@
                 "
                 class="verify-button"
                 :class="{ verified: isEmailVerified }"
-                :disabled="isEmailVerified"
+                :disabled="isEmailVerified || !email"
               >
                 {{ isCodeSent ? "인증하기" : "인증코드 보내기" }}
               </button>
             </div>
-            <p v-if="emailVerificationError" class="error-message">
-              {{ emailVerificationError }}
-            </p>
+            <p v-if="errors.email" class="error-message">{{ errors.email }}</p>
           </div>
 
+          <!-- 인증코드 입력 -->
           <div class="input-group" v-if="isCodeSent && !isEmailVerified">
             <label for="emailCode">인증코드</label>
             <input
@@ -73,18 +72,22 @@
               placeholder="인증코드를 입력하세요"
               required
             />
+            <p v-if="errors.emailCode" class="error-message">
+              {{ errors.emailCode }}
+            </p>
           </div>
 
-          <!-- 실명 입력 -->
+          <!-- 이름 입력 -->
           <div class="input-group">
-            <label for="name">실명</label>
+            <label for="name">이름</label>
             <input
               type="text"
               id="name"
               v-model="name"
-              placeholder="실명을 입력하세요"
+              placeholder="이름을 입력하세요"
               required
             />
+            <p v-if="errors.name" class="error-message">{{ errors.name }}</p>
           </div>
 
           <!-- 닉네임 입력 (일반회원만) -->
@@ -97,6 +100,9 @@
               placeholder="닉네임을 입력하세요"
               required
             />
+            <p v-if="errors.nickname" class="error-message">
+              {{ errors.nickname }}
+            </p>
           </div>
 
           <!-- 전화번호 입력 -->
@@ -109,18 +115,7 @@
               placeholder="전화번호를 입력하세요"
               required
             />
-          </div>
-
-          <!-- 생년월일 입력 (기본 정보 입력 단계에 추가) -->
-          <div class="input-group">
-            <label for="birthDate">생년월일</label>
-            <input
-              type="date"
-              id="birthDate"
-              v-model="birthDate"
-              placeholder="YYYY-MM-DD"
-              required
-            />
+            <p v-if="errors.phone" class="error-message">{{ errors.phone }}</p>
           </div>
 
           <!-- 비밀번호 입력 -->
@@ -133,8 +128,12 @@
               placeholder="비밀번호를 입력하세요"
               required
             />
+            <p v-if="errors.password" class="error-message">
+              {{ errors.password }}
+            </p>
           </div>
 
+          <!-- 비밀번호 확인 -->
           <div class="input-group">
             <label for="confirmPassword">비밀번호 확인</label>
             <input
@@ -144,6 +143,9 @@
               placeholder="비밀번호를 다시 입력하세요"
               required
             />
+            <p v-if="errors.confirmPassword" class="error-message">
+              {{ errors.confirmPassword }}
+            </p>
           </div>
 
           <!-- 주소 입력 -->
@@ -161,6 +163,9 @@
                 주소 찾기
               </button>
             </div>
+            <p v-if="errors.postcode" class="error-message">
+              {{ errors.postcode }}
+            </p>
           </div>
 
           <div class="input-group">
@@ -172,6 +177,9 @@
               readonly
               required
             />
+            <p v-if="errors.address" class="error-message">
+              {{ errors.address }}
+            </p>
           </div>
 
           <div class="input-group">
@@ -183,20 +191,20 @@
               placeholder="상세주소를 입력하세요"
               required
             />
+            <p v-if="errors.detailAddress" class="error-message">
+              {{ errors.detailAddress }}
+            </p>
           </div>
+
           <!-- 메이커 전용 필드 -->
           <template v-if="userType === 'maker'">
             <!-- 생년월일 입력 -->
             <div class="input-group">
               <label for="birthDate">생년월일</label>
-              <input
-                type="text"
-                id="birthDate"
-                v-model="birthDate"
-                placeholder="YYYYMMDD 형식으로 입력하세요"
-                maxlength="8"
-                required
-              />
+              <input type="date" id="birthDate" v-model="birthDate" required />
+              <p v-if="errors.birthDate" class="error-message">
+                {{ errors.birthDate }}
+              </p>
             </div>
 
             <!-- 회사명 입력 -->
@@ -209,6 +217,9 @@
                 placeholder="회사명을 입력하세요"
                 required
               />
+              <p v-if="errors.companyName" class="error-message">
+                {{ errors.companyName }}
+              </p>
             </div>
 
             <!-- 주민등록증 업로드 -->
@@ -226,7 +237,9 @@
                   ✓ 인증완료
                 </span>
               </div>
-              <p v-if="idCardError" class="error-message">{{ idCardError }}</p>
+              <p v-if="errors.idCard" class="error-message">
+                {{ errors.idCard }}
+              </p>
             </div>
 
             <!-- 재직증명서 업로드 -->
@@ -247,8 +260,8 @@
                   ✓ 인증완료
                 </span>
               </div>
-              <p v-if="employmentCertError" class="error-message">
-                {{ employmentCertError }}
+              <p v-if="errors.employmentCert" class="error-message">
+                {{ errors.employmentCert }}
               </p>
             </div>
 
@@ -267,26 +280,31 @@
                   @click="verifyBusinessNumber"
                   class="verify-button"
                   :class="{ verified: businessVerified }"
-                  :disabled="!businessNumber"
+                  :disabled="!businessNumber || businessVerified"
                 >
                   {{ businessVerified ? "인증완료" : "인증하기" }}
                 </button>
               </div>
-              <p v-if="businessError" class="error-message">
-                {{ businessError }}
+              <p v-if="errors.businessNumber" class="error-message">
+                {{ errors.businessNumber }}
               </p>
             </div>
           </template>
 
           <!-- 개인정보 수집 동의 -->
           <div class="input-group">
-            <label>
+            <label class="checkbox-label">
               <input type="checkbox" v-model="agreeToTerms" required />
               개인정보 수집 및 이용에 동의합니다.
             </label>
+            <p v-if="errors.terms" class="error-message">{{ errors.terms }}</p>
           </div>
 
-          <button @click="nextStep" class="signup-button">
+          <button
+            @click="nextStep"
+            class="signup-button"
+            :disabled="!isEmailVerified"
+          >
             {{ isEmailVerified ? "다음" : "이메일 인증이 필요합니다" }}
           </button>
         </div>
@@ -307,6 +325,9 @@
                 여성
               </label>
             </div>
+            <p v-if="errors.gender" class="error-message">
+              {{ errors.gender }}
+            </p>
           </div>
 
           <div class="input-group">
@@ -324,6 +345,9 @@
                 {{ category }}
               </div>
             </div>
+            <p v-if="errors.interest" class="error-message">
+              {{ errors.interest }}
+            </p>
           </div>
 
           <button @click="completeRegistration" class="signup-button">
@@ -349,7 +373,6 @@
     </div>
   </div>
 </template>
-
 <script>
 import { authApi } from "@/api";
 
@@ -361,33 +384,32 @@ export default {
       userType: null,
       email: "",
       emailCode: "",
-      // 공통 필드
-      name: "", // 실명 추가
-      nickname: "", // 일반 회원용 닉네임
+      name: "",
+      nickname: "",
       phone: "",
       password: "",
       confirmPassword: "",
       postcode: "",
       address: "",
       detailAddress: "",
-
-      // 메이커 전용 필드
-      birthDate: "", // 생년월일
-      companyName: "", // 회사명
-      businessNumber: "", // 사업자번호
+      birthDate: "",
+      companyName: "",
+      businessNumber: "",
+      gender: "",
+      interest: [],
+      isEmailVerified: false,
+      isCodeSent: false,
+      showModal: false,
+      modalMessage: "",
+      agreeToTerms: false,
       idCardFile: null,
       employmentCertFile: null,
       idCardVerified: false,
       employmentCertVerified: false,
       businessVerified: false,
-      idCardError: "",
-      employmentCertError: "",
-      businessError: "",
+      verifiedCompanyName: "",
 
-      // 일반 회원 전용 필드
-      gender: "",
-      birthDate: "",
-      interest: [],
+      // 카테고리 목록
       categories: [
         "생활 가전",
         "주방가전",
@@ -397,27 +419,88 @@ export default {
         "웨어러블",
         "주변 기기",
       ],
-      isEmailVerified: false, // 이메일 인증 완료 여부
-      isEmailDuplicate: false, // 이메일 중복 여부
-      isCodeSent: false, // 인증코드 발송 여부
-      emailVerificationError: "", // 이메일 관련 에러 메시지
-      showModal: false,
-      modalMessage: "",
-      idCardFile: null,
-      employmentCertFile: null,
-      idCardVerified: false,
-      employmentCertVerified: false,
-      businessVerified: false,
-      idCardError: "",
-      employmentCertError: "",
-      businessError: "",
-      verifiedCompanyName: "",
+
+      // 각 필드별 에러 상태 관리
+      errors: {
+        email: "",
+        emailCode: "",
+        name: "",
+        nickname: "",
+        phone: "",
+        password: "",
+        confirmPassword: "",
+        postcode: "",
+        address: "",
+        detailAddress: "",
+        birthDate: "",
+        companyName: "",
+        businessNumber: "",
+        idCard: "",
+        employmentCert: "",
+        gender: "",
+        interest: "",
+        terms: "",
+      },
     };
   },
+
+  watch: {
+    // 각 입력값이 변경될 때 해당 에러 메시지 초기화
+    email() {
+      this.errors.email = "";
+    },
+    emailCode() {
+      this.errors.emailCode = "";
+    },
+    name() {
+      this.errors.name = "";
+    },
+    nickname() {
+      this.errors.nickname = "";
+    },
+    phone() {
+      this.errors.phone = "";
+    },
+    password() {
+      this.errors.password = "";
+    },
+    confirmPassword() {
+      this.errors.confirmPassword = "";
+    },
+    postcode() {
+      this.errors.postcode = "";
+    },
+    address() {
+      this.errors.address = "";
+    },
+    detailAddress() {
+      this.errors.detailAddress = "";
+    },
+    birthDate() {
+      this.errors.birthDate = "";
+    },
+    companyName() {
+      this.errors.companyName = "";
+    },
+    businessNumber() {
+      this.errors.businessNumber = "";
+    },
+    agreeToTerms() {
+      this.errors.terms = "";
+    },
+  },
+
   methods: {
     setUserType(type) {
       this.userType = type;
       this.step = "basicForm";
+    },
+
+    // 에러 메시지 초기화
+    clearErrors() {
+      Object.keys(this.errors).forEach((key) => {
+        this.errors[key] = "";
+      });
     },
 
     closeModal() {
@@ -430,7 +513,7 @@ export default {
     // 이메일 중복 체크 및 인증 코드 발송
     async sendEmailVerification() {
       if (!this.email) {
-        this.emailVerificationError = "이메일을 입력해주세요.";
+        this.errors.email = "이메일을 입력해주세요.";
         return;
       }
 
@@ -438,7 +521,7 @@ export default {
         // 이메일 중복 체크
         const checkResponse = await authApi.checkEmail(this.email);
         if (checkResponse.data.isDuplicate) {
-          this.emailVerificationError = "이미 사용 중인 이메일입니다.";
+          this.errors.email = "이미 사용 중인 이메일입니다.";
           return;
         }
 
@@ -449,14 +532,13 @@ export default {
         this.modalMessage = response.data.message;
       } catch (error) {
         console.error("이메일 인증 에러:", error);
-        this.emailVerificationError =
-          "이메일 인증 처리 중 오류가 발생했습니다.";
+        this.errors.email = "이메일 인증 처리 중 오류가 발생했습니다.";
       }
     },
 
     async verifyEmailCode() {
       if (!this.emailCode) {
-        this.emailVerificationError = "인증 코드를 입력해주세요.";
+        this.errors.emailCode = "인증 코드를 입력해주세요.";
         return;
       }
 
@@ -466,109 +548,103 @@ export default {
           this.isEmailVerified = true;
           this.showModal = true;
           this.modalMessage = "이메일 인증이 완료되었습니다.";
+          this.errors.emailCode = "";
         } else {
-          this.emailVerificationError = "잘못된 인증 코드입니다.";
+          this.errors.emailCode = "잘못된 인증 코드입니다.";
         }
       } catch (error) {
         console.error("인증 코드 확인 에러:", error);
-        this.emailVerificationError = "인증 코드 확인 중 오류가 발생했습니다.";
+        this.errors.emailCode = "인증 코드 확인 중 오류가 발생했습니다.";
       }
     },
 
-    async nextStep() {
-      // 먼저 각 필드의 값을 로깅
-      console.log("Current Form Data:", {
-        email: this.email,
-        name: this.name,
-        phone: this.phone,
-        password: this.password,
-        confirmPassword: this.confirmPassword,
-        postcode: this.postcode,
-        address: this.address,
-        detailAddress: this.detailAddress,
-        birthDate: this.birthDate,
-        companyName: this.companyName,
-        businessNumber: this.businessNumber,
-        idCardVerified: this.idCardVerified,
-        employmentCertVerified: this.employmentCertVerified,
-        businessVerified: this.businessVerified,
-      });
+    validateForm() {
+      let isValid = true;
+      this.clearErrors();
 
-      // 이메일 인증 검증
-      if (!this.isEmailVerified) {
-        this.emailVerificationError = "이메일 인증이 필요합니다.";
-        return;
+      // 이메일 검증
+      if (!this.email) {
+        this.errors.email = "이메일을 입력해주세요.";
+        isValid = false;
       }
 
-      // 공통 필수 필드 검증
-      const requiredFields = {
-        이메일: this.email,
-        이름: this.name,
-        전화번호: this.phone,
-        비밀번호: this.password,
-        "비밀번호 확인": this.confirmPassword,
-        우편번호: this.postcode,
-        주소: this.address,
-        상세주소: this.detailAddress,
-      };
-
-      if (this.userType === "maker") {
-        // 메이커 전용 필수 필드
-        Object.assign(requiredFields, {
-          생년월일: this.birthDate,
-          회사명: this.companyName,
-          사업자등록번호: this.businessNumber,
-        });
+      // 이름 검증
+      if (!this.name) {
+        this.errors.name = "이름을 입력해주세요.";
+        isValid = false;
       }
 
-      // 빈 필드 확인
-      const emptyFields = Object.entries(requiredFields)
-        .filter(([_, value]) => !value)
-        .map(([key]) => key);
-
-      if (emptyFields.length > 0) {
-        this.showModal = true;
-        this.modalMessage = `다음 필수 정보를 입력해주세요:\n${emptyFields.join(
-          ", "
-        )}`;
-        console.log("Empty fields:", emptyFields); // 빈 필드 로깅
-        return;
+      // 닉네임 검증 (일반회원만)
+      if (this.userType === "user" && !this.nickname) {
+        this.errors.nickname = "닉네임을 입력해주세요.";
+        isValid = false;
       }
 
-      // 비밀번호 일치 확인
+      // 전화번호 검증
+      if (!this.phone) {
+        this.errors.phone = "전화번호를 입력해주세요.";
+        isValid = false;
+      }
+
+      // 비밀번호 검증
+      if (!this.password) {
+        this.errors.password = "비밀번호를 입력해주세요.";
+        isValid = false;
+      }
+
       if (this.password !== this.confirmPassword) {
-        this.showModal = true;
-        this.modalMessage = "비밀번호가 일치하지 않습니다.";
-        return;
+        this.errors.confirmPassword = "비밀번호가 일치하지 않습니다.";
+        isValid = false;
       }
 
-      // 약관 동의 확인
-      if (!this.agreeToTerms) {
-        this.showModal = true;
-        this.modalMessage = "개인정보 수집 및 이용에 동의해주세요.";
-        return;
+      // 주소 검증
+      if (!this.postcode || !this.address || !this.detailAddress) {
+        this.errors.address = "주소를 모두 입력해주세요.";
+        isValid = false;
       }
 
-      // 메이커 인증 확인
+      // 메이커 전용 검증
       if (this.userType === "maker") {
-        console.log("Verification status:", {
-          idCard: this.idCardVerified,
-          employment: this.employmentCertVerified,
-          business: this.businessVerified,
-        });
+        if (!this.birthDate) {
+          this.errors.birthDate = "생년월일을 입력해주세요.";
+          isValid = false;
+        }
 
-        if (
-          !this.idCardVerified ||
-          !this.employmentCertVerified ||
-          !this.businessVerified
-        ) {
-          this.showModal = true;
-          this.modalMessage = "모든 인증을 완료해주세요.";
-          return;
+        if (!this.companyName) {
+          this.errors.companyName = "회사명을 입력해주세요.";
+          isValid = false;
+        }
+
+        if (!this.businessNumber) {
+          this.errors.businessNumber = "사업자등록번호를 입력해주세요.";
+          isValid = false;
+        }
+
+        if (!this.idCardVerified) {
+          this.errors.idCard = "주민등록증 인증이 필요합니다.";
+          isValid = false;
+        }
+
+        if (!this.employmentCertVerified) {
+          this.errors.employmentCert = "재직증명서 인증이 필요합니다.";
+          isValid = false;
         }
       }
 
-      // 검증 통과 시 다음 단계로
+      // 약관 동의 검증
+      if (!this.agreeToTerms) {
+        this.errors.terms = "개인정보 수집 및 이용에 동의해주세요.";
+        isValid = false;
+      }
+
+      return isValid;
+    },
+
+    async nextStep() {
+      if (!this.validateForm()) {
+        return;
+      }
+
       if (this.userType === "user") {
         this.step = "additionalInfo";
       } else {
@@ -576,34 +652,28 @@ export default {
       }
     },
 
-    // 주소 API
+    // 주소 API 열기
     openAddressAPI() {
       new window.daum.Postcode({
         oncomplete: (data) => {
-          // 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분
           this.postcode = data.zonecode;
           this.address = data.roadAddress || data.jibunAddress;
 
-          // 사용자가 선택한 주소가 도로명 타입일때 참고항목을 조합한다.
+          // 사용자가 선택한 주소가 도로명 타입일때 참고항목을 조합
           if (data.userSelectedType === "R") {
-            // 법정동명이 있을 경우 추가한다.
             let extraAddr = "";
             if (data.bname !== "" && /[동|로|가]$/g.test(data.bname)) {
               extraAddr += data.bname;
             }
-            // 건물명이 있고, 공동주택일 경우 추가한다.
             if (data.buildingName !== "" && data.apartment === "Y") {
               extraAddr +=
-                extraAddr !== "" ? ", " + data.buildingName : data.buildingName;
+                extraAddr !== "" ? `, ${data.buildingName}` : data.buildingName;
             }
-            // 표시할 참고항목이 있을 경우, 괄호까지 추가한 최종 문자열을 만든다.
             if (extraAddr !== "") {
-              extraAddr = " (" + extraAddr + ")";
-              this.address += extraAddr;
+              this.address += ` (${extraAddr})`;
             }
           }
 
-          // 상세주소 필드에 포커스
           this.$nextTick(() => {
             document.getElementById("detailAddress").focus();
           });
@@ -611,66 +681,129 @@ export default {
       }).open();
     },
 
-    // 사업자 번호 확인
-    async verifyBusinessNumber() {
-      if (!this.businessNumber) {
-        alert("사업자 번호를 입력해주세요.");
-        return;
-      }
-
-      try {
-        // 사업자 번호 확인 API 호출 (구현 필요)
-        const response = await fetch(
-          `/api/auth/verify-business?number=${this.businessNumber}`
-        );
-        const result = await response.json();
-
-        if (result.verified) {
-          alert("사업자 번호가 확인되었습니다.");
-        } else {
-          alert("유효하지 않은 사업자 번호입니다.");
-        }
-      } catch (error) {
-        alert("사업자 번호 확인에 실패했습니다.");
-      }
-    },
-
-    // 관심 카테고리 토글
     toggleInterest(category) {
       if (this.interest.includes(category)) {
         this.interest = this.interest.filter((item) => item !== category);
       } else {
         if (this.interest.length >= 3) {
-          alert("관심 분야는 최대 3개까지 선택 가능합니다.");
+          this.errors.interest = "관심 분야는 최대 3개까지 선택 가능합니다.";
           return;
         }
         this.interest.push(category);
       }
+      this.errors.interest = "";
     },
 
-    // 카테고리 이름을 ID로 변환
     mapCategoriesToIds(selectedCategories) {
       const categoryMap = {
-        "생활 가전": 1, // 기존 id=1 업데이트
-        주방가전: 2, // 기존 id=2 업데이트
-        "스마트 가전": 3, // 기존 id=3 업데이트
-        DIY: 4, // 새로 추가
-        엔터테인먼트: 5, // 새로 추가
-        웨어러블: 6, // 새로 추가
+        "생활 가전": 1,
+        주방가전: 2,
+        "스마트 가전": 3,
+        DIY: 4,
+        엔터테인먼트: 5,
+        웨어러블: 6,
         "주변 기기": 7,
       };
-
-      // 선택된 카테고리에 해당하는 ID가 있는지 확인하고 유효한 ID만 반환
       return selectedCategories
         .map((category) => categoryMap[category])
         .filter((id) => id !== undefined);
     },
 
-    // 회원가입 완료
+    async handleIdCardUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+        const response = await authApi.verifyIdCard(formData);
+
+        if (response.data.success) {
+          this.idCardVerified = true;
+          this.idCardFile = file;
+          this.errors.idCard = "";
+        } else {
+          this.idCardVerified = false;
+          this.errors.idCard =
+            response.data.errorMessage || "주민등록증 인증에 실패했습니다.";
+        }
+      } catch (error) {
+        console.error("주민등록증 인증 오류:", error);
+        this.idCardVerified = false;
+        this.errors.idCard = "주민등록증 인증 처리 중 오류가 발생했습니다.";
+      }
+    },
+
+    async handleEmploymentCertUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+        const response = await authApi.verifyEmploymentCert(formData);
+
+        if (response.data.success) {
+          this.employmentCertVerified = true;
+          this.employmentCertFile = file;
+          this.errors.employmentCert = "";
+          this.companyName = response.data.companyName;
+          this.businessNumber = response.data.businessNumber;
+
+          if (this.businessNumber) {
+            await this.verifyBusinessNumber();
+          }
+        } else {
+          this.employmentCertVerified = false;
+          this.errors.employmentCert =
+            response.data.errorMessage || "재직증명서 인증에 실패했습니다.";
+        }
+      } catch (error) {
+        console.error("재직증명서 인증 오류:", error);
+        this.employmentCertVerified = false;
+        this.errors.employmentCert =
+          "재직증명서 인증 처리 중 오류가 발생했습니다.";
+      }
+    },
+
+    async verifyBusinessNumber() {
+      if (!this.businessNumber) {
+        this.errors.businessNumber = "사업자등록번호를 입력해주세요.";
+        return;
+      }
+
+      try {
+        const response = await authApi.verifyBusinessNumber(
+          this.businessNumber
+        );
+
+        if (response.data.success) {
+          this.businessVerified = true;
+          this.errors.businessNumber = "";
+
+          if (
+            this.verifiedCompanyName &&
+            this.verifiedCompanyName !== response.data.companyName
+          ) {
+            this.businessVerified = false;
+            this.errors.businessNumber =
+              "재직증명서의 회사명과 일치하지 않습니다.";
+          }
+        } else {
+          this.businessVerified = false;
+          this.errors.businessNumber =
+            response.data.errorMessage || "유효하지 않은 사업자등록번호입니다.";
+        }
+      } catch (error) {
+        console.error("사업자번호 인증 오류:", error);
+        this.businessVerified = false;
+        this.errors.businessNumber =
+          "사업자번호 인증 처리 중 오류가 발생했습니다.";
+      }
+    },
     async completeRegistration() {
       try {
         if (this.userType === "maker") {
-          // 메이커 회원가입
           if (
             !this.idCardVerified ||
             !this.employmentCertVerified ||
@@ -697,7 +830,6 @@ export default {
 
           await authApi.registerMaker(formData);
         } else {
-          // 일반 회원가입
           const formattedBirth = this.birthDate
             ? this.birthDate.split("T")[0]
             : null;
@@ -712,13 +844,13 @@ export default {
             address: this.address,
             detailAddress: this.detailAddress,
             gender: this.gender === "male",
-            birth: formattedBirth, // YYYY-MM-DD 형식으로 변환
+            birth: formattedBirth,
             categoryIds: this.mapCategoriesToIds(this.interest),
             loginMethod: false,
             notification: true,
           };
 
-          console.log("Sending user data:", userData); // 데이터 확인용 로그
+          console.log("Sending user data:", userData);
           await authApi.registerUser(userData);
         }
 
@@ -732,158 +864,20 @@ export default {
       }
     },
 
-    // 로그인 페이지로 이동
     goToLogin() {
       this.$router.push("/auth/login");
-    },
-
-    async handleIdCardUpload(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      try {
-        const formData = new FormData();
-        formData.append("file", file);
-
-        const response = await authApi.verifyIdCard(formData);
-        console.log("ID Card verification response:", response); // 로그 추가
-
-        if (response.data.success) {
-          this.idCardVerified = true;
-          this.idCardFile = file;
-          this.idCardError = "";
-        } else {
-          this.idCardVerified = false; // 명시적으로 false 설정
-          this.idCardError =
-            response.data.errorMessage || "주민등록증 인증에 실패했습니다.";
-        }
-      } catch (error) {
-        console.error("주민등록증 인증 오류:", error);
-        this.idCardVerified = false; // 에러 시에도 false로 설정
-        this.idCardError = "주민등록증 인증 처리 중 오류가 발생했습니다.";
-      }
-      console.log("ID Card verification status:", this.idCardVerified); // 상태 확인
-    },
-
-    async handleEmploymentCertUpload(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      try {
-        const formData = new FormData();
-        formData.append("file", file);
-
-        const response = await authApi.verifyEmploymentCert(formData);
-        console.log("Employment cert verification response:", response);
-
-        if (response.data.success) {
-          this.employmentCertVerified = true;
-          this.employmentCertFile = file;
-          this.employmentCertError = "";
-          this.companyName = response.data.companyName;
-          this.businessNumber = response.data.businessNumber;
-
-          // 사업자번호가 있으면 자동으로 검증 실행
-          if (this.businessNumber) {
-            console.log(
-              "Automatically verifying business number:",
-              this.businessNumber
-            );
-            await this.verifyBusinessNumber(); // 사업자번호 자동 검증
-          }
-        } else {
-          this.employmentCertVerified = false;
-          this.employmentCertError =
-            response.data.errorMessage || "재직증명서 인증에 실패했습니다.";
-        }
-      } catch (error) {
-        console.error("재직증명서 인증 오류:", error);
-        this.employmentCertVerified = false;
-        this.employmentCertError =
-          "재직증명서 인증 처리 중 오류가 발생했습니다.";
-      }
-      console.log(
-        "Employment cert verification status:",
-        this.employmentCertVerified
-      );
-    },
-
-    async verifyBusinessNumber() {
-      if (!this.businessNumber) {
-        this.businessError = "사업자등록번호를 입력해주세요.";
-        return;
-      }
-
-      try {
-        console.log("Verifying business number:", this.businessNumber);
-        const response = await authApi.verifyBusinessNumber(
-          this.businessNumber
-        );
-        console.log("Business verification response:", response);
-
-        if (response.data.success) {
-          this.businessVerified = true; // 성공 시 true로 설정
-          this.businessError = "";
-          console.log("Business verification successful");
-        } else {
-          this.businessVerified = false;
-          this.businessError =
-            response.data.errorMessage || "유효하지 않은 사업자등록번호입니다.";
-        }
-      } catch (error) {
-        console.error("사업자번호 인증 오류:", error);
-        this.businessVerified = false;
-        this.businessError = "사업자번호 인증 처리 중 오류가 발생했습니다.";
-      }
-
-      console.log("Business verification status:", this.businessVerified);
-    },
-
-    async verifyBusinessNumber() {
-      if (!this.businessNumber) {
-        this.businessError = "사업자등록번호를 입력해주세요.";
-        return;
-      }
-
-      try {
-        const response = await authApi.verifyBusinessNumber(
-          this.businessNumber
-        );
-        console.log("Business verification response:", response); // 로그 추가
-
-        if (response.data.success) {
-          this.businessVerified = true;
-          this.businessError = "";
-          // 회사명 일치 여부 확인
-          if (
-            this.verifiedCompanyName &&
-            this.verifiedCompanyName !== response.data.companyName
-          ) {
-            this.businessVerified = false;
-            this.businessError = "재직증명서의 회사명과 일치하지 않습니다.";
-          }
-        } else {
-          this.businessVerified = false; // 명시적으로 false 설정
-          this.businessError =
-            response.data.errorMessage || "유효하지 않은 사업자등록번호입니다.";
-        }
-      } catch (error) {
-        console.error("사업자번호 인증 오류:", error);
-        this.businessVerified = false; // 에러 시에도 false로 설정
-        this.businessError = "사업자번호 인증 처리 중 오류가 발생했습니다.";
-      }
-      console.log("Business verification status:", this.businessVerified); // 상태 확인
     },
   },
 };
 </script>
+
 <style scoped>
 .signup-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #ffffff;
+  background-color: #fff7b4;
   position: relative;
   padding: 2rem 0;
 }
@@ -899,6 +893,7 @@ export default {
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  backdrop-filter: blur(3px);
 }
 
 .modal-content {
@@ -908,21 +903,24 @@ export default {
   text-align: center;
   max-width: 400px;
   width: 90%;
+  border: 1px solid #ffd74e;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
 .modal-button {
-  margin-top: 1rem;
-  padding: 0.5rem 1.5rem;
-  background-color: var(--primary-color);
+  margin-top: 1.5rem;
+  padding: 0.75rem 1.5rem;
+  background-color: #ff5151;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
 }
 
-.verify-button.verified {
-  background-color: #28a745;
-  cursor: not-allowed;
+.modal-button:hover {
+  background-color: #ff3333;
 }
 
 .back-button {
@@ -939,7 +937,7 @@ export default {
 
 .material-icons {
   font-size: 24px;
-  color: #333;
+  color: #ff5151;
 }
 
 .login-content {
@@ -953,15 +951,16 @@ export default {
 
 .logo {
   width: 200px;
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
 }
 
 .signup-box {
   width: 100%;
   padding: 2rem;
   background-color: white;
-  border: 1px solid #ddd;
+  border: 1px solid #ffd74e;
   border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(255, 81, 81, 0.1);
 }
 
 .type-selection {
@@ -980,10 +979,12 @@ export default {
   height: 150px;
   padding: 1rem;
   background-color: white;
-  border: 2px solid var(--primary-color);
+  border: 2px solid #ff5151;
   border-radius: 12px;
   cursor: pointer;
   font-size: 1.1rem;
+  font-weight: bold; /* 글씨 굵기 추가 */
+  color: #ff5151; /* 텍스트 색상 설정 */
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
@@ -992,21 +993,24 @@ export default {
 }
 
 .type-button:hover {
-  background-color: var(--primary-color);
+  background-color: #ff5151;
   color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 81, 81, 0.2); /* 그림자 효과 추가 */
 }
 
 h2 {
   color: #333;
   margin-bottom: 2rem;
+  text-align: center;
+  font-weight: bold; /* 제목도 굵게 */
 }
-
 .social-signup {
   margin-bottom: 2rem;
 }
 
 .input-group {
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
   text-align: left;
 }
 
@@ -1021,14 +1025,17 @@ h2 {
 .input-group select {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #ddd;
+  border: 1px solid #ffd74e;
   border-radius: 4px;
   font-size: 1rem;
+  transition: all 0.3s ease;
 }
 
-.input-group input:focus {
+.input-group input:focus,
+.input-group select:focus {
   outline: none;
-  border-color: var(--primary-color);
+  border-color: #ff5151;
+  box-shadow: 0 0 0 2px rgba(255, 81, 81, 0.1);
 }
 
 .email-verification,
@@ -1048,7 +1055,7 @@ h2 {
 .verify-button,
 .address-button {
   padding: 0.75rem 1rem;
-  background-color: var(--primary-color);
+  background-color: #ff5151;
   color: white;
   border: none;
   border-radius: 4px;
@@ -1056,12 +1063,18 @@ h2 {
   white-space: nowrap;
   min-width: 120px;
   font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.verify-button:hover:not(:disabled),
+.address-button:hover {
+  background-color: #ff3333;
 }
 
 .signup-button {
   width: 100%;
   padding: 0.75rem;
-  background-color: var(--primary-color);
+  background-color: #ff5151;
   color: white;
   border: none;
   border-radius: 4px;
@@ -1069,12 +1082,12 @@ h2 {
   margin-top: 1.5rem;
   font-size: 1.1rem;
   font-weight: 500;
+  transition: all 0.3s ease;
 }
 
-.verify-button:hover,
-.address-button:hover,
-.signup-button:hover {
-  background-color: var(--secondary-color);
+.signup-button:hover:not(:disabled) {
+  background-color: #ff3333;
+  transform: translateY(-1px);
 }
 
 .social-login {
@@ -1087,15 +1100,21 @@ h2 {
   font-weight: 500;
   font-size: 1rem;
   border: none;
+  transition: opacity 0.3s ease;
 }
 
 .naver-login {
   background-color: #03c75a;
 }
 
+.naver-login:hover {
+  opacity: 0.9;
+}
+
 .gender-checkboxes {
   display: flex;
   gap: 2rem;
+  margin-top: 0.5rem;
 }
 
 .gender-checkboxes label {
@@ -1114,26 +1133,75 @@ h2 {
 
 .category-item {
   padding: 0.5rem 1rem;
-  border: 2px solid #ddd;
+  border: 2px solid #ffd74e;
   border-radius: 20px;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .category-item:hover {
-  border-color: var(--primary-color);
+  border-color: #ff5151;
 }
 
 .category-item.selected {
-  border-color: var(--primary-color);
-  background-color: var(--primary-color);
+  border-color: #ff5151;
+  background-color: #ff5151;
   color: white;
 }
 
 .error-message {
-  color: #dc3545;
+  color: #ff5151;
   font-size: 0.875rem;
-  margin-top: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+.verify-button.verified {
+  background-color: #28a745;
+  cursor: not-allowed;
+}
+
+.verification-upload {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.verification-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.verification-badge.success {
+  background-color: #28a745;
+  color: white;
+}
+
+input[type="file"] {
+  padding: 0.5rem;
+  border: 1px solid #ffd74e;
+  border-radius: 4px;
+  width: 100%;
+}
+
+input[type="file"]::-webkit-file-upload-button {
+  background: #ff5151;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+input[type="file"]::-webkit-file-upload-button:hover {
+  background: #ff3333;
+}
+
+.signup-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
 }
 
 @media (max-width: 480px) {
@@ -1150,97 +1218,11 @@ h2 {
     width: 100%;
     max-width: 200px;
   }
-}
 
-.verify-button.verified {
-  background-color: #28a745;
-}
-
-.verification-upload {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.verification-badge {
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.875rem;
-}
-
-.verification-badge.success {
-  background-color: #28a745;
-  color: white;
-}
-
-.business-verification {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.business-verification input {
-  flex: 1;
-}
-
-.verify-button.verified {
-  background-color: #28a745;
-  cursor: not-allowed;
-}
-
-/* 파일 업로드 input 스타일링 */
-input[type="file"] {
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  width: 100%;
-}
-
-input[type="file"]::-webkit-file-upload-button {
-  background: var(--primary-color);
-  color: white;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-right: 1rem;
-}
-.error-message {
-  color: #dc3545;
-  font-size: 0.875rem;
-  margin-top: 0.5rem;
-}
-.signup-button:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
-}
-.verification-upload {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.verification-badge {
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.875rem;
-}
-
-.verification-badge.success {
-  background-color: #28a745;
-  color: white;
-}
-
-.business-verification {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.business-verification input {
-  flex: 1;
-}
-
-.verify-button.verified {
-  background-color: #28a745;
-  cursor: not-allowed;
+  .verify-button,
+  .address-button {
+    min-width: auto;
+    padding: 0.75rem;
+  }
 }
 </style>

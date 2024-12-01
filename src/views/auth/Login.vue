@@ -177,9 +177,10 @@ export default {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #ffffff; /* 배경색 흰색으로 변경 */
+  background-color: #FFF7B4;
   position: relative;
 }
+
 .back-button {
   position: absolute;
   top: 20px;
@@ -191,10 +192,12 @@ export default {
   display: flex;
   align-items: center;
 }
+
 .material-icons {
   font-size: 24px;
-  color: #333;
+  color: #FF5151;
 }
+
 .login-content {
   display: flex;
   flex-direction: column;
@@ -203,73 +206,105 @@ export default {
   max-width: 480px;
   padding: 0 20px;
 }
+
 .logo {
   margin-bottom: 1rem;
   width: 200px;
 }
+
 .logo-image {
   width: 100%;
 }
+
 .login-box {
   width: 100%;
   padding: 2rem;
   background-color: white;
-  border: 1px solid #ddd;
+  border: 1px solid #FFD74E;
   border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(255, 81, 81, 0.1);
 }
+
 .input-group {
   margin-bottom: 1rem;
   text-align: left;
 }
+
 .input-group label {
   display: block;
   font-weight: bold;
   margin-bottom: 0.5rem;
+  color: #333333;
 }
+
 .input-group input {
   width: 100%;
   padding: 0.5rem;
-  border: 1px solid #ddd;
+  border: 1px solid #FFD74E;
   border-radius: 4px;
+  transition: border-color 0.3s ease;
 }
+
+.input-group input:focus {
+  outline: none;
+  border-color: #FF5151;
+}
+
 .login-button {
   width: 100%;
-  padding: 0.5rem;
-  background-color: var(--primary-color);
+  padding: 0.75rem;
+  background-color: #FF5151;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   margin-top: 1rem;
+  transition: background-color 0.3s ease;
 }
+
+.login-button:hover {
+  background-color: #ff3333;
+}
+
 .error-message {
-  color: red;
+  color: #FF5151;
   font-size: 0.875rem;
   margin-top: 0.5rem;
 }
+
 .social-login {
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.75rem;
   border-radius: 4px;
   cursor: pointer;
   margin-top: 0.5rem;
   color: white;
   font-weight: bold;
   border: none;
+  transition: opacity 0.3s ease;
 }
+
 .naver-login {
   background-color: #03c75a;
 }
+
+.naver-login:hover {
+  opacity: 0.9;
+}
+
 .links {
-  margin-top: 1rem;
+  margin-top: 1.5rem;
   font-size: 0.875rem;
   text-align: center;
 }
+
 .links a {
-  color: var(--primary-color);
+  color: #FF5151;
   text-decoration: none;
+  transition: color 0.3s ease;
 }
+
 .links a:hover {
-  text-decoration: underline;
+  color: #FFD74E;
 }
 </style>
