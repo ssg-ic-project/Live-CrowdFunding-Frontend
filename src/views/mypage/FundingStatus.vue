@@ -180,128 +180,228 @@ export default {
   }
 };
 </script>
- 
- <style scoped>
- .funding-status-page {
+<style scoped>
+.funding-status-page {
   padding: 2rem;
   max-width: 1000px;
   margin: 0 auto;
- }
- 
- .status-filter {
+}
+
+h2 {
+  color: #333333;
+  margin-bottom: 2rem;
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+.status-filter {
   display: flex;
   gap: 1rem;
   margin-bottom: 2rem;
- }
- 
- .status-filter button {
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 0.5rem;
+}
+
+.status-filter button {
   padding: 0.75rem 1.5rem;
   border: none;
   background: none;
   font-size: 1.1rem;
-  color: #666;
+  color: #666666;
   cursor: pointer;
   position: relative;
- }
- 
- .status-filter button.active {
-  color: #000;
+  transition: all 0.3s ease;
+}
+
+.status-filter button.active {
+  color: #FF5151;
   font-weight: 500;
- }
- 
- .status-filter button.active::after {
+}
+
+.status-filter button.active::after {
   content: '';
   position: absolute;
-  bottom: -4px;
+  bottom: -0.5rem;
   left: 0;
   width: 100%;
   height: 2px;
-  background-color: #000;
- }
- 
- .projects-list {
+  background-color: #FF5151;
+}
+
+.projects-container {
+  min-height: 600px; /* 최소 높이 설정 */
+  display: flex;
+  flex-direction: column;
+}
+
+.projects-list {
   display: flex;
   flex-direction: column;
   gap: 1rem;
- }
- 
- .project-card {
+  flex: 1;
+}
+
+.project-card {
   padding: 1.5rem;
-  border: 1px solid #eee;
-  border-radius: 8px;
+  border: 1px solid #dee2e6;
+  border-radius: 12px;
   cursor: pointer;
-  transition: all 0.2s ease;
- }
- 
- .project-card:hover {
-  background-color: #f8f9fa;
+  transition: all 0.3s ease;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.project-card:hover {
   transform: translateX(5px);
- }
- 
- .project-name {
-  font-size: 1.2rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-color: #FF5151;
+}
+
+.project-name {
+  font-size: 1.3rem;
   margin-bottom: 1rem;
-  color: #000;
- }
- 
- .project-details {
+  color: #333333;
+  font-weight: 500;
+}
+
+.project-details {
   display: flex;
   justify-content: space-between;
   align-items: center;
- }
- 
- .detail-item {
+}
+
+.detail-item {
   display: flex;
   align-items: center;
   gap: 0.5rem;
- }
- 
- .label {
-  color: #666;
+}
+
+.label {
+  color: #666666;
   font-size: 0.9rem;
- }
- 
- .value {
-  color: #333;
- }
- 
- .status-badge {
+}
+
+.value {
+  color: #333333;
+  font-weight: 500;
+}
+
+.status-badge {
   padding: 0.5rem 1rem;
-  border-radius: 4px;
+  border-radius: 8px;
   font-size: 0.9rem;
   font-weight: 500;
- }
- 
- .status-badge.reviewing {
-  background-color: #e9ecef;
-  color: #495057;
- }
- 
- .status-badge.funding {
-  background-color: #e3f2fd;
-  color: #1976d2;
- }
- 
- .status-badge.success {
-  background-color: #e8f5e9;
-  color: #2e7d32;
- }
- 
- .status-badge.failed {
-  background-color: #ffebee;
-  color: #c62828;
- }
- 
- .funding-progress {
-  color: #333;
+}
+
+.status-badge.reviewing {
+  background-color: #FFF7B4;
+  color: #666666;
+}
+
+.status-badge.funding {
+  background-color: #FFD74E;
+  color: #333333;
+}
+
+.status-badge.success {
+  background-color: #dcffe4;
+  color: #0a7724;
+}
+
+.status-badge.failed {
+  background-color: #ffe8e8;
+  color: #d32f2f;
+}
+
+.funding-progress {
+  color: #FF5151;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+/* 페이지네이션 스타일 개선 */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+  padding: 1rem 0;
+}
+
+.pagination button {
+  min-width: 40px;
+  height: 40px;
+  border: 1px solid #dee2e6;
+  background-color: #ffffff;
+  border-radius: 8px;
+  color: #666666;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: #FFD74E;
+  color: #333333;
+  border-color: #FFD74E;
+}
+
+.pagination button.active {
+  background-color: #FF5151;
+  color: #ffffff;
+  border-color: #FF5151;
   font-weight: 500;
- }
- 
- @media (max-width: 768px) {
+}
+
+.pagination button:disabled {
+  background-color: #f8f9fa;
+  color: #adb5bd;
+  cursor: not-allowed;
+}
+
+/* 로딩 상태 */
+.loading-state {
+  text-align: center;
+  padding: 2rem;
+  color: #666666;
+}
+
+@media (max-width: 768px) {
+  .funding-status-page {
+    padding: 1rem;
+  }
+
+  .status-filter {
+    overflow-x: auto;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    gap: 0.5rem;
+  }
+
+  .status-filter button {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    white-space: nowrap;
+  }
+
   .project-details {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.5rem;
+    gap: 0.75rem;
   }
- }
- </style>
+
+  .pagination {
+    gap: 0.25rem;
+  }
+
+  .pagination button {
+    min-width: 36px;
+    height: 36px;
+    font-size: 0.9rem;
+  }
+}
+</style>

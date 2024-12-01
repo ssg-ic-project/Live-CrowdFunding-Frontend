@@ -123,16 +123,25 @@ export default {
         return false;
       }
       return true;
-    },
-    async handleNaverLogin() {
-      try {
-        const response = await authApi.getNaverLoginUrl();
-        window.location.href = response.data;
-      } catch (error) {
-        console.error("네이버 로그인 에러:", error);
-        alert("네이버 로그인을 시도하는 중 오류가 발생했습니다.");
-      }
-    },
+    },async handleNaverLogin() {
+  try {
+    // 네이버 로그인 URL 받아오기
+    const response = await authApi.getNaverLoginUrl();
+    
+    console.log("Naver Login URL:", response.data); // 디버깅용
+    
+    // 받아온 URL로 리다이렉트
+    if (response.data) {
+      window.location.href = response.data;
+    } else {
+      throw new Error('Invalid login URL');
+    }
+  } catch (error) {
+    console.error("네이버 로그인 에러:", error);
+    this.loginError = true;
+    this.errorMessage = "네이버 로그인을 시도하는 중 오류가 발생했습니다.";
+  }
+},
     resetForm() {
       this.email = "";
       this.password = "";
