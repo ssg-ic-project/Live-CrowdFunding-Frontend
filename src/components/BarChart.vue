@@ -5,10 +5,19 @@
 </template>
 
 <script>
-import { Chart, BarController, BarElement, CategoryScale, LinearScale, Title, Tooltip } from 'chart.js';
+import {
+  Chart,
+  BarController,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
 
 export default {
-  props: ['data'],
+  props: ["data"],
   mounted() {
     this.renderChart();
   },
@@ -23,11 +32,19 @@ export default {
         this.chart.destroy();
       }
 
-      const ctx = this.$refs.barChartCanvas.getContext('2d');
+      const ctx = this.$refs.barChartCanvas.getContext("2d");
 
-      const plugins = [BarController, BarElement, CategoryScale, LinearScale, Title, Tooltip];
+      const plugins = [
+        BarController,
+        BarElement,
+        CategoryScale,
+        LinearScale,
+        Title,
+        Tooltip,
+        Legend,
+      ];
       if (this.shouldRegisterFiller()) {
-        import('chart.js/auto').then((chartModule) => {
+        import("chart.js/auto").then((chartModule) => {
           const Filler = chartModule.Filler;
           plugins.push(Filler);
           this.createChart(ctx, plugins);
@@ -39,18 +56,23 @@ export default {
     createChart(ctx, plugins) {
       Chart.register(...plugins);
       this.chart = new Chart(ctx, {
-        type: 'bar',
+        type: "bar",
         data: this.data,
         options: {
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
             tooltip: {
-              enabled: true,
-              mode: 'index',
-              intersect: false,
-              position: 'nearest',
-              yAlign: 'top',
+              enabled: false,
+            },
+            legend: {
+              display: true,
+              position: "right",
+              align: "start",
+              labels: {
+                padding: 20,
+                boxWidth: 40,
+              },
             },
           },
         },

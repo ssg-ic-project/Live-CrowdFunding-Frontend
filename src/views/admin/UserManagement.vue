@@ -184,50 +184,86 @@ export default {
 };
 </script>
 
+<!-- src/layouts/AdminLayout.vue -->
+<style scoped>
+.admin-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.admin-main {
+  flex: 1;
+  width: 100%;
+}
+
+.content-wrapper {
+  max-width: 1800px;
+  margin: 0 auto;
+  padding: 0 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.admin-container {
+  display: flex;
+  flex: 1;
+  margin-top: 2rem;
+  position: relative;
+}
+
+.sidebar-container {
+  width: 250px;
+  background-color: #f8f9fa;
+  flex-shrink: 0;
+  border-right: 1px solid #dee2e6;
+  margin-right: 1rem; /* 사이드바와 콘텐츠 사이 간격 축소 */
+}
+
+.admin-content {
+  flex: 1;
+  padding: 1rem; /* padding 축소 */
+  background-color: #f8f9fa;
+  min-width: 0;
+}
+
+.admin-content.with-sidebar {
+  margin-left: 0;
+}
+
+@media (max-width: 768px) {
+  .admin-container {
+    flex-direction: column;
+  }
+  
+  .sidebar-container {
+    width: 100%;
+  }
+  
+  .admin-content.with-sidebar {
+    margin-top: 1rem;
+  }
+  
+  .content-wrapper {
+    padding: 0 10px;
+  }
+}
+</style>
+
+<!-- src/views/admin/UserManagement.vue -->
 <style scoped>
 .dashboard {
   display: flex;
-  height: 100vh;
-  background-color: #f4f6f9;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  width: 100%;
 }
 
 .content {
   flex: 1;
-  padding: 2rem;
-}
-
-.main-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  height: calc(100vh - 120px);
-  margin-top: 1rem;
-}
-
-.content-section {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-.section-header {
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid #eee;
-}
-
-.section-header h2 {
-  margin: 0;
-  font-size: 1.25rem;
-  color: #333;
-}
-
-.section-content {
-  flex: 1;
   padding: 1.5rem;
-  overflow-y: auto;
+  width: 100%;
 }
 
 header {
@@ -235,80 +271,151 @@ header {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
+  padding: 1rem 1.5rem;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  width: 100%;
 }
 
 header button {
   padding: 0.5rem 1rem;
-  background-color: #0065cb;
+  background-color: #FF5151;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 header button:hover {
-  background-color: #0055a3;
+  background-color: #FFD74E;
+  color: #333333;
+  transform: translateY(-1px);
+}
+
+.main-content {
+  display: grid;
+  grid-template-columns: 60% 40%;
+  gap: 2rem;
+  flex: 1;
+  width: 100%;
+}
+
+.content-section {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  width: 100%;
+}
+
+.content-section:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+}
+
+.section-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #eee;
+  background-color: #fff;
+  border-radius: 12px 12px 0 0;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.section-content {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+  height: 100%;
 }
 
 .filters {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
   border-bottom: 1px solid #eee;
 }
 
 .filters select,
 .filters input {
-  padding: 0.5rem;
-  font-size: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 0.625rem;
+  font-size: 0.95rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  transition: border-color 0.3s ease;
+  min-width: 120px;
+}
+
+.filters select:focus,
+.filters input:focus {
+  outline: none;
+  border-color: #FFD74E;
+  box-shadow: 0 0 0 2px rgba(255, 215, 78, 0.1);
 }
 
 .filters button {
-  padding: 0.5rem 1rem;
-  background-color: #0065cb;
+  padding: 0.625rem 1.25rem;
+  background-color: #FF5151;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .filters button:hover {
-  background-color: #0055a3;
+  background-color: #FFD74E;
+  color: #333333;
+  transform: translateY(-1px);
+}
+
+.user-list {
+  margin: -0.5rem -1.5rem;
+  padding: 0.5rem 1.5rem;
 }
 
 .user-list table {
   width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-bottom: 1rem;
 }
 
 .user-list th,
 .user-list td {
   border: 1px solid #eee;
-  padding: 0.75rem;
+  padding: 1rem;
   text-align: left;
 }
 
 .user-list th {
   background-color: #f8f9fa;
   font-weight: 600;
+  color: #444;
 }
 
 .user-list tr {
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
 }
 
 .user-list tr:hover {
-  background-color: #f5f5f5;
+  background-color: #fff8e7;
 }
 
 .user-list tr.selected {
-  background-color: #e3f2fd;
+  background-color: #FFF3D4;
 }
 
 .pagination {
@@ -316,27 +423,38 @@ header button:hover {
   justify-content: center;
   align-items: center;
   gap: 1rem;
-  padding: 1rem 0;
+  padding: 1.25rem 0;
   margin-top: 1rem;
   border-top: 1px solid #eee;
 }
 
 .pagination button {
   padding: 0.5rem 1rem;
-  border: 1px solid #ddd;
+  border: 1px solid #e0e0e0;
   background-color: white;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
+  transition: all 0.3s ease;
+  color: #666;
+}
+
+.pagination button:not(:disabled):hover {
+  background-color: #FFD74E;
+  border-color: #FFD74E;
+  color: #333333;
+  transform: translateY(-1px);
 }
 
 .pagination button:disabled {
   background-color: #f5f5f5;
   cursor: not-allowed;
+  border-color: #eee;
 }
 
 .pagination span {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: #666;
+  font-weight: 500;
 }
 
 .empty-state {
@@ -345,12 +463,15 @@ header button:hover {
   align-items: center;
   height: 100%;
   color: #666;
-  font-size: 0.9rem;
+  font-size: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
 }
 
 .user-details p {
-  padding: 0.5rem 0;
+  padding: 0.75rem 0;
   border-bottom: 1px solid #eee;
+  margin: 0;
 }
 
 .user-details p:last-child {
@@ -360,6 +481,7 @@ header button:hover {
 .user-details strong {
   display: inline-block;
   width: 120px;
-  color: #666;
+  color: #555;
+  font-weight: 600;
 }
 </style>
