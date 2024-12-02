@@ -12,33 +12,33 @@
 
       <!-- 통계 섹션 -->
       <section class="stats" v-if="!loading">
-        <div class="stat-box">일간 펀딩 등록 건 수: {{ statsData.dailyRegistrations }}</div>
-        <div class="stat-box">월간 펀딩 등록 건 수: {{ statsData.monthlyRegistrations }}</div>
-        <div class="stat-box">연간 펀딩 등록 건 수: {{ statsData.yearlyRegistrations }}</div>
-        <div class="stat-box">승인 대기 중 펀딩 수: {{ statsData.dailyRequests }}</div>
-        <div class="stat-box">진행중인 총 프로젝트 수: {{ statsData.ongoingProjects }}</div>
+        <div class="stat-box">오늘의 펀딩 등록: {{ statsData.dailyRegistrations }}</div>
+        <div class="stat-box">이번 달 펀딩 등록: {{ statsData.monthlyRegistrations }}</div>
+        <div class="stat-box">올해의 펀딩 등록: {{ statsData.yearlyRegistrations }}</div>
+        <div class="stat-box">펀딩 심사 대기: {{ statsData.dailyRequests }}</div>
+        <div class="stat-box">진행중 펀딩: {{ statsData.ongoingProjects }}</div>
       </section>
 
       <!-- 차트 섹션 -->
       <section class="charts">
         <div class="chart">
-          <h3>월별 신규 가입자 수 (일반회원, 메이커, 총계)</h3>
+          <h3>신규 가입자 현황</h3>
           <LineChart :data="monthlySignUpData" />
         </div>
         <div class="chart">
-          <h3>12개월 수익 실적</h3>
+          <h3>수익 실적</h3>
           <LineChart :data="revenueData" />
         </div>
         <div class="chart">
-          <h3>어제자 인기 펀딩 (구매자 수 및 스트리밍 참가자 수)</h3>
+          <h3>인기 펀딩</h3>
           <BarChart :data="topFundingData" />
         </div>
         <div class="chart">
-          <h3>판매자, 사용자, 전체 이용자 수</h3>
+          <h3>활성 사용자 현황</h3>
           <LineChart :data="userGrowthData" />
         </div>
         <div class="chart">
-          <h3>전월 카테고리별 펀딩 수와 수익</h3>
+          <h3>펀딩 성과</h3>
           <BarChart :data="categoryFundingData" />
         </div>
       </section>
@@ -208,9 +208,9 @@ export default {
 
       // 상수로 label 매핑 정의
       const USER_TYPE_LABELS = {
-        GENERAL_USER: 'users',
-        MAKER: 'makers',
-        TOTAL: 'total'
+        GENERAL_USER: '일반회원',
+        MAKER: '매이커',
+        TOTAL: '전체'
       };
 
       // 신규 사용자 통계 데이터 설정
@@ -283,21 +283,21 @@ export default {
         labels: currentUsersResponse.data.labels,
         datasets: [
           {
-            label: "makers",
+            label: "매이커",
             data: currentUsersResponse.data.makers.map(maker => maker.count),
             borderColor: "green",
             backgroundColor: "rgba(0, 255, 0, 0.1)",
             fill: true,
           },
           {
-            label: "users",
+            label: "일반회원",
             data: currentUsersResponse.data.users.map(user => user.count),
             borderColor: "blue",
             backgroundColor: "rgba(0, 0, 255, 0.1)",
             fill: true,
           },
           {
-            label: "total",
+            label: "전체",
             data: currentUsersResponse.data.total.map(total => total.count),
             borderColor: "purple",
             backgroundColor: "rgba(128, 0, 128, 0.1)",
