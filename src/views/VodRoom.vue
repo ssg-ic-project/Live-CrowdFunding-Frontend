@@ -42,6 +42,7 @@
 </template>
 
 <script setup>
+import { vi } from 'date-fns/locale';
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -82,13 +83,19 @@ const handleTimeUpdate = (event) => {
 onMounted(async () => {
   try {
     // VOD 데이터 로딩
-    const response = await fetch(`/api/vod/${vodId.value}`)
+    const response = await fetch(`/api/recordings/media/${scheduleId.value}`)
     const data = await response.json()
-    vodData.value = data
-    videoUrl.value = data.videoUrl
+
+    if (data) {
+      videoUrl.value.srcObject = data.mediaUrl
+      videoUrl.classList.add('autoplay')
+    } else {
+      console.error('VOD 데이터 로딩 실패:', response)
+      return
+    }
     
     // 조회수 증가 API 호출
-    await fetch(`/api/vod/${vodId.value}/view`, { method: 'POST' })
+    // await fetch(`/api/vod/${vodId.value}/view`, { method: 'POST' })
   } catch (error) {
     console.error('VOD 데이터 로딩 실패:', error)
   }
