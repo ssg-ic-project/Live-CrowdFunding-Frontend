@@ -42,9 +42,7 @@
           <li :class="{ active: isActive('/mypage/wishlist') }">
             <router-link to="/mypage/wishlist">찜 목록</router-link>
           </li>
-          <li :class="{ active: isActive('/mypage/event-wins') }">
-            <router-link to="/mypage/event-wins">이벤트 당첨 내역</router-link>
-          </li>
+ 
         </template>
       </ul>
     </div>

@@ -31,7 +31,6 @@ import MyPage from '../views/mypage/MyPage.vue';
 import Profile from '../views/mypage/Profile.vue';
 import FundingStatus from '../views/mypage/FundingStatus.vue';
 import WishlistMyPage from '../views/mypage/Wishlist.vue'; 
-import EventWins from '../views/mypage/EventWins.vue';
 import FundingParticipation from '../views/mypage/FundingParticipation.vue';
 import ProjectRegistration from '../views/mypage/ProjectRegistration.vue';
 import ProjectDetail from '../views/mypage/ProjectDetail.vue';
@@ -84,11 +83,9 @@ const routes = [
       { path: 'profile', name: 'Profile', component: Profile },
       { path: 'funding-status', name: 'FundingStatus', component: FundingStatus },
       { path: 'wishlist', name: 'WishlistMyPage', component: WishlistMyPage },
-      { path: 'event-wins', name: 'EventWins', component: EventWins },
       { path: 'funding-participation', name: 'FundingParticipation', component: FundingParticipation },
       { path: 'project-registration', name: 'ProjectRegistration', component: ProjectRegistration },
       { path: 'project/:id', name: 'ProjectDetail', component: ProjectDetail },
-
       { path: '/success-bf', name: 'PaymentSuccessBF', component: () => import('../views/mypage/PaymentSuccessBF.vue') },
       { path: '/fail-bf', name: 'PaymentFailBF', component: () => import('../views/mypage/PaymentFailBF.vue') }
 

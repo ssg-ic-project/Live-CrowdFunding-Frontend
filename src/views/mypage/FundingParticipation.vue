@@ -1,62 +1,76 @@
 <template>
-  <div class="funding-participation-page">
-    <div class="header">
-      <h2>펀딩 참여 내역</h2>
-      <div class="search-box">
-        <input 
-          type="text" 
-          v-model="searchQuery" 
-          placeholder="펀딩 내역 검색"
-          @input="handleSearch"
-        />
-      </div>
-    </div>
-
-    <!-- 펀딩 목록 -->
-    <div class="funding-list">
-      <div 
-        v-for="order in orders" 
-        :key="order.id" 
-        class="funding-card"
-      >
-        <div class="funding-date">{{ formatDate(order.paymentAt) }}</div>
-        <div class="funding-content">
-          <div class="funding-image">
-            <img :src="order.projectImage" :alt="order.productName" />
-          </div>
-          <div class="funding-details">
-            <h3 class="product-name">{{ order.productName }}</h3>
-            <div class="option-info">
-              <span class="option-quantity">{{ order.amount }}개</span>
-            </div>
-            <div class="price">{{ formatPrice(order.paymentPrice) }}원</div>
-          </div>
+  <div class="dashboard">
+    <main class="content">
+      <!-- 헤더 -->
+      <div class="header">
+        <h2>펀딩 참여 내역</h2>
+        <div class="search-box">
+          <input 
+            type="text" 
+            v-model="searchQuery" 
+            placeholder="펀딩 내역 검색"
+            @input="handleSearch"
+          />
+          <button @click="handleSearch">검색</button>
         </div>
       </div>
-    </div>
 
-    <!-- 페이지네이션 갓클로드가 만들어줬는데 그냥 써도 되고 새로 만들어서 공통 적용해도 되고 -->
-    <div class="pagination" v-if="pageInfo">
-      <button 
-        :disabled="pageInfo.page <= 1"
-        @click="changePage(pageInfo.page - 1)"
-      >
-        이전
-      </button>
-      <span>{{ pageInfo.page }} / {{ pageInfo.totalPages }}</span>
-      <button 
-        :disabled="pageInfo.page >= pageInfo.totalPages"
-        @click="changePage(pageInfo.page + 1)"
-      >
-        다음
-      </button>
-    </div>
+      <!-- 펀딩 목록 -->
+      <section class="funding-list">
+        <div 
+          v-for="order in orders" 
+          :key="order.id" 
+          class="project-card"
+          @click="goToProductDetail(order.projectId)"
+        >
+          <div class="funding-date">
+            {{ formatDate(order.paymentAt) }}
+          </div>
+          <div class="project-content">
+            <div class="image-container">
+              <img :src="order.projectImage" :alt="order.productName" class="project-image" />
+            </div>
+            <div class="project-info">
+              <h3>{{ order.productName }}</h3>
+              <div class="status-container">
+                <span class="category-badge">
+                  수량: {{ order.amount }}개
+                </span>
+                <span class="status-badge status-funding">
+                  {{ formatPrice(order.paymentPrice) }}원
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 페이지네이션 -->
+      <div class="pagination" v-if="pageInfo">
+        <button 
+          class="pagination-btn"
+          :disabled="pageInfo.page <= 1"
+          @click="changePage(pageInfo.page - 1)"
+        >
+          이전
+        </button>
+        <span>{{ pageInfo.page }} / {{ pageInfo.totalPages }}</span>
+        <button 
+          class="pagination-btn"
+          :disabled="pageInfo.page >= pageInfo.totalPages"
+          @click="changePage(pageInfo.page + 1)"
+        >
+          다음
+        </button>
+      </div>
+    </main>
   </div>
 </template>
 
 <script>
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import { useRouter } from 'vue-router';
 
 export default {
   name: 'FundingParticipation',
@@ -67,6 +81,7 @@ export default {
     }
   },
   setup(props) {
+    const router = useRouter();
     const orders = ref([]);
     const pageInfo = ref(null);
     const searchQuery = ref('');
@@ -104,13 +119,20 @@ export default {
     };
 
     const handleSearch = () => {
-      currentPage.value = 1; // 검색 시 첫 페이지로 이동
+      currentPage.value = 1;
       fetchOrders(1);
     };
 
     const changePage = (newPage) => {
       currentPage.value = newPage;
       fetchOrders(newPage);
+    };
+
+    const goToProductDetail = (projectId) => {
+      router.push({
+        name: 'ProductDetail',
+        params: { productId: projectId }
+      });
     };
 
     onMounted(() => {
@@ -124,14 +146,22 @@ export default {
       formatDate,
       formatPrice,
       handleSearch,
-      changePage
+      changePage,
+      goToProductDetail
     };
   }
 };
 </script>
 
 <style scoped>
-.funding-participation-page {
+.dashboard {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f4f6f9;
+}
+
+.content {
+  flex: 1;
   padding: 2rem;
 }
 
@@ -142,26 +172,60 @@ export default {
   margin-bottom: 2rem;
 }
 
+.header h2 {
+  margin: 0;
+  color: #333;
+}
+
+.search-box {
+  display: flex;
+  gap: 1rem;
+}
+
 .search-box input {
   padding: 0.5rem 1rem;
   border: 1px solid #ddd;
   border-radius: 4px;
-  width: 150px;
+  width: 200px;
   font-size: 1rem;
+}
+
+.search-box button {
+  padding: 0.5rem 1rem;
+  background-color: #ff5151;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.search-box button:hover {
+  background-color: #ffd74e;
+  color: #333333;
 }
 
 .funding-list {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
+  margin-bottom: 2rem;
 }
 
-.funding-card {
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+.project-card {
+  width: 100%;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  cursor: pointer;
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+  padding: 1rem;
+}
+
+.project-card:hover {
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
 }
 
 .funding-date {
@@ -170,68 +234,102 @@ export default {
   font-size: 0.9rem;
 }
 
-.funding-content {
+.project-content {
   display: flex;
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
-.funding-image {
-  width: 120px;
-  height: 120px;
+.image-container {
+  width: 200px;
+  height: 150px;
+  border-radius: 8px;
+  overflow: hidden;
   flex-shrink: 0;
 }
 
-.funding-image img {
+.project-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 4px;
+  transition: transform 0.3s ease;
 }
 
-.funding-details {
+.project-card:hover .project-image {
+  transform: scale(1.05);
+}
+
+.project-info {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.8rem;
+  padding: 0.5rem 0;
 }
 
-.product-name {
-  font-size: 1.2rem;
-  font-weight: bold;
+.project-info h3 {
+  font-size: 1.3rem;
   margin: 0;
+  color: #333;
+  line-height: 1.4;
 }
 
-.option-info {
-  color: #666;
+.status-container {
   display: flex;
-  gap: 1rem;
+  gap: 0.8rem;
+  align-items: center;
 }
 
-.price {
-  font-weight: bold;
-  color: #000;
-  font-size: 1.1rem;
+.category-badge,
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.category-badge {
+  background-color: #f3f4f6;
+  color: #666;
+}
+
+.status-badge.status-funding {
+  background-color: rgba(25, 118, 210, 0.1);
+  color: #1976D2;
+  border: 1px solid rgba(25, 118, 210, 0.3);
 }
 
 .pagination {
-  margin-top: 2rem;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 1rem;
+  margin-top: 2rem;
 }
 
-.pagination button {
+.pagination-btn {
   padding: 0.5rem 1rem;
-  border: 1px solid #ddd;
+  background-color: #ff5151;
+  color: white;
+  border: none;
   border-radius: 4px;
-  background: white;
   cursor: pointer;
+  font-size: 14px;
+  min-width: 80px;
+  transition: all 0.3s ease;
 }
 
-.pagination button:disabled {
-  background: #f5f5f5;
+.pagination-btn:disabled {
+  background-color: #ffe3e3;
   cursor: not-allowed;
+  color: #666;
+}
+
+.pagination-btn:not(:disabled):hover {
+  background-color: #ffd74e;
+  color: #333333;
 }
 
 @media (max-width: 768px) {
@@ -241,17 +339,43 @@ export default {
     align-items: stretch;
   }
 
+  .search-box {
+    flex-direction: column;
+  }
+
   .search-box input {
     width: 100%;
   }
 
-  .funding-content {
+  .project-content {
     flex-direction: column;
   }
 
-  .funding-image {
+  .image-container {
     width: 100%;
     height: 200px;
   }
+}
+
+.content {
+  scrollbar-width: thin;
+  scrollbar-color: #ff5151 #f4f6f9;
+}
+
+.content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.content::-webkit-scrollbar-track {
+  background: #f4f6f9;
+}
+
+.content::-webkit-scrollbar-thumb {
+  background-color: #ff5151;
+  border-radius: 4px;
+}
+
+.content::-webkit-scrollbar-thumb:hover {
+  background-color: #ffd74e;
 }
 </style>
