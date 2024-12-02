@@ -90,12 +90,10 @@ export default {
 
 <style scoped>
 .sidebar {
-  width: 250px;
   background-color: #f8f9fa;
-  color: #333;
   padding: 1.5rem;
-  box-sizing: border-box;
   height: 100%;
+  min-height: calc(100vh - 4rem);
   border-right: 1px solid #dee2e6;
 }
 
@@ -137,9 +135,37 @@ h3 {
   border-radius: 4px;
 }
 
-.submenu li.active > a,
-.submenu a:hover {
-  color: #000;
-  background-color: #e9ecef;
+.submenu li.active > a {
+  background-color: #FF5151;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.submenu a:hover:not(.active) {
+  background-color: #FFD74E;
+  color: #333333;
+}
+
+/* 메뉴 아이템 스타일 */
+.menu-item {
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.menu-item:hover {
+  background-color: #FFD74E;
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    min-height: auto;
+    padding: 1rem;
+  }
 }
 </style>

@@ -1,98 +1,133 @@
-<!-- src/components/Header.vue -->
+<!-- src\components\Header.vue -->
 <template>
   <header class="header">
     <div class="container">
-      <div class="logo">
-        <router-link to="/">
-          <img src="../assets/image/logo.png" alt="logo" class="logo-image" />
-        </router-link>
-      </div>
-
-      <nav class="navigation">
-        <ul class="nav-center">
-          <li><router-link to="/live" class="nav-item">라이브</router-link></li>
-          <li>
-            <router-link to="/schedule" class="nav-item">편성표</router-link>
-          </li>
-          <li
-            class="category-container"
-            @mouseenter="showCategoryDropdown"
-            @mouseleave="hideCategoryDropdown"
-          >
-            <a href="#" class="nav-item">카테고리</a>
-            <div v-if="categoryDropdownVisible" class="category-dropdown">
-              <router-link
-                v-for="category in categories"
-                :key="category.name"
-                :to="{
-                  name: 'CategoryResults',
-                  query: { categoryId: category.id },
-                }"
-                class="category-item"
-              >
-                {{ category.name }}
-              </router-link>
-            </div>
-          </li>
-          <li v-if="isLoggedIn && userType !== 'seller'">
-            <router-link to="/mypage/wishlist" class="nav-item">찜</router-link>
-          </li>
-        </ul>
-        <div class="search-bar">
+      <!-- Icons Container -->
+      <div class="icons-container">
+        <!-- Search Section -->
+        <div class="search-section" :class="{ 'search-visible': searchVisible }">
           <input
             type="text"
             placeholder="검색어를 입력해주세요"
             class="search-input"
             v-model="searchQuery"
             @keyup.enter="handleSearch"
+            ref="searchInput"
           />
-          <button @click="handleSearch" class="search-button">검색</button>
-        </div>
-      </nav>
-
-      <div class="user-info">
-        <div
-          v-if="isLoggedIn"
-          class="profile-container"
-          @mouseenter="showDropdown"
-          @mouseleave="startHideDropdown"
-        >
-          <img
-            src="../assets/image/icon/프로필.png"
-            alt="User Profile"
-            class="profile-img"
-          />
-          <div
-            v-show="dropdownVisible"
-            class="dropdown-menu"
-            @mouseenter="cancelHideDropdown"
-            @mouseleave="startHideDropdown"
-          >
-            <div class="profile-info">
-              <img
-                src="../assets/image/icon/프로필.png"
-                alt="User Profile"
-                class="profile-thumbnail"
-              />
-              <span class="username">{{ userName }}</span>
-            </div>
-            <router-link to="/mypage" class="dropdown-item"
-              >마이페이지</router-link
+          <div class="search-icon" @click="toggleSearch">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="search-icon-svg"
             >
-            <router-link
-              v-if="userType !== 'seller'"
-              to="/mypage/wishlist"
-              class="dropdown-item"
-              >찜목록</router-link
-            >
-            <router-link to="/" class="dropdown-item" @click.native="logout"
-              >로그아웃</router-link
-            >
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
           </div>
         </div>
-        <router-link v-else to="/auth/login" class="login-button"
-          >로그인</router-link
-        >
+
+        <!-- User Profile/Login Section -->
+        <div v-if="isLoggedIn" class="profile-container" @mouseenter="showDropdown" @mouseleave="startHideDropdown">
+          <div class="user-icon-link">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="user-icon"
+            >
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+          <div v-show="dropdownVisible" class="dropdown-menu" @mouseenter="cancelHideDropdown" @mouseleave="startHideDropdown">
+            <div class="profile-info">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="60"
+                height="60"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="profile-thumbnail"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              <span class="username">{{ userName }}</span>
+            </div>
+            <router-link to="/mypage" class="dropdown-item">마이페이지</router-link>
+            <router-link v-if="userType !== 'seller'" to="/mypage/wishlist" class="dropdown-item">찜목록</router-link>
+            <router-link to="/" class="dropdown-item" @click.native="logout">로그아웃</router-link>
+          </div>
+        </div>
+        <router-link v-else to="/auth/login" class="user-icon-link">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="user-icon"
+          >
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </router-link>
+      </div>
+
+      <!-- Logo Section -->
+      <div class="logo-section">
+        <router-link to="/" class="logo">
+          <img src="../assets/image/logo.png" alt="logo" class="logo-image" />
+        </router-link>
+      </div>
+
+      <!-- Navigation Section -->
+      <div class="nav-section">
+        <nav class="navigation">
+          <ul class="nav-list">
+            <li><router-link to="/" class="nav-item">Home</router-link></li>
+            <li><router-link to="/about" class="nav-item">About Us</router-link></li>
+            <li>
+              <router-link to="/live" class="nav-item live">
+                <img src="../assets/image/live.gif" alt="Live" class="live-icon" />
+              </router-link>
+            </li>
+            <li class="category-container" @mouseenter="showCategoryDropdown" @mouseleave="hideCategoryDropdown">
+              <a href="#" class="nav-item">Category</a>
+              <div v-if="categoryDropdownVisible" class="category-dropdown">
+                <router-link
+                  v-for="category in categories"
+                  :key="category.name"
+                  :to="{ name: 'CategoryResults', query: { categoryId: category.id } }"
+                  class="category-item"
+                >
+                  {{ category.name }}
+                </router-link>
+              </div>
+            </li>
+          </ul>
+        </nav>
       </div>
     </div>
   </header>
@@ -113,16 +148,17 @@ export default {
   data() {
     return {
       categories: [
-        { id:1 ,name: "생활 가전", icon: LifeIcon },
-        { id:2 ,name: "주방 가전", icon: KitchenIcon },
-        { id:3 ,name: "스마트 가전", icon: SmartIcon },
-        { id:4 ,name: "DIY", icon: DIYIcon },
-        { id:5 ,name: "엔터테이먼트", icon: EntertainmentIcon },
-        { id:6 ,name: "웨어러블", icon: WearableIcon },
-        { id:7 ,name: "주변 기기", icon: PeripheralIcon },
+        { id: 1, name: "생활 가전", icon: LifeIcon },
+        { id: 2, name: "주방 가전", icon: KitchenIcon },
+        { id: 3, name: "스마트 가전", icon: SmartIcon },
+        { id: 4, name: "DIY", icon: DIYIcon },
+        { id: 5, name: "엔터테이먼트", icon: EntertainmentIcon },
+        { id: 6, name: "웨어러블", icon: WearableIcon },
+        { id: 7, name: "주변 기기", icon: PeripheralIcon },
       ],
       isLoggedIn: false,
       searchQuery: "",
+      searchVisible: false,
       dropdownVisible: false,
       categoryDropdownVisible: false,
       userName: "",
@@ -131,46 +167,40 @@ export default {
     };
   },
   methods: {
+    toggleSearch() {
+      this.searchVisible = !this.searchVisible;
+      if (this.searchVisible) {
+        this.$nextTick(() => {
+          this.$refs.searchInput.focus();
+        });
+      } else {
+        this.searchQuery = "";
+      }
+    },
     async logout() {
-    try {
-        console.log('로그아웃 시작');
-        
-        // 로그아웃 API 호출
+      try {
         await authApi.logout();
-        console.log('로그아웃 API 호출 성공');
-
-        // 로컬 스토리지 초기화
-        localStorage.clear();  // 모든 데이터 삭제
-        
-        // 상태 초기화
+        localStorage.clear();
         this.isLoggedIn = false;
         this.dropdownVisible = false;
         this.userName = "";
         this.userType = "";
-
-        console.log('로컬 스토리지 및 상태 초기화 완료');
-
-        // 로그인 상태 변경 이벤트 발생
-        window.dispatchEvent(new Event('login-state-changed'));
-        
-        // 홈으로 이동
+        window.dispatchEvent(new Event("login-state-changed"));
         await this.$router.push("/");
-        console.log('홈으로 이동 완료');
-        
-    } catch (error) {
-        console.error('로그아웃 에러:', error);
-        // 에러가 발생해도 로컬 데이터는 삭제
+      } catch (error) {
+        console.error("로그아웃 에러:", error);
         localStorage.clear();
         this.isLoggedIn = false;
         this.$router.push("/");
-    }
-},
+      }
+    },
     handleSearch() {
       if (this.searchQuery.trim()) {
         this.$router.push({
           name: "SearchResults",
           query: { q: this.searchQuery, type: "search" },
         });
+        this.toggleSearch();
       }
     },
     showDropdown() {
@@ -209,11 +239,7 @@ export default {
   },
   mounted() {
     this.loadUserInfo();
-
-    // 로그인 상태 변경 감지
     window.addEventListener("login-state-changed", this.loadUserInfo);
-
-    // storage 이벤트는 다른 탭에서의 변경만 감지하므로 custom 이벤트 사용
     window.addEventListener("storage", this.loadUserInfo);
   },
 };
@@ -230,60 +256,160 @@ export default {
   --hover-color: #ff6b6d;
 }
 
-.header {
-  font-family: "Noto Sans KR", sans-serif;
+.live {
   display: flex;
   align-items: center;
-  padding: 1rem;
+  padding: 0.5rem;
+}
+
+.live-icon {
+  width: 70px;
+  height: auto;
+}
+
+.live::after {
+  display: none;
+}
+
+.live:hover {
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+}
+
+.header {
+  font-family: "Noto Sans KR", sans-serif;
   background-color: var(--background-color);
   position: relative;
   z-index: 2;
   width: 100%;
-  /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
+  padding: 1rem;
 }
 
 .container {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  white-space: nowrap;
+  position: relative;
+  padding: 0 2rem;
 }
 
-/* 로고 스타일 */
-.logo {
-  flex: 1;
+/* Icons Container */
+.icons-container {
+  position: absolute;
+  top: 3rem;
+  right: 2rem;
   display: flex;
   align-items: center;
-  min-width: 100px;
+  gap: 1rem;
+  z-index: 1000;
 }
 
-.logo-image {
-  width: 100px;
+/* Search Section */
+.search-section {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background-color: #f5f5f5;
+  border-radius: 24px;
+  padding: 0.5rem;
+  width: 40px;
+  transition: all 0.3s ease-in-out;
+  overflow: hidden;
 }
 
-/* 네비게이션 스타일 */
-.navigation {
-  flex: 2;
+.search-visible {
+  width: 250px;
+}
+
+.search-input {
+  width: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  outline: none;
+  transition: all 0.3s ease-in-out;
+  font-size: 0.9rem;
+  margin-right: 0.5rem;
+}
+
+.search-visible .search-input {
+  width: 200px;
+  padding: 0 1rem;
+}
+
+/* Icons Styles */
+.search-icon,
+.user-icon-link {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 600px;
+  padding: 0.5rem;
+  border-radius: 50%;
+  background-color: #f5f5f5;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  min-width: 40px;
+  height: 40px;
 }
 
-.nav-center {
+.search-icon {
+  margin-left: -9px;
+}
+
+.search-icon:hover,
+.user-icon-link:hover {
+  background-color: #e0e0e0;
+}
+
+.search-icon-svg,
+.user-icon {
+  color: var(--text-color);
+  transition: color 0.3s ease;
+}
+
+.search-icon:hover .search-icon-svg,
+.user-icon-link:hover .user-icon {
+  color: var(--primary-color);
+}
+
+/* Logo Section */
+.logo-section {
+  text-align: center;
+  padding: 2rem 0 0.5rem;
+}
+
+.logo-image {
+  width: 250px;
+  height: auto;
+}
+
+/* Navigation Section */
+.nav-section {
+  width: 100%;
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: -2rem;
+}
+
+.navigation {
+  width: 100%;
+}
+
+.nav-list {
+  display: flex;
+  justify-content: center;
   align-items: center;
   list-style: none;
   margin: 0;
   padding: 0;
+  gap: 2rem;
 }
 
-/* 네비게이션 아이템 호버 효과 */
 .nav-item {
-  margin: 0 1.5rem;
   color: var(--text-color);
   text-decoration: none;
   font-weight: 500;
@@ -307,118 +433,9 @@ export default {
   width: 100%;
 }
 
-.category-container {
-  position: relative;
-  z-index: 1000;
-}
-
-.category-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 0.5rem 0;
-  min-width: 160px;
-  margin-top: 0.5rem;
-  z-index: 1000;
-}
-
-.category-item {
-  display: block;
-  padding: 0.75rem 1.5rem;
-  color: var(--text-color);
-  text-decoration: none;
-  transition: all 0.2s ease;
-  text-align: center;
-}
-
-.category-item:hover {
-  background-color: rgba(255, 78, 80, 0.1);
-  color: var(--primary-color);
-}
-
-/* 검색바 스타일 */
-.search-bar {
-  display: flex;
-  align-items: center;
-  margin-left: 2rem;
-}
-
-.search-input {
-  padding: 0.75rem 1rem;
-  border: 2px solid #eee;
-  border-radius: 8px;
-  margin-right: 0.5rem;
-  width: 300px;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
-}
-
-.search-input:focus {
-  border-color: var(--primary-color);
-  outline: none;
-}
-
-.search-button {
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.3s ease;
-}
-
-.search-button:hover {
-  background-color: var(--hover-color);
-}
-
-/* 유저 정보 스타일 */
-.user-info {
-  flex: 1;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  min-width: 100px;
-}
-
-.login-button {
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  cursor: pointer;
-  text-decoration: none;
-  font-weight: 500;
-  transition: background-color 0.3s ease;
-}
-
-.login-button:hover {
-  background-color: var(--hover-color);
-}
-
-/* 프로필 스타일 */
+/* Profile Container and Dropdown */
 .profile-container {
   position: relative;
-  z-index: 1000; /* 이 부분 추가 */
-}
-.profile-img {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 2px solid var(--primary-color);
-  cursor: pointer;
-  object-fit: cover;
-  transition: border-color 0.3s ease;
-}
-
-.profile-img:hover {
-  border-color: var(--hover-color);
 }
 
 .dropdown-menu {
@@ -430,11 +447,10 @@ export default {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   width: 180px;
   text-align: center;
-  z-index: 1000; /* z-index 값 증가 */
+  z-index: 1000;
   padding-top: 8px;
-  margin-top: -8px;
 }
-
+/* Profile Container and Dropdown Styles */
 .profile-info {
   display: flex;
   flex-direction: column;
@@ -449,6 +465,7 @@ export default {
   border-radius: 50%;
   margin-bottom: 0.5rem;
   object-fit: cover;
+  border: 2px solid var(--primary-color);
 }
 
 .username {
@@ -461,12 +478,125 @@ export default {
   padding: 0.75rem 1rem;
   color: var(--text-color);
   text-decoration: none;
-  cursor: pointer;
   transition: all 0.2s ease;
+  cursor: pointer;
 }
 
 .dropdown-item:hover {
   background-color: rgba(255, 78, 80, 0.1);
   color: var(--primary-color);
+}
+
+/* Category Dropdown */
+.category-container {
+  position: relative;
+}
+
+.category-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform-origin: top;
+  transform: translateX(-50%) scaleY(0);
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 0.5rem 0;
+  min-width: 160px;
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.category-dropdown:not([style*="display: none"]) {
+  opacity: 1;
+  transform: translateX(-50%) scaleY(1);
+}
+
+.category-item {
+  display: block;
+  padding: 0.75rem 1.5rem;
+  color: var(--text-color);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  text-align: center;
+  white-space: nowrap;
+  transform: translateY(-10px);
+  opacity: 0;
+  animation: slideDown 0.3s ease forwards;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Category Item Animation Delays */
+.category-dropdown:not([style*="display: none"]) .category-item:nth-child(1) { animation-delay: 0.1s; }
+.category-dropdown:not([style*="display: none"]) .category-item:nth-child(2) { animation-delay: 0.15s; }
+.category-dropdown:not([style*="display: none"]) .category-item:nth-child(3) { animation-delay: 0.2s; }
+.category-dropdown:not([style*="display: none"]) .category-item:nth-child(4) { animation-delay: 0.25s; }
+.category-dropdown:not([style*="display: none"]) .category-item:nth-child(5) { animation-delay: 0.3s; }
+.category-dropdown:not([style*="display: none"]) .category-item:nth-child(6) { animation-delay: 0.35s; }
+.category-dropdown:not([style*="display: none"]) .category-item:nth-child(7) { animation-delay: 0.4s; }
+
+.category-item:hover {
+  background-color: rgba(255, 78, 80, 0.1);
+  color: var(--primary-color);
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 1rem;
+  }
+
+  .nav-list {
+    gap: 1rem;
+  }
+
+  .search-visible {
+    width: 200px;
+  }
+
+  .search-visible .search-input {
+    width: 150px;
+  }
+
+  .logo-image {
+    width: 120px;
+  }
+
+  .icons-container {
+    right: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .nav-list {
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .search-visible {
+    width: 170px;
+  }
+
+  .search-visible .search-input {
+    width: 120px;
+  }
+
+  .icons-container {
+    top: 2rem;
+  }
 }
 </style>

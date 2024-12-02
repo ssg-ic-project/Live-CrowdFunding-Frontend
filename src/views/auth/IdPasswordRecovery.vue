@@ -167,6 +167,8 @@ export default {
   flex-direction: column;
   align-items: center;
   padding-top: 2rem;
+  min-height: 100vh;
+  background-color: #FFF7B4;
 }
 
 .logo {
@@ -180,28 +182,34 @@ export default {
   padding: 2rem;
   background-color: white;
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #FFD74E;
+  box-shadow: 0 2px 10px rgba(255, 81, 81, 0.1);
 }
 
 .tabs {
   display: flex;
   justify-content: center;
-  margin-bottom: 1rem;
-  text-decoration: none;
-  
-  
+  margin-bottom: 2rem;
+  border-bottom: 1px solid rgba(255, 215, 78, 0.3);
+  gap: 2rem;
 }
 
 .tabs span {
   cursor: pointer;
   font-weight: bold;
   padding: 0.5rem 1rem;
-  color: #ccc;
+  color: #666;
+  position: relative;
+  transition: color 0.3s ease;
 }
 
 .tabs .active {
-  color: black;
-  border-bottom: 2px solid black;
+  color: #FF5151;
+  border-bottom: 2px solid #FF5151;
+}
+
+.tabs span:hover {
+  color: #FF5151;
 }
 
 .input-group {
@@ -212,44 +220,61 @@ export default {
   display: block;
   font-weight: bold;
   margin-bottom: 0.5rem;
+  color: #333333;
 }
 
 .input-group input {
   width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
+  padding: 0.75rem;
+  border: 1px solid #FFD74E;
   border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #FF5151;
+  box-shadow: 0 0 0 2px rgba(255, 81, 81, 0.1);
 }
 
 .action-button {
   width: 100%;
-  padding: 0.5rem;
-  background-color: var(--primary-color);
+  padding: 0.75rem;
+  background-color: #FF5151;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   margin-top: 1rem;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.action-button:hover {
+  background-color: #ff3333;
 }
 
 .error-message {
-  color: red;
+  color: #FF5151;
   font-size: 0.875rem;
   margin-top: 0.5rem;
 }
 
 .links {
-  margin-top: 1rem;
+  margin-top: 1.5rem;
   font-size: 0.875rem;
+  text-align: center;
 }
 
 .links a {
-  color: var(--primary-color);
+  color: #FF5151;
   text-decoration: none;
+  transition: color 0.3s ease;
+  margin: 0 0.5rem;
 }
 
 .links a:hover {
-  text-decoration: underline;
+  color: #FFD74E;
 }
 
 .modal-overlay {
@@ -262,6 +287,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  backdrop-filter: blur(3px);
 }
 
 .modal-content {
@@ -271,15 +297,23 @@ export default {
   text-align: center;
   width: 80%;
   max-width: 300px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border: 1px solid #FFD74E;
 }
 
 .modal-button {
-  margin-top: 1rem;
-  padding: 0.5rem 1rem;
-  background-color: var(--primary-color);
+  margin-top: 1.5rem;
+  padding: 0.75rem 1.5rem;
+  background-color: #FF5151;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.modal-button:hover {
+  background-color: #ff3333;
 }
 </style>

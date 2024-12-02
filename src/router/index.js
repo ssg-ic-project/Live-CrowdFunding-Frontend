@@ -51,6 +51,7 @@ import SignUp from '../views/auth/SignUp.vue';
 import IdPasswordRecovery from '../views/auth/IdPasswordRecovery.vue';
 import PaymentSuccessBF from "@/views/mypage/PaymentSuccessBF.vue";
 import PaymentFailBF from "@/views/mypage/PaymentFailBF.vue";
+import OAuthCallback from '../views/auth/OAuthCallback.vue';
 
 
 
@@ -116,6 +117,11 @@ const routes = [
       { path: 'signup', name: 'SignUp', component: SignUp },
       { path: 'recovery', name: 'IdPasswordRecovery', component: IdPasswordRecovery },
       { path: 'reset-password', name: 'ResetPassword', component: () => import('../views/auth/ResetPassword.vue')},
+       { 
+        path: 'oauth/callback', 
+        name: 'OAuthCallback', 
+        component: OAuthCallback
+      },
     ],
   },
 

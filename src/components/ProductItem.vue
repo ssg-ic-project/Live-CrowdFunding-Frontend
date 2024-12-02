@@ -3,7 +3,7 @@
   <div class="product-item" @click="$emit('click', product)">
     <div v-if="product.isLive" class="live-badge">LIVE</div>
     <div class="image-container">
-      <img :src="product.url" :alt="product.productName" />
+      <img :src="product.image" :alt="product.productName" />
     </div>
     <div class="product-info">
       <div class="achievement">{{ product.achievement }}%</div>

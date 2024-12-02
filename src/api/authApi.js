@@ -66,9 +66,11 @@ export const authApi = {
 
   // 네이버 로그인 콜백
   naverCallback(code, state) {
-    return api.get(
-      `/api/account/oauth/naver/callback?code=${code}&state=${state}`
-    );
+    return api.get(`/api/account/oauth/naver/callback?code=${code}&state=${state}`, {
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
   },
 
   // 이메일 찾기

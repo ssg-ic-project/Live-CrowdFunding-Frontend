@@ -334,27 +334,6 @@ export default {
 </script>
 
 <style scoped>
-.notification-preferences {
-  margin-top: 4px;
-}
-
-.notification-checkboxes {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.checkbox-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.checkbox-group input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-}
-
 .profile-page {
   padding: 2rem;
   max-width: 800px;
@@ -362,14 +341,17 @@ export default {
 }
 
 h2 {
-  color: #000;
+  color: #333333;
   margin-bottom: 2rem;
+  font-weight: bold;
+  font-size: 1.8rem;
 }
 
 .profile-container {
-  background-color: #fff;
-  border-radius: 8px;
+  background-color: #ffffff;
+  border-radius: 12px;
   padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .info-group,
@@ -379,17 +361,25 @@ h2 {
 
 label {
   display: block;
-  font-weight: bold;
+  font-weight: 600;
   margin-bottom: 0.5rem;
-  color: #333;
+  color: #333333;
+  font-size: 1rem;
 }
 
 input {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
   font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+input:focus {
+  outline: none;
+  border-color: #FF5151;
+  box-shadow: 0 0 0 3px rgba(255, 81, 81, 0.1);
 }
 
 input:disabled {
@@ -405,17 +395,19 @@ input:disabled {
   flex: 1;
 }
 
+/* 버튼 스타일 통일 */
 button {
   padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 1rem;
+  font-weight: 500;
   transition: all 0.3s ease;
 }
 
 .edit-button {
-  background-color: #007bff;
+  background-color: #FF5151;
   color: white;
   width: 40%;
   margin-top: 1rem;
@@ -423,15 +415,15 @@ button {
 }
 
 .delete-button {
-  background-color: #dd0303;
+  background-color: #666666;
   color: white;
   width: 40%;
   margin-top: 1rem;
 }
 
 .address-button {
-  background-color: #6c757d;
-  color: white;
+  background-color: #FFD74E;
+  color: #333333;
   white-space: nowrap;
 }
 
@@ -442,21 +434,23 @@ button {
 }
 
 .save-button {
-  background-color: #28a745;
+  background-color: #FF5151;
   color: white;
   flex: 1;
 }
 
 .cancel-button {
-  background-color: #6c757d;
+  background-color: #666666;
   color: white;
   flex: 1;
 }
 
 button:hover {
-  opacity: 0.9;
+  filter: brightness(110%);
+  transform: translateY(-1px);
 }
 
+/* 모달 스타일 개선 */
 .password-modal {
   position: fixed;
   top: 0;
@@ -473,13 +467,16 @@ button:hover {
 .modal-content {
   background-color: white;
   padding: 2rem;
-  border-radius: 8px;
+  border-radius: 12px;
   width: 90%;
   max-width: 400px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
 .modal-content h3 {
   margin-bottom: 1rem;
+  color: #333333;
+  font-weight: bold;
 }
 
 .password-input {
@@ -489,20 +486,78 @@ button:hover {
 .modal-buttons {
   display: flex;
   gap: 1rem;
-  margin-top: 1rem;
+  margin-top: 1.5rem;
 }
 
 .confirm-button {
-  background-color: #007bff;
+  background-color: #FF5151;
   color: white;
   flex: 1;
 }
 
+/* 사용자 정보 표시 영역 */
 .user-info p {
   padding: 0.75rem;
   background-color: #f8f9fa;
-  border-radius: 4px;
+  border-radius: 8px;
   margin: 0;
-  color: #333;
+  color: #333333;
+  border: 1px solid #dee2e6;
+}
+
+/* 체크박스 스타일 */
+.notification-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #FF5151;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.checkbox-group label {
+  margin-bottom: 0;
+  cursor: pointer;
+}
+
+/* 반응형 디자인 개선 */
+@media (max-width: 768px) {
+  .profile-page {
+    padding: 1rem;
+  }
+
+  .profile-container {
+    padding: 1.5rem;
+  }
+
+  .edit-button,
+  .delete-button {
+    width: 100%;
+    margin: 0.5rem 0;
+  }
+
+  .form-buttons {
+    flex-direction: column;
+  }
+
+  .address-group {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .address-button {
+    width: 100%;
+  }
 }
 </style>
