@@ -280,16 +280,22 @@
       </div>
     </div>
 
-    <!-- 결제 완료 모달 -->
     <div v-if="showPaymentCompleteModal" class="modal">
       <div class="modal-content">
         <div class="payment-complete">
-          <div class="check-icon">✓</div>
-          <h3>결제가 완료되었습니다!</h3>
-          <p>프로젝트가 성공적으로 등록되었습니다.</p>
-          <button @click="goToProjectList" class="confirm-btn">
-            프로젝트 목록으로
-          </button>
+          <div v-if="isProjectRegistering">
+            <div class="loading-spinner"></div>
+            <h3>프로젝트 등록 중입니다</h3>
+            <p>잠시만 기다려주세요...</p>
+          </div>
+          <div v-else>
+            <div class="check-icon">✓</div>
+            <h3>결제가 완료되었습니다!</h3>
+            <p>프로젝트가 성공적으로 등록되었습니다.</p>
+            <button @click="goToProjectList" class="confirm-btn">
+              프로젝트 목록으로
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -310,6 +316,7 @@ export default {
   name: "ProjectRegistration",
   data() {
     return {
+      isProjectRegistering: true,
       step: 1,
       selectedPlan: null,
       pricingPlans: [
@@ -456,9 +463,18 @@ export default {
     },
   },
 
-  // async mounted() {
-  //   await this.initTossPayments()
-  // },
+  mounted() {
+    console.log("Query params:", this.$route.query);
+    if (this.$route.query.isRegistered === 'true') {
+      this.showPaymentCompleteModal = true;
+    }
+  },
+
+  beforeRouteUpdate(to, from, next) {
+  if (to.query.isRegistered === 'true') {
+      this.showPaymentCompleteModal = true;}
+      next();
+  },
   methods: {
     async handlePayment() {
       try {
@@ -587,13 +603,59 @@ export default {
       this.additionalFiles = files;
       this.imagePreviews = files.map((file) => URL.createObjectURL(file));
     },
-    handleContentImageUpload(event) {
+    async handleContentImageUpload(event) {
       const file = event.target.files[0];
       if (file) {
-        this.contentImageFile = file;
-        this.contentImagePreview = URL.createObjectURL(file);
+        // 이미지 압축
+        const compressedFile = await this.compressImage(file);
+        this.contentImageFile = compressedFile;
+        this.contentImagePreview = URL.createObjectURL(compressedFile);
       }
     },
+    
+    async compressImage(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // 최대 너비/높이 설정
+            const maxWidth = 1024;
+            const maxHeight = 1024;
+            let width = img.width;
+            let height = img.height;
+            
+            if (width > height && width > maxWidth) {
+              height *= maxWidth / width;
+              width = maxWidth;
+            } else if (height > maxHeight) {
+              width *= maxHeight / height; 
+              height = maxHeight;
+            }
+            
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(img, 0, 0, width, height);
+
+            const mimeType = file.type || 'image/jpeg';
+            
+            // 품질 조정 (0.6 = 60% 품질)
+            canvas.toBlob((blob) => {
+              resolve(new File([blob], file.name, {
+                type: mimeType,
+                lastModified: Date.now()
+              }));
+            }, mimeType, 0.6);
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    },
+
     handleDocumentUpload(type, event) {
       if (!event || !event.target || !event.target.files) {
         console.error("Invalid event object");
