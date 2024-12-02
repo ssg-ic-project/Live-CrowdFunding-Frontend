@@ -26,19 +26,19 @@
           <LineChart :data="monthlySignUpData" />
         </div>
         <div class="chart">
-          <h3>수익 실적</h3>
+          <h3>월 수익</h3>
           <LineChart :data="revenueData" />
         </div>
         <div class="chart">
-          <h3>인기 펀딩</h3>
+          <h3>인기 펀딩 (전일)</h3>
           <BarChart :data="topFundingData" />
         </div>
         <div class="chart">
-          <h3>회원 현황</h3>
+          <h3>월별 회원 현황</h3>
           <LineChart :data="userGrowthData" />
         </div>
         <div class="chart">
-          <h3>펀딩 성과</h3>
+          <h3>분야별 펀딩 성과 (전월)</h3>
           <BarChart :data="categoryFundingData" />
         </div>
       </section>
