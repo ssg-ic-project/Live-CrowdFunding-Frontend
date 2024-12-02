@@ -26,32 +26,39 @@ export default {
       const ctx = this.$refs.lineChartCanvas.getContext('2d');
 
       const plugins = [LineController, LineElement, PointElement, LinearScale, Title, Tooltip, CategoryScale, Legend];
-      if (this.shouldRegisterFiller()) {
-        import('chart.js/auto').then((chartModule) => {
-          const Filler = chartModule.Filler;
-          plugins.push(Filler);
-          this.createChart(ctx, plugins);
-        });
-      } else {
-        this.createChart(ctx, plugins);
-      }
+      this.createChart(ctx, plugins);
     },
     createChart(ctx, plugins) {
       Chart.register(...plugins);
+
+      // 데이터셋에 fill: false 속성 추가
+      const chartData = {
+        ...this.data,
+        datasets: this.data.datasets.map(dataset => ({
+          ...dataset,
+          fill: false
+        }))
+      };
+
       this.chart = new Chart(ctx, {
         type: 'line',
-        data: this.data,
+        data: chartData,
         options: {
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
             tooltip: {
-              enabled: true,
-              mode: 'index',
-              intersect: false,
-              position: 'nearest',
-              yAlign: 'top',
+              enabled: false,
             },
+            legend: {
+              display: true,
+              position: 'right',
+              align: 'start',
+              labels: {
+                padding: 20,
+                boxWidth: 40
+              }
+            }
           },
           scales: {
             y: {
@@ -68,7 +75,7 @@ export default {
       });
     },
     shouldRegisterFiller() {
-      return this.data && this.data.datasets.some((dataset) => dataset.fill);
+      return false; // Filler 플러그인이 더 이상 필요하지 않으므로 false 반환
     },
   },
 };

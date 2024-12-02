@@ -36,9 +36,7 @@
             <div class="menu-item" @click="selectMenu('찜 목록', '/mypage/wishlist')">
               <span>찜 목록</span>
             </div>
-            <div class="menu-item" @click="selectMenu('이벤트 당첨 내역', '/mypage/event-wins')">
-              <span>이벤트 당첨 내역</span>
-            </div>
+     
           </template>
         </div>
       </div>
@@ -79,9 +77,7 @@
                 <li :class="{ active: isActive('/mypage/wishlist') }">
                   <router-link to="/mypage/wishlist">찜 목록</router-link>
                 </li>
-                <li :class="{ active: isActive('/mypage/event-wins') }">
-                  <router-link to="/mypage/event-wins">이벤트 당첨 내역</router-link>
-                </li>
+
               </template>
             </ul>
           </div>
@@ -142,7 +138,6 @@ export default {
         '/mypage/project-registration': '펀딩하기',
         '/mypage/funding-participation': '펀딩 참여 목록',
         '/mypage/wishlist': '찜 목록',
-        '/mypage/event-wins': '이벤트 당첨 내역'
       };
       this.selectedMenu = menuTitles[to.path] || '';
     }

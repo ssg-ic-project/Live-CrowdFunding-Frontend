@@ -5,15 +5,24 @@
       <!-- Icons Container -->
       <div class="icons-container">
         <!-- Search Section -->
-        <div class="search-section" :class="{ 'search-visible': searchVisible }">
-          <input
-            type="text"
-            placeholder="검색어를 입력해주세요"
-            class="search-input"
-            v-model="searchQuery"
-            @keyup.enter="handleSearch"
-            ref="searchInput"
-          />
+        <div
+          class="search-section"
+          :class="{ 'search-visible': searchVisible }"
+        >
+          <div class="search-input-container">
+            <input
+              type="text"
+              placeholder="검색어를 입력해주세요"
+              class="search-input"
+              v-model="searchQuery"
+              @keyup.enter="handleSearch"
+              @input="validateSearch"
+              ref="searchInput"
+            />
+            <div class="error-message" v-if="searchError">
+              {{ searchError }}
+            </div>
+          </div>
           <div class="search-icon" @click="toggleSearch">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -34,7 +43,12 @@
         </div>
 
         <!-- User Profile/Login Section -->
-        <div v-if="isLoggedIn" class="profile-container" @mouseenter="showDropdown" @mouseleave="startHideDropdown">
+        <div
+          v-if="isLoggedIn"
+          class="profile-container"
+          @mouseenter="showDropdown"
+          @mouseleave="startHideDropdown"
+        >
           <div class="user-icon-link">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -52,7 +66,12 @@
               <circle cx="12" cy="7" r="4"></circle>
             </svg>
           </div>
-          <div v-show="dropdownVisible" class="dropdown-menu" @mouseenter="cancelHideDropdown" @mouseleave="startHideDropdown">
+          <div
+            v-show="dropdownVisible"
+            class="dropdown-menu"
+            @mouseenter="cancelHideDropdown"
+            @mouseleave="startHideDropdown"
+          >
             <div class="profile-info">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -71,9 +90,18 @@
               </svg>
               <span class="username">{{ userName }}</span>
             </div>
-            <router-link to="/mypage" class="dropdown-item">마이페이지</router-link>
-            <router-link v-if="userType !== 'seller'" to="/mypage/wishlist" class="dropdown-item">찜목록</router-link>
-            <router-link to="/" class="dropdown-item" @click.native="logout">로그아웃</router-link>
+            <router-link to="/mypage" class="dropdown-item"
+              >마이페이지</router-link
+            >
+            <router-link
+              v-if="userType !== 'seller'"
+              to="/mypage/wishlist"
+              class="dropdown-item"
+              >찜목록</router-link
+            >
+            <router-link to="/" class="dropdown-item" @click.native="logout"
+              >로그아웃</router-link
+            >
           </div>
         </div>
         <router-link v-else to="/auth/login" class="user-icon-link">
@@ -107,19 +135,32 @@
         <nav class="navigation">
           <ul class="nav-list">
             <li><router-link to="/" class="nav-item">Home</router-link></li>
-            <li><router-link to="/about" class="nav-item">About Us</router-link></li>
+            <li>
+              <router-link to="/about" class="nav-item">About Us</router-link>
+            </li>
             <li>
               <router-link to="/live" class="nav-item live">
-                <img src="../assets/image/live.gif" alt="Live" class="live-icon" />
+                <img
+                  src="../assets/image/live.gif"
+                  alt="Live"
+                  class="live-icon"
+                />
               </router-link>
             </li>
-            <li class="category-container" @mouseenter="showCategoryDropdown" @mouseleave="hideCategoryDropdown">
+            <li
+              class="category-container"
+              @mouseenter="showCategoryDropdown"
+              @mouseleave="hideCategoryDropdown"
+            >
               <a href="#" class="nav-item">Category</a>
               <div v-if="categoryDropdownVisible" class="category-dropdown">
                 <router-link
                   v-for="category in categories"
                   :key="category.name"
-                  :to="{ name: 'CategoryResults', query: { categoryId: category.id } }"
+                  :to="{
+                    name: 'CategoryResults',
+                    query: { categoryId: category.id },
+                  }"
                   class="category-item"
                 >
                   {{ category.name }}
@@ -159,6 +200,7 @@ export default {
       isLoggedIn: false,
       searchQuery: "",
       searchVisible: false,
+      searchError: "",
       dropdownVisible: false,
       categoryDropdownVisible: false,
       userName: "",
@@ -173,8 +215,18 @@ export default {
         this.$nextTick(() => {
           this.$refs.searchInput.focus();
         });
-      } else {
+      }
+      // searchVisible가 false가 될 때만 searchQuery를 초기화
+      if (!this.searchVisible) {
         this.searchQuery = "";
+        this.searchError = "";
+      }
+    },
+    validateSearch() {
+      if (this.searchQuery.length === 1) {
+        this.searchError = "검색은 2글자 이상 입력해주세요.";
+      } else {
+        this.searchError = "";
       }
     },
     async logout() {
@@ -195,12 +247,25 @@ export default {
       }
     },
     handleSearch() {
+      if (this.searchQuery.length < 2) {
+        this.searchError = "검색은 2글자 이상 입력해주세요.";
+        return;
+      }
+
       if (this.searchQuery.trim()) {
         this.$router.push({
           name: "SearchResults",
           query: { q: this.searchQuery, type: "search" },
         });
-        this.toggleSearch();
+        // 검색 후에도 검색창을 열린 상태로 유지하고 검색어도 유지
+        this.searchVisible = true;
+      }
+    },
+    created() {
+      const searchQuery = this.$route.query.q;
+      if (searchQuery) {
+        this.searchQuery = searchQuery;
+        this.searchVisible = true;
       }
     },
     showDropdown() {
@@ -295,7 +360,6 @@ export default {
   padding: 0 2rem;
 }
 
-/* Icons Container */
 .icons-container {
   position: absolute;
   top: 3rem;
@@ -306,7 +370,6 @@ export default {
   z-index: 1000;
 }
 
-/* Search Section */
 .search-section {
   position: relative;
   display: flex;
@@ -316,7 +379,12 @@ export default {
   padding: 0.5rem;
   width: 40px;
   transition: all 0.3s ease-in-out;
-  overflow: hidden;
+  overflow: visible;
+}
+
+.search-input-container {
+  position: relative;
+  flex-grow: 1;
 }
 
 .search-visible {
@@ -339,7 +407,16 @@ export default {
   padding: 0 1rem;
 }
 
-/* Icons Styles */
+.error-message {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  color: #ff4e50;
+  font-size: 0.8rem;
+  margin-top: 4px;
+  white-space: nowrap;
+}
+
 .search-icon,
 .user-icon-link {
   display: flex;
@@ -374,7 +451,6 @@ export default {
   color: var(--primary-color);
 }
 
-/* Logo Section */
 .logo-section {
   text-align: center;
   padding: 2rem 0 0.5rem;
@@ -385,7 +461,6 @@ export default {
   height: auto;
 }
 
-/* Navigation Section */
 .nav-section {
   width: 100%;
   display: flex;
@@ -416,7 +491,6 @@ export default {
   position: relative;
   padding: 0.5rem 0;
 }
-
 .nav-item::after {
   content: "";
   position: absolute;
@@ -450,7 +524,7 @@ export default {
   z-index: 1000;
   padding-top: 8px;
 }
-/* Profile Container and Dropdown Styles */
+
 .profile-info {
   display: flex;
   flex-direction: column;
@@ -540,13 +614,27 @@ export default {
 }
 
 /* Category Item Animation Delays */
-.category-dropdown:not([style*="display: none"]) .category-item:nth-child(1) { animation-delay: 0.1s; }
-.category-dropdown:not([style*="display: none"]) .category-item:nth-child(2) { animation-delay: 0.15s; }
-.category-dropdown:not([style*="display: none"]) .category-item:nth-child(3) { animation-delay: 0.2s; }
-.category-dropdown:not([style*="display: none"]) .category-item:nth-child(4) { animation-delay: 0.25s; }
-.category-dropdown:not([style*="display: none"]) .category-item:nth-child(5) { animation-delay: 0.3s; }
-.category-dropdown:not([style*="display: none"]) .category-item:nth-child(6) { animation-delay: 0.35s; }
-.category-dropdown:not([style*="display: none"]) .category-item:nth-child(7) { animation-delay: 0.4s; }
+.category-dropdown:not([style*="display: none"]) .category-item:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.category-dropdown:not([style*="display: none"]) .category-item:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.category-dropdown:not([style*="display: none"]) .category-item:nth-child(3) {
+  animation-delay: 0.2s;
+}
+.category-dropdown:not([style*="display: none"]) .category-item:nth-child(4) {
+  animation-delay: 0.25s;
+}
+.category-dropdown:not([style*="display: none"]) .category-item:nth-child(5) {
+  animation-delay: 0.3s;
+}
+.category-dropdown:not([style*="display: none"]) .category-item:nth-child(6) {
+  animation-delay: 0.35s;
+}
+.category-dropdown:not([style*="display: none"]) .category-item:nth-child(7) {
+  animation-delay: 0.4s;
+}
 
 .category-item:hover {
   background-color: rgba(255, 78, 80, 0.1);

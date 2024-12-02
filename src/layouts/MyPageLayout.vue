@@ -96,11 +96,7 @@ export default {
         description: '관심있는 펀딩 프로젝트',
         path: '/mypage/wishlist'
       },
-      {
-        title: '이벤트 당첨 내역',
-        description: '참여한 이벤트 결과 확인',
-        path: '/mypage/event-wins'
-      }
+  
     ];
 
     const selectMenuItem = (item) => {
