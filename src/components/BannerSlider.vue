@@ -8,20 +8,22 @@
       <div class="slides-container" 
            :style="{ transform: `translateX(${translateX}px)` }"
            @transitionend="handleTransitionEnd">
-        <div v-for="(banner, index) in displayBanners" 
-             :key="`${index}-${banner.id}`"
-             :class="['slide', {
+        <div v-for="(slide, index) in displaySlides" 
+             :key="index"
+             :class="['slide-group', {
                'active': isActiveSlide(index),
                'dim': isDimmedSlide(index)
              }]">
-          <img :src="banner.image" :alt="banner.title" class="slide-image"/>
+          <div class="slide wide">
+            <img :src="slide.image" :alt="slide.title" class="slide-image"/>
+          </div>
         </div>
       </div>
 
       <div class="controls">
         <div class="arrows">
           <button @click="prevSlide" class="arrow">&lt;</button>
-          <span class="slide-count">{{ currentDisplayIndex + 1 }} / {{ banners.length }}</span>
+          <span class="slide-count">{{ currentSlideIndex + 1 }} / {{ slides.length }}</span>
           <button @click="nextSlide" class="arrow">&gt;</button>
         </div>
       </div>
@@ -32,36 +34,29 @@
     </div>
   </div>
 </template>
-
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import banner1 from '@/assets/image/배너1.jpg';
 import banner2 from '@/assets/image/배너2.jpg';
 import banner3 from '@/assets/image/배너3.jpg';
 import banner4 from '@/assets/image/배너4.jpg';
-import banner5 from '@/assets/image/배너5.jpg';
-import banner6 from '@/assets/image/배너6.jpg';
-import banner7 from '@/assets/image/배너7.jpg';
 
-const SLIDE_WIDTH = 600; // 수정된 슬라이드 너비
-const SLIDE_HEIGHT = 350; // 수정된 슬라이드 높이
+const SLIDE_WIDTH = 1200;
+const SLIDE_HEIGHT = 350;
 const SLIDE_DURATION = 3000;
 
-// 원본 배너 데이터
-const banners = [
+// 모든 배너를 긴 이미지로 설정
+const slides = [
   { id: 1, image: banner1, title: '배너1' },
   { id: 2, image: banner2, title: '배너2' },
   { id: 3, image: banner3, title: '배너3' },
-  { id: 4, image: banner4, title: '배너4' },
-  { id: 5, image: banner5, title: '배너5' },
-  { id: 6, image: banner6, title: '배너6' },
-  { id: 7, image: banner7, title: '배너7' },
+  { id: 4, image: banner4, title: '배너4' }
 ];
 
-const displayBanners = computed(() => {
-  const clonedBefore = banners.slice(-2);
-  const clonedAfter = banners.slice(0, 2);
-  return [...clonedBefore, ...banners, ...clonedAfter];
+// 앞에 2개, 뒤에 2개의 복제 슬라이드 추가
+const displaySlides = computed(() => {
+  // 순환을 위해 더 많은 슬라이드 복제
+  return [...slides.slice(-2), ...slides, ...slides.slice(0, 2)];
 });
 
 const sliderRef = ref(null);
@@ -70,43 +65,45 @@ const progressWidth = ref(0);
 const translateX = ref(0);
 const isTransitioning = ref(false);
 
-const currentDisplayIndex = computed(() => {
+const currentSlideIndex = computed(() => {
   const realIndex = currentIndex.value - 2;
-  if (realIndex < 0) return banners.length + realIndex;
-  if (realIndex >= banners.length) return realIndex - banners.length;
+  if (realIndex < 0) return slides.length + realIndex;
+  if (realIndex >= slides.length) return realIndex - slides.length;
   return realIndex;
 });
 
-// 수정된 중앙 정렬 로직
-const updateTranslateX = () => {
+const updateTranslateX = (withTransition = true) => {
   if (!sliderRef.value) return;
   
   const containerWidth = sliderRef.value.offsetWidth;
-  // 두 슬라이드의 전체 너비를 고려한 중앙 정렬 오프셋 계산
-  const centerOffset = (containerWidth - (SLIDE_WIDTH * 2)) / 2;
+  const centerOffset = (containerWidth - SLIDE_WIDTH) / 2;
+  
+  if (!withTransition) {
+    // 트랜지션 없이 즉시 이동
+    document.querySelector('.slides-container').style.transition = 'none';
+  }
+  
   translateX.value = -(currentIndex.value * SLIDE_WIDTH - centerOffset);
+  
+  if (!withTransition) {
+    // 트랜지션 스타일 복구
+    setTimeout(() => {
+      document.querySelector('.slides-container').style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+    }, 50);
+  }
 };
 
 const handleTransitionEnd = () => {
   isTransitioning.value = false;
-  if (currentIndex.value <= 1) {
-    currentIndex.value = banners.length + 1;
-    updateTranslateX();
-  } else if (currentIndex.value >= banners.length + 2) {
-    currentIndex.value = 2;
-    updateTranslateX();
+  // 마지막 슬라이드에 도달했을 때
+  if (currentIndex.value >= slides.length + 2) {
+    currentIndex.value = 2; // 처음으로 순간 이동
+    updateTranslateX(false); // 트랜지션 없이 이동
   }
 };
 
-const isActiveSlide = (index) => {
-  const activeIndex = currentIndex.value;
-  return index === activeIndex || index === activeIndex + 1;
-};
-
-const isDimmedSlide = (index) => {
-  const activeIndex = currentIndex.value;
-  return index === activeIndex - 1 || index === activeIndex + 2;
-};
+const isActiveSlide = (index) => index === currentIndex.value;
+const isDimmedSlide = (index) => !isActiveSlide(index);
 
 const nextSlide = () => {
   if (!isTransitioning.value) {
@@ -173,48 +170,48 @@ onUnmounted(() => {
 .banner-slider {
   position: relative;
   width: 100%;
-  height: 350px; /* 수정된 높이 */
+  height: 350px;
   overflow: hidden;
-  
-
 }
 
 .slides-container {
   position: absolute;
   height: 100%;
   display: flex;
-  transition: transform 0.5s ease;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
-    border-radius: 50px;
+}
+
+.slide-group {
+  display: flex;
+  flex: 0 0 1200px;
+  transition: opacity 0.3s ease;
+  opacity: 0.3;
 }
 
 .slide {
-  flex: 0 0 600px;
-  width: 600px;
+  flex: 0 0 1200px;
+  width: 1200px;
   height: 350px;
   position: relative;
-  transition: opacity 0.3s ease;
-  opacity: 0.3;
-  border-radius: 10px; 
-  overflow: hidden; 
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 .slide-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 10px; 
+  border-radius: 10px;
 }
 
-.slide.active {
+.slide-group.active {
   opacity: 1;
 }
 
-.slide.dim {
+.slide-group.dim {
   opacity: 0.3;
 }
-
-
 
 .controls {
   position: absolute;

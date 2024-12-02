@@ -1,55 +1,57 @@
 <template>
-  <div class="wishlist-page">
-    <div class="header">
-      <h2>찜 목록</h2>
-      <span class="count" v-if="pageInfo">(총 {{ pageInfo.totalElements }}개)</span>
-    </div>
-    <div class="product-grid">
-      <div v-for="project in projects" :key="project.id" class="product-card">
-        <div class="image-container">
-          <img :src="project.thumbnailUrl" :alt="project.productName" />
-          
-          <!-- 하트 아이콘 -->
-          <button @click.stop="toggleWishlist(project)" class="wishlist-btn">
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              viewBox="0 0 24 24" 
-              fill="#ff4b4b"
-              stroke="#ff4b4b"
-              stroke-width="2"
-              class="heart-icon"
-            >
-              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-            </svg>
-          </button>
-        </div>
-        <div class="product-info">
-          <div class="achievement">{{ project.percentage }}% 달성</div>
-          <h3 class="product-name">{{ project.productName }}</h3>
-          <p class="description">{{ project.description }}</p>
-          <div class="price">{{ formatPrice(project.price) }}원</div>
+  <div class="dashboard">
+    <main class="content">
+      <div class="header">
+        <h2>찜 목록</h2>
+        <span class="count" v-if="pageInfo">(총 {{ pageInfo.totalElements }}개)</span>
+      </div>
+      <div class="product-grid">
+        <div v-for="project in projects" :key="project.id" class="product-card">
+          <div class="image-container">
+            <img :src="project.thumbnailUrl" :alt="project.productName" />
+            
+            <!-- 하트 아이콘 -->
+            <button @click.stop="toggleWishlist(project)" class="wishlist-btn">
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                viewBox="0 0 24 24" 
+                fill="#ff5151"
+                stroke="#ff5151"
+                stroke-width="2"
+                class="heart-icon"
+              >
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+              </svg>
+            </button>
+          </div>
+          <div class="product-info">
+            <div class="achievement">{{ project.percentage }}% 달성</div>
+            <h3 class="product-name">{{ project.productName }}</h3>
+            <p class="description">{{ project.description }}</p>
+            <div class="price">{{ formatPrice(project.price) }}원</div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- 페이지네이션 -->
-    <div class="pagination" v-if="pageInfo && pageInfo.totalPages > 1">
-      <button 
-        :disabled="pageInfo.page <= 1"
-        @click="changePage(pageInfo.page - 1)"
-        class="pagination-btn"
-      >
-        이전
-      </button>
-      <span class="page-info">{{ pageInfo.page }} / {{ pageInfo.totalPages }}</span>
-      <button 
-        :disabled="pageInfo.page >= pageInfo.totalPages"
-        @click="changePage(pageInfo.page + 1)"
-        class="pagination-btn"
-      >
-        다음
-      </button>
-    </div>
+      <!-- 페이지네이션 -->
+      <div class="pagination" v-if="pageInfo && pageInfo.totalPages > 1">
+        <button 
+          class="pagination-btn"
+          :disabled="pageInfo.page <= 1"
+          @click="changePage(pageInfo.page - 1)"
+        >
+          이전
+        </button>
+        <span class="page-info">{{ pageInfo.page }} / {{ pageInfo.totalPages }}</span>
+        <button 
+          class="pagination-btn"
+          :disabled="pageInfo.page >= pageInfo.totalPages"
+          @click="changePage(pageInfo.page + 1)"
+        >
+          다음
+        </button>
+      </div>
+    </main>
   </div>
 </template>
 
@@ -68,7 +70,7 @@ export default {
   setup() {
     const projects = ref([]);
     const pageInfo = ref(null);
-    const pageSize = ref(12); // 한 페이지당 보여줄 아이템 수
+    const pageSize = ref(12);
 
     const fetchWishlist = async (page = 1) => {
       try {
@@ -132,7 +134,14 @@ export default {
 </script>
 
 <style scoped>
-.wishlist-page {
+.dashboard {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f4f6f9;
+}
+
+.content {
+  flex: 1;
   padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
@@ -147,7 +156,9 @@ export default {
 
 h2 {
   margin: 0;
-  color: #000;
+  color: #333;
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 
 .count {
@@ -167,17 +178,21 @@ h2 {
   border-radius: 8px;
   overflow: hidden;
   background: white;
-  transition: transform 0.2s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
 }
 
 .product-card:hover {
   transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .image-container {
   position: relative;
   width: 100%;
   padding-bottom: 75%;
+  overflow: hidden;
 }
 
 .image-container img {
@@ -187,6 +202,11 @@ h2 {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover .image-container img {
+  transform: scale(1.05);
 }
 
 .wishlist-btn {
@@ -205,6 +225,11 @@ h2 {
   width: 30px;
   height: 30px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease;
+}
+
+.wishlist-btn:hover {
+  transform: scale(1.1);
 }
 
 .heart-icon {
@@ -217,7 +242,7 @@ h2 {
 }
 
 .achievement {
-  color: #28a745;
+  color: #ff5151;
   font-size: 0.85rem;
   font-weight: bold;
   margin-bottom: 0.5rem;
@@ -226,7 +251,7 @@ h2 {
 .product-name {
   font-size: 1.1rem;
   margin: 0 0 0.5rem 0;
-  color: #000;
+  color: #333;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -242,12 +267,13 @@ h2 {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   height: 2.7em;
+  line-height: 1.35;
 }
 
 .price {
   font-weight: bold;
   font-size: 1.1rem;
-  color: #000;
+  color: #333;
   margin-top: 0.5rem;
 }
 
@@ -261,21 +287,25 @@ h2 {
 
 .pagination-btn {
   padding: 0.5rem 1rem;
-  border: 1px solid #ddd;
+  background-color: #ff5151;
+  color: white;
+  border: none;
   border-radius: 4px;
-  background: white;
   cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.pagination-btn:hover:not(:disabled) {
-  background: #f5f5f5;
+  font-size: 14px;
+  min-width: 80px;
+  transition: all 0.3s ease;
 }
 
 .pagination-btn:disabled {
-  background: #f5f5f5;
+  background-color: #ffe3e3;
   cursor: not-allowed;
-  opacity: 0.7;
+  color: #666;
+}
+
+.pagination-btn:not(:disabled):hover {
+  background-color: #ffd74e;
+  color: #333333;
 }
 
 .page-info {
@@ -283,14 +313,43 @@ h2 {
   color: #666;
 }
 
+/* 스크롤바 스타일링 */
+.content {
+  scrollbar-width: thin;
+  scrollbar-color: #ff5151 #f4f6f9;
+}
+
+.content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.content::-webkit-scrollbar-track {
+  background: #f4f6f9;
+}
+
+.content::-webkit-scrollbar-thumb {
+  background-color: #ff5151;
+  border-radius: 4px;
+}
+
+.content::-webkit-scrollbar-thumb:hover {
+  background-color: #ffd74e;
+}
+
 @media (max-width: 768px) {
+  .content {
+    padding: 1rem;
+  }
+
   .product-grid {
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: 1rem;
   }
 
-  .product-info {
-    padding: 0.75rem;
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
   }
 
   .product-name {
