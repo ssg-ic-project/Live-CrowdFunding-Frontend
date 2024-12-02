@@ -15,9 +15,6 @@
     "axios": "^1.7.7",
     "chart.js": "^4.4.6",
 
-    "mediasoup-client": "^3.7.17",
-
-
     "date-fns": "^4.1.0",
     "mediasoup-client": "^3.7.17",
     "pinia": "^2.2.6",
