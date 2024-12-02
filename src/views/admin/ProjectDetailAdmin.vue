@@ -4,7 +4,7 @@
     <main class="content">
       <!-- 헤더 -->
       <header>
-        <span>접속중인 ID: {{ userId }} ({{ userName }})</span>
+        <span>접속중인 ID: {{ userId }}</span>
         <button @click="logout">로그아웃</button>
       </header>
 
@@ -193,7 +193,7 @@ export default {
   props: ['id'],
   data() {
     return {
-      userId: 'admin123',
+      userId: localStorage.getItem("adminId"),
       userName: '관리자',
       project: {
         id: null,

@@ -6,7 +6,7 @@
     <main class="content">
       <!-- 상단 관리자 정보 -->
       <header>
-        <span>접속중인 ID: {{userId }} ({{userName }})</span>
+        <span>접속중인 ID: {{userId }}</span>
         <button @click="logout">로그아웃</button>
       </header>
 
@@ -71,8 +71,8 @@ export default {
       },
 
         //localStorage에 저장되어있는 정보 가지고 오기.
-        userId: localStorage.getItem("userId"),
-        userName: localStorage.getItem("userName"),
+        userId: localStorage.getItem("adminId"),
+        // userName: localStorage.getItem("userName"),
 
         // userId: "admin123",
         // userName: "관리자",
