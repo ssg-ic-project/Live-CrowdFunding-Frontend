@@ -358,9 +358,11 @@ export default {
       try{
         const request = {
           status: '승인',
-          rejectionReason: null
+          rejectionReason: null,
+          managerId: localStorage.getItem("adminId")
         };
         await projectApi.updateApprovalStatus(this.project.id, request);
+        alert('승인이 완료되었습니다');
         this.closeApproveModal();
         this.$router.push({ name: 'ProjectManagement' });
       }catch(error){
