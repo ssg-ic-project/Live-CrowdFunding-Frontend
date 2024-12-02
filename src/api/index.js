@@ -5,3 +5,4 @@ export * from './dashboardApi.js';
 export * from './projectApi.js';
 export * from "./userApi.js";
 export * from "./chatApi.js";
+export * from "./adminLoginApi.js";
