@@ -34,7 +34,7 @@
           <BarChart :data="topFundingData" />
         </div>
         <div class="chart">
-          <h3>활성 사용자 현황</h3>
+          <h3>회원 현황</h3>
           <LineChart :data="userGrowthData" />
         </div>
         <div class="chart">
@@ -74,8 +74,6 @@ export default {
         userId: localStorage.getItem("adminId"),
         // userName: localStorage.getItem("userName"),
 
-        // userId: "admin123",
-        // userName: "관리자",
         loading: true,
 
         monthlySignUpData: {
@@ -327,6 +325,7 @@ export default {
           },
         ],
       };
+
 
       console.log('Category Funding Data:', this.categoryFundingData);
       console.log('Current Users Data:', this.userGrowthData);

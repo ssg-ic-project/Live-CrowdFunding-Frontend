@@ -17,6 +17,7 @@ export const dashboardApi ={
         return api.get("/api/dashboard/current-users")
     },
     getCategoryRevenue(){
+        console.log("check 펀딩 결과")
         return api.get("/api/dashboard/revenue-by-category")
     },
 
