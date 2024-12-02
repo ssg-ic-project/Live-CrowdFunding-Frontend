@@ -440,7 +440,7 @@ header {
 
 header button {
   padding: 0.5rem 1rem;
-  background-color: #0065cb;
+  background-color:  #FF5151;
   color: white;
   border: none;
   border-radius: 4px;
@@ -448,7 +448,8 @@ header button {
 }
 
 header button:hover {
-  background-color: #0055a3;
+  background-color: #FFD74E;
+  
 }
 
 .stats {
