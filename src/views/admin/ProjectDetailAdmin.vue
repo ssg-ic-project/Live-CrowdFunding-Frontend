@@ -187,7 +187,6 @@
 
 <script>
 import {projectApi} from "@/api/projectApi.js";
-import mammoth from 'mammoth';
 
 export default {
   name: 'ProjectDetail',
