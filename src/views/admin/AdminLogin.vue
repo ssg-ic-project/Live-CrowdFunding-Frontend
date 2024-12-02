@@ -8,8 +8,8 @@
           <label for="employeeNumber">사번</label>
           <input
             type="text"
-            id="employeeNumber"
-            v-model="employeeNumber"
+            id="identificationNumber"
+            v-model="loginData.identificationNumber"
             placeholder="사번을 입력하세요"
           />
         </div>
@@ -19,7 +19,7 @@
           <input
             type="password"
             id="password"
-            v-model="password"
+            v-model="loginData.password"
             placeholder="비밀번호를 입력하세요"
             @keydown.enter="handleLogin"
           />
@@ -32,25 +32,44 @@
   </template>
   
   <script>
+  import {adminLoginApi} from '@/api/index.js';
   export default {
     name: 'AdminLogin',
     data() {
       return {
-        employeeNumber: '',
-        password: '',
+        loginData: {
+          identificationNumber: '',
+          password: ''
+        },
         loginError: false,
-      };
+        errorMessage: '사번 또는 비밀번호를 확인해주세요.'
+      }
     },
     methods: {
-      handleLogin() {
-        if (this.employeeNumber === 'admin123' && this.password === '1234') {
+      async handleLogin() {
+        try {
+          const response = await adminLoginApi.login(this.loginData)
 
-          localStorage.setItem('isAdminLoggedIn', 'true');
+          //로그인 성공 시 토큰 저장
+          localStorage.setItem('accessToken', response.data.accessToken)
+          localStorage.setItem('refreshToken', response.data.refreshToken)
+          localStorage.setItem('adminId', this.loginData.identificationNumber)
+          localStorage.setItem('isAdminLoggedIn', true)
 
+          // this.$router.push('/admin/AdminDashboard')
           this.$router.push('/admin');
-        } else {
+          console.log("need to login in");
+
+          //관리자 페이지로 이동
+
+        } catch (error) {
           
           this.loginError = true;
+          if(error.response){
+            this.errorMessage = error.response.data.message || '로그인에 실패했습니다.'
+          }else {
+            this.errorMessage = '서버와의 통신에 실패했습니다.'
+          }
         }
       },
     },
