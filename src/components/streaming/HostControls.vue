@@ -65,6 +65,14 @@ const props = defineProps({
     type: Object,
     required: false,
   },
+  socket: {  // socket prop 추가
+    type: Object,
+    required: true
+  },
+  roomId: {  // roomId prop 추가
+    type: String,
+    required: true
+  }
 });
 
 const { isRecording, startRecording, stopRecording } = useScreenRecording();
@@ -97,6 +105,7 @@ const handleLeave = () => {
 };
 
 const confirmLeave = () => {
+  props.socket.emit('end-stream', { roomId: props.roomId }) // props에서 socket과 roomId 사용
   emit('leave');
   showLeaveModal.value = false;
 };
@@ -210,6 +219,8 @@ const confirmLeave = () => {
 }
 
 .modal {
+  display: flex;
+  flex-direction: column;
   background: white;
   padding: 1.25rem;
   border-radius: 8px;
