@@ -1,10 +1,10 @@
 import api from "./axios";
 
 export const projectApi = {
-    getFilteredProjects(params){
-        return api.get(
-            "/api/projects",
-            {
+    getFilteredProjects(params) {
+        console.log("checking page size", params.page);
+        return api.get("/api/projects", {
+            params: {
                 page: params.page,
                 RS: params.RS,
                 PS: params.PS,
@@ -12,18 +12,30 @@ export const projectApi = {
                 ED: params.ED,
                 projname: params.projname,
             },
-            {
-                headers:{
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
             }
-        );
+        });
     },
-    getProject(id){
+    getProject(id) {
         return api.get(
             `/api/project/admin/${id}`);
+    },
+    updateApprovalStatus(id, request) {
+        console.log('API 요청 확인: ', id, request);
+        return api.post(`/api/project/${id}/approval-status`, request);
+    },
+    getImages(id){
+        return api.get(`/api/project/${id}/images`);
+    },
+    getProjectDocs(id){
+        return api.get(`/api/project/${id}/docs`);
+    },
+    getDocumentContent: (docUrl) => {
+        return api.get(`/api/project/documentContent`,{
+           params: {url: docUrl} 
+        });
     }
-
-
-}
+    
+};

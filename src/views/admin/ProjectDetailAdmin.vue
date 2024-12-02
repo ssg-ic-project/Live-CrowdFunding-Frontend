@@ -20,7 +20,7 @@
             <div class="additional-images">
               <img v-for="(image, index) in project.additionalImages" 
                    :key="index" 
-                   :src="image" 
+                   :src="image"
                    :alt="'Additional image ' + (index + 1)" 
                    class="additional-image" />
             </div>
@@ -33,7 +33,7 @@
         <!-- 우측 패널: 프로젝트 정보 -->
         <div class="right-panel">
           <div class="project-info">
-            <h2>{{ project.name }}</h2>
+            <h2>{{ project.productName }}</h2>
             
             <!-- 기본 정보 섹션 -->
             <div class="info-section">
@@ -41,15 +41,15 @@
               <div class="info-grid">
                 <div class="info-item">
                   <label>판매자</label>
-                  <p>{{ project.seller }}</p>
+                  <p>{{ project.maker.name }}</p>
                 </div>
                 <div class="info-item">
                   <label>카테고리</label>
-                  <p>{{ project.category }}</p>
+                  <p>{{ project.category.classification }}</p>
                 </div>
                 <div class="info-item">
                   <label>선택 요금제</label>
-                  <p>{{ project.plan }}</p>
+                  <p>{{ project.ratePlan.planName }}</p>
                 </div>
                 <div class="info-item">
                   <label>판매가</label>
@@ -57,11 +57,11 @@
                 </div>
                 <div class="info-item">
                   <label>할인율</label>
-                  <p>{{ project.discount }}%</p>
+                  <p>{{ project.discountPercentage }}%</p>
                 </div>
                 <div class="info-item">
                   <label>목표 금액</label>
-                  <p>{{ formatPrice(project.targetAmount) }}</p>
+                  <p>{{ formatPrice(project.goalAmount) }}</p>
                 </div>
               </div>
             </div>
@@ -69,7 +69,7 @@
             <!-- 상품 설명 -->
             <div class="description-section">
               <h3>상품 설명</h3>
-              <p>{{ project.description }}</p>
+              <p>{{ project.summary }}</p>
             </div>
 
             <!-- 문서 검토 섹션 -->
@@ -79,7 +79,7 @@
                 <li v-for="(doc, index) in project.documents" :key="index">
                   <div class="document-item">
                     <span class="doc-name" @click="openDocument(doc)">
-                      {{ doc.name }}
+                      {{ doc.content }}
                     </span>
                     <div class="doc-controls">
                       <button
@@ -124,14 +124,26 @@
 
       <!-- 문서 조회 모달 -->
       <div v-if="showModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content" style="width: 95%; max-width: 1200px; height: 50vh;">
           <span class="close" @click="closeModal">&times;</span>
           <h3>{{ selectedDoc.name }}</h3>
+<!--          <div class="document-preview" v-html="convertedHtml">-->
+<!--          <div class="document-preview" ref="convertedHtml">-->
           <div class="document-preview">
-            <p>{{ selectedDoc.content }}</p>
+            <iframe
+                :src="getDocumentViewerUrl(selectedDoc.url)"
+                width="100%"
+                height="1000px"
+                frameborder="0">
+            </iframe>
+          </div>
+
+
+<!--            <iframe :src="selectedDoc.url" frameborder="0"></iframe>-->
+<!--            <p>{{ selectedDoc.url }}</p>-->
           </div>
         </div>
-      </div>
+
 
       <!-- 메모 입력 모달 -->
       <div v-if="showMemoModal" class="modal">
@@ -175,6 +187,7 @@
 
 <script>
 import {projectApi} from "@/api/projectApi.js";
+import mammoth from 'mammoth';
 
 export default {
   name: 'ProjectDetail',
@@ -184,58 +197,41 @@ export default {
       userId: 'admin123',
       userName: '관리자',
       project: {
-        id: this.id,
-        name: '프로젝트 A',
-        seller: '판매자 A',
-        category: '생활 가전',
-        plan: '스탠다드 플랜',
-        price: 100000,
-        discount: 10,
-        targetAmount: 1000000,
-        description: '프로젝트 상세 설명입니다...',
-        thumbnailImage: 'https://via.placeholder.com/300',
-        additionalImages: [
-          'https://via.placeholder.com/150',
-          'https://via.placeholder.com/150',
-          'https://via.placeholder.com/150'
-        ],
-        contentImage: 'https://via.placeholder.com/600',
-        documents: [
-          { 
-            name: '상품 기획서.pdf', 
-            content: '상품 기획서 내용', 
-            reviewed: false,
-            memo: '' 
-          },
-          { 
-            name: '펀딩 기획서.pdf', 
-            content: '펀딩 기획서 내용', 
-            reviewed: false,
-            memo: '' 
-          },
-          { 
-            name: '개인정보 이용동의서.pdf', 
-            content: '개인정보 이용동의서 내용', 
-            reviewed: false,
-            memo: '' 
-          },
-          { 
-            name: '추가 서류.pdf', 
-            content: '추가 서류 내용', 
-            reviewed: false,
-            memo: '' 
-          }
-        ],
+        id: null,
+        productName: '',
+        maker: {},
+        manager: {},
+        ratePlan: {},
+        category: {},
+        contentImage: '',
+        discountPercentage: 0,
+        endAt: '',
+        goalAmount: 0,
+        percentage: 0,
+        price: 0,
+        progressProjectStatus: '',
+        rejectionReason: null,
+        reviewProjectStatus: '',
+        startAt: '',
+        summary: '',
+        thumbnailImage: '',
+        additionalImages: [],
+        documents: [],
         reviewStatus: '승인 대기'
       },
       showModal: false,
       showMemoModal: false,
       showRejectModal: false,
       showApproveModal: false,
-      selectedDoc: null,
+      // selectedDoc: null,
+      selectedDoc: {
+        name: '',
+        url: ''
+      },
+      convertedHtml: '',
       currentMemoIndex: null,
       currentMemo: '',
-      rejectReason: ''
+      rejectReason: '',
     };
   },
   computed: {
@@ -244,6 +240,13 @@ export default {
     }
   },
   methods: {
+    getDocumentViewerUrl(docUrl){
+      return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(docUrl)}`;
+    },
+    formateDate(dateString){
+      const date = new Date(dateString);
+      return date.toLocaleDateString();
+    },
     formatPrice(price) {
       return new Intl.NumberFormat('ko-KR', { 
         style: 'currency', 
@@ -255,11 +258,77 @@ export default {
     },
     openDocument(doc) {
       this.selectedDoc = doc;
+      // this.selectedDoc = {
+      //   url: url,
+      //   name: name
+      // }
       this.showModal = true;
     },
+      // try {
+      //   console.log('check open doc yejin', doc.url);
+      //   // API로부터 docx 파일을 Blob으로 가져오기
+        //const response = await fetch(doc.url);
+
+          // // fetch에 옵션 추가
+          // const response = await fetch(doc.url, {
+          //   method: 'GET',
+          //   headers: {
+          //     'Accept': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          //   },
+          //   mode: 'cors', // CORS 모드 명시
+          // });
+          //
+          // if (!response.ok) {
+          //   throw new Error(`HTTP error! status: ${response.status}`);
+          // }
+          //
+        // const response = await projectApi.getDocumentContent(doc.url);
+        // const arrayBuffer = response.data;
+        // const result = await mammoth.convertedHtml({arrayBuffer});
+        // const container = this.$refs.convertedHtml;
+        // if(container){
+        //   container.innerHTML = result.value;
+        // }
+
+        // console.log('check open response yejin', response);
+        // const blob = await response.blob();
+        // console.log("chcek blob:", blob);
+        // // Blob을 ArrayBuffer로 변환
+        // const arrayBuffer = await blob.arrayBuffer();
+        // onsole.log("chcek arrayBuffer:", arrayBuffer);
+        //
+        // // mammoth를 사용해 HTML로 변환
+        // const result = await mammoth.convertToHtml({arrayBuffer: arrayBuffer});
+        //
+        // // 안전하게 HTML 삽입
+        // const changedContent = this.$refs.convertedHtml;
+        // if (changedContent) {
+        //   changedContent.innerHTML = result.value;
+        //   console.log(changedContent);
+      //   // }
+      // } catch (error) {
+      //   console.error('문서 변환 실패:', error);
+      // }
+
+      //
+      // try {
+      //   const mammoth = require('mammoth');
+      //   const result = await mammoth.convertToHtml({path: url});
+      //   let convertedHtml;
+      //   convertedHtml = result.value;
+      // }catch (error) {
+      //   console.log('문서 변환 실패: ', error);
+      //   throw new Error('지원되지 않는 문서 유형입니다.');
+      // }
+    // },
     closeModal() {
       this.showModal = false;
-      this.selectedDoc = null;
+      this.convertedHtml = '',
+      this.selectedDoc = {
+        name: '',
+        url: ''
+      }
+      // this.selectedDoc = null;
     },
     toggleReviewStatus(index) {
       this.project.documents[index].reviewed = !this.project.documents[index].reviewed;
@@ -286,10 +355,20 @@ export default {
     closeApproveModal() {
       this.showApproveModal = false;
     },
-    confirmApproval() {
-      this.project.reviewStatus = '승인';
-      this.closeApproveModal();
-      this.$router.push({ name: 'ProjectManagement' });
+    async confirmApproval() {
+      try{
+        const request = {
+          status: '승인',
+          rejectionReason: null
+        };
+        await projectApi.updateApprovalStatus(this.project.id, request);
+        this.closeApproveModal();
+        this.$router.push({ name: 'ProjectManagement' });
+      }catch(error){
+        console.error('프로젝트 승인 실패: ', error);
+        alert('프로젝트 승인 처리 중 오류가 발생했습니다');
+      }
+
     },
     openRejectModal() {
       this.showRejectModal = true;
@@ -298,19 +377,67 @@ export default {
       this.showRejectModal = false;
       this.rejectReason = '';
     },
-    submitRejection() {
+    async submitRejection() {
       if (!this.rejectReason.trim()) {
         alert('반려 사유를 입력해주세요.');
         return;
       }
-      this.project.reviewStatus = '반려';
-      this.closeRejectModal();
-      this.$router.push({ name: 'ProjectManagement' });
+      try{
+        const request = {
+          status: '반려',
+          rejectionReason: this.rejectReason
+        };
+        await projectApi.updateApprovalStatus(this.project.id, request);
+        this.closeRejectModal();
+        this.$router.push({name: 'ProjectManagement'});
+      }catch(error){
+        console.error('프로젝트 반려 실패: ', error);
+        alert('프로젝트 반려 처리 중 오류가 발생했습니다.');
+      }
+
     },
     goBack() {
       this.$router.push({ name: 'ProjectManagement' });
     }
-  }
+  },
+  async created() {
+    try {
+      const response = await projectApi.getProject(this.id);
+      //this.project = response.data;
+      this.project = {
+        ...response.data,
+        documents: this.project.documents
+      }
+      console.log("check: ", this.project);
+      console.log(response.data.productName);
+
+      //images 가지고 오기
+      const imageresponse = await projectApi.getImages(this.id);
+      this.project.thumbnailImage = imageresponse.data[0].url;
+      this.project.additionalImages = imageresponse.data.slice(1).map(img => img.url);  // 나머지 이미지들
+      console.log("check images:", imageresponse);
+
+      //docs 가지고 오기
+      const docsresponse = await projectApi.getProjectDocs(this.id);
+      console.log(docsresponse);
+      docsresponse.data.forEach(doc => {
+        this.project.documents.push({
+          name: doc.name,
+          content: doc.docType,
+          url: doc.url,
+          reviewed: false,
+          memo: ''
+        })
+      })
+      //this.project.documents = docsresponse.data;
+
+
+    } catch (error) {
+      console.error('프로젝트 상세 정보 조회 실패:', error);
+      // 에러 처리 로직 작성
+    }
+  },
+
 };
 
 </script>
