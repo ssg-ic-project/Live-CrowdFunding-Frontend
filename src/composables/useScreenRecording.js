@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 
-export const useScreenRecording = () => {
+export const useScreenRecording = (scheduleId) => {
   const mediaRecorder = ref(null)
   const recordedChunks = ref([])
   const isRecording = ref(false)

@@ -135,7 +135,7 @@
         <nav class="navigation">
           <ul class="nav-list">
             <li><router-link to="/" class="nav-item">Home</router-link></li>
-         
+
             <li>
               <router-link to="/live" class="nav-item live">
                 <img
@@ -308,7 +308,6 @@ export default {
 };
 </script>
 
-
 <style scoped>
 @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap");
 
@@ -333,12 +332,13 @@ export default {
 
 .icons-container {
   position: absolute;
-  top: 3rem;
+  top: 50%;
   right: 2rem;
   display: flex;
   align-items: center;
   gap: 1rem;
   z-index: 1000;
+  transform: translateY(150%);
 }
 
 .search-section {
@@ -349,6 +349,7 @@ export default {
   border-radius: 24px;
   padding: 0.5rem;
   width: 40px;
+  height: 40px;
   transition: all 0.3s ease-in-out;
   overflow: visible;
 }
@@ -362,6 +363,7 @@ export default {
 
 .search-visible {
   width: 250px;
+  height: 40px;
   background-color: rgba(158, 148, 248, 0.1);
 }
 
@@ -371,6 +373,7 @@ export default {
 
 .search-input {
   width: 0;
+  height: 28px;
   padding: 0;
   border: none;
   background: transparent;
@@ -389,7 +392,7 @@ export default {
   position: absolute;
   top: 100%;
   left: 0;
-  color: #6D63FF;
+  color: #6d63ff;
   font-size: 0.8rem;
   margin-top: 4px;
   white-space: nowrap;
@@ -420,7 +423,7 @@ export default {
 
 .search-icon-svg,
 .user-icon {
-  color: #6D63FF;
+  color: #6d63ff;
   transition: color 0.3s ease;
 }
 
@@ -430,8 +433,9 @@ export default {
 }
 
 .logo-image {
-  width: 250px;
+  width: 330px;
   height: auto;
+  align-items: center;
 }
 
 .nav-section {
@@ -440,8 +444,9 @@ export default {
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  margin-top: -1rem;
-  margin-bottom: -5rem;}
+  margin-top: 1rem;
+  margin-bottom: -3rem;
+}
 
 .navigation {
   width: 100%;
@@ -458,7 +463,7 @@ export default {
 }
 
 .nav-item {
-  color: #6D63FF;
+  color: #6d63ff;
   text-decoration: none;
   font-weight: 500;
   position: relative;
@@ -473,7 +478,7 @@ export default {
   height: 2px;
   bottom: 0;
   left: 50%;
-  background-color: #9E94F8;
+  background-color: #9e94f8;
   transition: all 0.3s ease-in-out;
   transform: translateX(-50%);
 }
@@ -491,7 +496,7 @@ export default {
   top: 120%;
   right: 0;
   background-color: white;
-  border: 1px solid #9E94F8;
+  border: 1px solid #9e94f8;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(109, 99, 255, 0.1);
   width: 180px;
@@ -514,12 +519,12 @@ export default {
   border-radius: 50%;
   margin-bottom: 0.5rem;
   object-fit: cover;
-  border: 2px solid #6D63FF;
+  border: 2px solid #6d63ff;
 }
 
 .username {
   font-weight: 500;
-  color: #6D63FF;
+  color: #6d63ff;
 }
 
 .dropdown-item {
@@ -533,7 +538,7 @@ export default {
 
 .dropdown-item:hover {
   background-color: rgba(109, 99, 255, 0.1);
-  color: #6D63FF;
+  color: #6d63ff;
 }
 
 .category-container {
@@ -547,7 +552,7 @@ export default {
   transform-origin: top;
   transform: translateX(-50%) scaleY(0);
   background-color: white;
-  border: 1px solid #9E94F8;
+  border: 1px solid #9e94f8;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(109, 99, 255, 0.1);
   padding: 0.5rem 0;
@@ -579,7 +584,7 @@ export default {
 
 .category-item:hover {
   background-color: rgba(109, 99, 255, 0.1);
-  color: #6D63FF;
+  color: #6d63ff;
 }
 
 .live {
@@ -589,10 +594,10 @@ export default {
 }
 
 .live-icon {
-  width: 70px;
+  width: 60px;
   height: auto;
+  margin-top: 5px;
 }
-
 .live::after {
   display: none;
 }
@@ -663,10 +668,9 @@ export default {
 }
 
 @media (max-width: 576px) {
-  .nav-list {
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    justify-content: center;
+  .icons-container {
+    transform: translateY(0);
+    top: 2rem;
   }
 
   .search-visible {
@@ -678,6 +682,7 @@ export default {
   }
 
   .icons-container {
+    transform: translateY(0);
     top: 2rem;
   }
 }
