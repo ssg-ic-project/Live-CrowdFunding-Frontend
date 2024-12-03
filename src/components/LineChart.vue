@@ -8,7 +8,7 @@
 import { Chart, LineController, LineElement, PointElement, LinearScale, Title, Tooltip, CategoryScale, Legend } from 'chart.js';
 
 export default {
-  props: ['data'],
+  props: ['data', 'xLabel', 'yLabel'],
   mounted() {
     this.renderChart();
   },
@@ -63,11 +63,16 @@ export default {
           scales: {
             y: {
               beginAtZero: true,
+              title: {
+                display: true,
+                text: this.yLabel
+              }
             },
             x: {
               display: true,
               title: {
                 display: true,
+                text: this.xLabel
               },
             },
           },

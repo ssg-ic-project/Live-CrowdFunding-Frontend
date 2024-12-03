@@ -48,8 +48,8 @@
                 <i class="fas fa-tag"></i>
                 {{ project.category.classification }}
               </span>
-              <span :class="['status-badge', getStatusClass(getDummyStatus(project.id))]">
-                {{ getDummyStatus(project.id) }}
+              <span :class="['status-badge', getStatusClass(project.progressProjectStatus)]">
+                {{ project.progressProjectStatus }}
               </span>
             </div>
             <h3>{{ project.productName }}</h3>
@@ -101,8 +101,9 @@
       endDate: "",
       searchQuery: "",
       projects: [],
-      reviewStatusOptions: ['검토중', '승인', '반려'],
-      progressStatusOptions: ['펀딩중', '성공', '미달성'],
+      // reviewStatusOptions: ['검토중', '승인', '반려'],
+      // progressStatusOptions: ['펀딩중', '성공', '미달성'],
+      progressProjectStatus: "",
       currentPage: 1,
       total: 0,
     }
@@ -124,13 +125,18 @@
           projname: this.searchQuery
         };
         const response = await projectApi.getFilteredProjects(params);
+        console.log('체크체크');
+        console.log(response);
         this.projects = response.data.dataList;
         this.total = response.data.pageInfoDTO.total;
+        // this.progressProjectStatus = response.data.dataList.progressProjectStatus
+        console.log(this.projects);
       } catch (error) {
         console.error('프로젝트 조회 실패:', error);
       }
     },
     getStatusClass(status) {
+      if (!status) return ''
       switch(status) {
         case '펀딩중': return 'status-funding';
         case '성공': return 'status-success';
