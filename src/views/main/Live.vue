@@ -23,14 +23,14 @@
             v-for="live in currentLiveStreams"
             :key="live.projectId"
             :product="{
-  id: live.projectId,
-  image: live.imageUrl,
-  name: live.productName, // product.name으로 참조되므로 일치시켜야 함
-  achievement: live.percentage,
-  isLive: true,
-  remainingTime: live.remainingTime,
-  category: live.classification,
-}"
+              id: live.projectId,
+              image: live.imageUrl,
+              name: live.productName, // product.name으로 참조되므로 일치시켜야 함
+              achievement: live.percentage,
+              isLive: true,
+              remainingTime: live.remainingTime,
+              category: live.classification,
+            }"
             :linkTo="{
               name: 'Streaming',
               params: { streamId: live.projectId },
@@ -47,15 +47,17 @@
             v-for="vod in pastLiveStreams"
             :key="vod.projectId"
             :product="{
-  id: vod.projectId,
-  image: vod.imageUrl,
-  name: vod.productName,
-  achievement: vod.percentage,
-  isVod: true,
-  remainingTime: vod.remainingTime,
-  category: vod.classification
-}"
-            :linkTo="{ name: 'VODRoom', params: { streamId: vod.projectId } }"
+              id: vod.projectId,
+              image: vod.imageUrl,
+              name: vod.productName,
+              achievement: vod.percentage,
+              isVod: true,
+              remainingTime: vod.remainingTime,
+              category: vod.classification,
+              scheduleId: vod.scheduleId
+            }"
+            :linkTo="{ name: 'VODRoom', params: { streamId: vod.projectId }, query: { scheduleId: vod.scheduleId,
+             }}"
           />
         </div>
       </div>
@@ -127,8 +129,14 @@ import ProductItem from "@/components/ProductItem1.vue";
 import axios from "axios";
 import { useRouter } from "vue-router";
 
-export const getLiveStreams = () => {
-  return axios.get("/api/project/live-vod");
+export const getLiveStreams = async () => {
+  try {
+    const response = await axios.get("/api/project/live-vod");
+    return response;
+  } catch (error) {
+    console.error("Error fetching live streams:", error);
+    throw error;
+  }
 };
 
 export default {
@@ -146,7 +154,7 @@ export default {
       { id: "schedule", name: "편성표" },
     ];
 
-    const selectedMenu = ref("live");
+    const selectedMenu = ref('live');
     const streams = ref([]);
     const schedules = ref([]);
     const selectedDate = ref(formatDateForCompare(new Date()));

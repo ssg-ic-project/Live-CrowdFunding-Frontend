@@ -47,6 +47,7 @@ export default {
 
       // Live나 Schedule 페이지일 때만 스트리밍/VOD 라우팅
       if (currentRouteName === 'Live' || currentRouteName === 'Home') {
+
         if (this.product.isLive) {
           this.$router.push({
             path: "/streaming",
@@ -55,14 +56,17 @@ export default {
         } else if (this.product.isVod) {
           this.$router.push({
             name: "VODRoom",
-            params: { streamId: this.product.id },
+            params: { streamId: this.product.id }, // scheduleId -> streamId로 변경
+            query: {
+              scheduleId: this.product.scheduleId// scheduleId 추가
+            }
+          });
+        } else {
+          this.$router.push({
+            name: "ProductDetail",
+            params: { productId: this.product.id },
           });
         }
-      } else {
-        this.$router.push({
-          name: "ProductDetail",
-          params: { productId: this.product.id },
-        });
       }
     },
   },
@@ -127,14 +131,17 @@ export default {
   display: flex;
   gap: 8px;
   margin-top: 8px;
+  margin: auto
 }
 
 .stats-box {
   font-size: 12px;
   padding: 4px 8px;
+  margin: auto;
   border-radius: 4px;
   background: #f3f4f6;
   color: #666;
+  white-space: nowrap;
 }
 
 .live-badge {
