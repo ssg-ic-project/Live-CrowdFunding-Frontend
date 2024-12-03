@@ -16,14 +16,14 @@
 
       <!-- 상품 정보 영역 -->
       <div class="info-section">
-        <div class="vod-info">
+        <!-- <div class="vod-info">
           <h1 class="title">{{ vodData.title }}</h1>
           <div class="metadata">
             <span class="date">{{ formatDate(vodData.streamDate) }}</span>
             <span class="views">조회수 {{ vodData.viewCount }}회</span>
           </div>
           <p class="description">{{ vodData.description }}</p>
-        </div>
+        </div> -->
 
         <div class="product-info">
           <h2 class="section-title">상품 정보</h2>
@@ -42,12 +42,11 @@
 </template>
 
 <script setup>
-import { vi } from 'date-fns/locale';
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 
+
 const route = useRoute()
-const vodId = ref(route.params.id)
 const videoPlayer = ref(null)
 const videoUrl = ref('')
 const vodData = ref({
@@ -83,16 +82,20 @@ const handleTimeUpdate = (event) => {
 onMounted(async () => {
   try {
     // VOD 데이터 로딩
-    const response = await fetch(`/api/recordings/media/${scheduleId.value}`)
-    const data = await response.json()
+    // const response = await fetch(`/api/recordings/media/${scheduleId.value}`)
+    const response = await fetch(`/api/recordings/media/${route.query.scheduleId}`)
+    const data = await response.text()
 
     if (data) {
-      videoUrl.value.srcObject = data.mediaUrl
-      videoUrl.classList.add('autoplay')
+      videoPlayer.value.src= data
+      videoPlayer.value.autoplay = true
     } else {
       console.error('VOD 데이터 로딩 실패:', response)
       return
     }
+
+    // 상품 정보 로딩
+    await loadProductData()
     
     // 조회수 증가 API 호출
     // await fetch(`/api/vod/${vodId.value}/view`, { method: 'POST' })
@@ -100,6 +103,30 @@ onMounted(async () => {
     console.error('VOD 데이터 로딩 실패:', error)
   }
 })
+
+const loadProductData = async () => {
+  try {
+    const projectId = route.params.streamId
+    const response = await fetch(`/api/project/${projectId}/live`)
+    const data = await response.json()
+
+    console.log(data)
+    
+    // vodData 업데이트
+    vodData.value = {
+      title: data.title || '',
+      streamDate: data.streamDate || '',
+      viewCount: data.viewCount || 0,
+      description: data.description || '',
+      productName: data.productName || '',
+      productImage: data.images[0].url || '',
+      price: data.price || 0,
+      productDescription: data.description || ''
+    }
+  } catch (error) {
+    console.error('상품 데이터 로딩 실패:', error)
+  }
+}
 
 onBeforeUnmount(() => {
   // 필요한 경우 시청 기록 저장

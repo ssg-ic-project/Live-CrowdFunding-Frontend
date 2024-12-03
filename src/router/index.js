@@ -62,7 +62,7 @@ const routes = [
     children: [
       { path: '', name: 'Home', component: Home },
       { path: 'category', name: 'Category', component: Category },
-      { path: 'live', name: 'Live', component: Live },
+      { path: 'live', name: 'Live', component: Live, props: true },
       { path: 'schedule', name: 'Schedule', component: Schedule },
       { path: 'categorySearch', name: 'CategoryResults', component: CategoryResults},
       { path: 'search', name: 'SearchResults', component: SearchResults },
@@ -72,7 +72,7 @@ const routes = [
       { path: 'terms', name: 'Terms', component: Terms },
       { path: '/payment', name: 'Payment', component: Payment, props: true,},
       { path: 'streaming', component: StreamingRoom, props: true },
-      { path: 'vod/:streamId',name: 'VODRoom', component: VodRoom, props: true}
+      { path: 'vod/:streamId',name: 'VODRoom', component: VodRoom, props: true},
     ],
   },
   {
