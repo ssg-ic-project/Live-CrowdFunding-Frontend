@@ -7,9 +7,14 @@ export const dashboardApi ={
     getNewUsers(){
         return api.get("/api/dashboard/new-users")
     },
-    getTotalRevenue(){
-        return api.get("/api/dashboard/yearly-revenue")
+    // getTotalRevenue(){
+    //     return api.get("/api/dashboard/yearly-revenue")
+    // },
+    getFundingStatus(){
+        console.log("inside api check ");
+        return api.get("/api/dashboard/projectSuccessRate")
     },
+
     getPopularFunding(){
         return api.get("/api/dashboard/streaming-stats")
     },
