@@ -7,7 +7,7 @@ export const useScreenRecording = () => {
 
   const VITE_API_SERVER_URI = import.meta.env.VITE_API_SERVER_URI
 
-  const startRecording = async () => {
+  const startRecording = async (scheduleId) => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: true,
@@ -25,7 +25,7 @@ export const useScreenRecording = () => {
 
       mediaRecorder.value.onstop = () => {
         console.log('Recording stopped:', recordedChunks.value)
-        uploadToNCP()
+        uploadToNCP(scheduleId)
       }
 
       mediaRecorder.value.start()
@@ -43,7 +43,7 @@ export const useScreenRecording = () => {
     }
   }
 
-  const uploadToNCP = async () => {
+  const uploadToNCP = async (scheduleId) => {
     try {
       const blob = new Blob(recordedChunks.value, { type: 'video/webm' })
       const file = new File([blob], `recording-${Date.now()}.webm`, { type: 'video/webm' })
@@ -52,7 +52,7 @@ export const useScreenRecording = () => {
 
       const formData = new FormData()
       formData.append('file', file)
-      formData.append('scheduleId', '4') // scheduleId 추가
+      formData.append('scheduleId', scheduleId) // scheduleId 추가
 
       const response = await fetch(`${VITE_API_SERVER_URI}/api/recordings`, {
         method: 'POST',

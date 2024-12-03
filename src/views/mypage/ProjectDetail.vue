@@ -15,7 +15,7 @@
             검토받기
           </button>
         </template>
-        <template v-if="project?.showStatus === '펀딩중' && project.remainingLiveCount >= 0 && project.isStreaming === 0 ">
+        <template v-if="project?.showStatus === '펀딩중' && project.remainingLiveCount >= 0 ">
           <!-- 예약하기 버튼 -->
           <button 
             v-if="[2, 3].includes(project.isStreaming)"
@@ -27,7 +27,7 @@
           </button>
           <!-- 방송하기 버튼 -->
           <button 
-            v-if="project.isStreaming === 0"
+            v-if="[0, 1].includes(project.isStreaming)"
             class="btn broadcast-btn"
             @click="startBroadcast"
           >
@@ -379,6 +379,11 @@ export default {
 
   computed: {
     // 조회 모드용 computed 속성
+
+    canStartBroadcast() {
+      return this.project.isStreaming === 0 || this.project.isStreaming === 1;
+    },
+
     thumbnailImage() {
       return this.project?.images?.find(img => img.imageNumber === "1") || null;
     },
@@ -723,6 +728,14 @@ export default {
     async startBroadcast() {
       // 방송 시작 API 호출 로직은 나중에 구현
       console.log('방송 시작');
+      this.$router.push({
+        path: `/streaming/${this.$route.params.id}`,
+        state: {
+          scheduleId: this.project.scheduleId,
+          userName: "판매자",
+          userRole: "maker"
+        }
+      });
     },
   }
 }

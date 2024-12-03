@@ -185,6 +185,8 @@ export default {
   max-width: 1000px;
   margin: 0 auto;
   background-color: #ffffff;
+  /* 사이드바 너비만큼 여백 추가 */
+  margin-left: 250px; 
 }
 
 h2 {
@@ -371,6 +373,7 @@ h2 {
 @media (max-width: 768px) {
   .funding-status-page {
     padding: 1rem;
+    margin: auto; 
   }
 
   .status-filter {
