@@ -52,6 +52,8 @@ export default{
         };
         await paymentApi.basicFee(requestData);
 
+        this.isProjectRegistering = true;
+
         // 저장된 데이터 복원
         const projectData = JSON.parse(sessionStorage.getItem('projectData'));
         const fileData = JSON.parse(sessionStorage.getItem('fileData'));
@@ -137,7 +139,7 @@ export default{
       }
 
       // API 호출
-      const response = await axios.post("/api/project", formData, {
+      await axios.post("/api/project", formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -147,13 +149,15 @@ export default{
       sessionStorage.removeItem('projectData');
       sessionStorage.removeItem('fileData');
 
+      this.isProjectRegistering = false;
       this.success = true;
       this.$router.push({
         name: 'ProjectRegistration',
-        query: { showSuccessModal: 'true' }
+        query: { showSuccessModal: 'true', isRegistered: 'true'}
       });
 
     } catch (error) {
+      this.isProjectRegistering = false;
       console.error('에러 발생:', error);
       this.error = error.message;
       this.errorDetail = JSON.stringify(error.response?.data || error, null, 2);
