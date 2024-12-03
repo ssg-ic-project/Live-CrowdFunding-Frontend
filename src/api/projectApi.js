@@ -24,6 +24,7 @@ export const projectApi = {
     },
     updateApprovalStatus(id, request) {
         console.log('API 요청 확인: ', id, request);
+        console.log('매니저 아이디 확인, ', request.id);
         return api.post(`/api/project/${id}/approval-status`, request);
     },
     getImages(id){
