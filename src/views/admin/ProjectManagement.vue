@@ -40,7 +40,7 @@
           @click="goToProjectDetail(project.id)"
         >
           <div class="image-container">
-            <img :src="project.contentImage" alt="Project Image" class="project-image" />
+            <img :src="project.thumbNailImageUrl" alt="Project Image" class="project-image" />
           </div>
           <div class="project-info">
             <div class="status-container">
@@ -48,9 +48,20 @@
                 <i class="fas fa-tag"></i>
                 {{ project.category.classification }}
               </span>
-              <span :class="['status-badge', getStatusClass(project.progressProjectStatus)]">
-                {{ project.progressProjectStatus }}
+<!--              검토 상태 뱃지-->
+              <span :class="['status-badge', getReviewStatusClass(project.reviewProjectStatus)]">
+                {{project.reviewProjectStatus}}
               </span>
+<!--              승인된 경우에만 진행 상태 뱃지 표시-->
+              <span
+              v-if="project.reviewProjectStatus === '승인'"
+              :class="['status-badge', getProgressStatusClass(project.progressProjectStatus)]">
+                {{project.progressProjectStatus}}
+              </span>
+
+<!--              <span :class="['status-badge', getStatusClass(project.progressProjectStatus)]">-->
+<!--                {{ project.progressProjectStatus }}-->
+<!--              </span>-->
             </div>
             <h3>{{ project.productName }}</h3>
             <p>
@@ -135,7 +146,17 @@
         console.error('프로젝트 조회 실패:', error);
       }
     },
-    getStatusClass(status) {
+    // getStatusClass(status) {
+    //   if (!status) return ''
+    //   switch(status) {
+    //     case '펀딩중': return 'status-funding';
+    //     case '성공': return 'status-success';
+    //     case '미달성': return 'status-fail';
+    //     default: return '';
+    //   }
+    // },
+
+    getProgressStatusClass(status) {
       if (!status) return ''
       switch(status) {
         case '펀딩중': return 'status-funding';
@@ -144,6 +165,20 @@
         default: return '';
       }
     },
+    // 검토 상태에 대한 새로운 클래스 메서드 추가
+    getReviewStatusClass(status) {
+      if (!status) return ''
+      switch(status) {
+        case '검토중': return 'status-reviewing';
+        case '승인': return 'status-approved';
+        case '반려': return 'status-rejected';
+        default: return '';
+      }
+    },
+
+
+
+
     getDummyStatus(id) {
       const statuses = ['펀딩중', '성공', '미달성'];
       return statuses[id % 3];
@@ -473,4 +508,24 @@ header button:hover {
 .content::-webkit-scrollbar-thumb:hover {
   background-color: #ffd74e;
 }
+
+/* 검토 상태 스타일 */
+.status-badge.status-reviewing {
+  background-color: rgba(255, 152, 0, 0.1);
+  color: #F57C00;
+  border: 1px solid rgba(255, 152, 0, 0.3);
+}
+
+.status-badge.status-approved {
+  background-color: rgba(46, 125, 50, 0.1);
+  color: #2E7D32;
+  border: 1px solid rgba(46, 125, 50, 0.3);
+}
+
+.status-badge.status-rejected {
+  background-color: rgba(198, 40, 40, 0.1);
+  color: #C62828;
+  border: 1px solid rgba(198, 40, 40, 0.3);
+}
+
 </style>

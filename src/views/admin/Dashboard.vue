@@ -26,8 +26,11 @@
           <LineChart :data="monthlySignUpData" x-Label="연도-월" y-Label="인원수(명)" />
         </div>
         <div class="chart">
-          <h3>월 수익</h3>
-          <LineChart :data="revenueData" x-Label="연도-월" y-Label="수익(만원)"/>
+<!--          <h3>월 수익</h3>-->
+<!--          <LineChart :data="revenueData" x-Label="연도-월" y-Label="수익(만원)"/>-->
+        <h3> 펀딩 성공 현황 </h3>
+          <PieChart :data="fundingStatusData" />
+
         </div>
         <div class="chart">
           <h3>인기 펀딩 (전일)</h3>
@@ -39,7 +42,7 @@
         </div>
         <div class="chart">
           <h3>분야별 펀딩 성과 (전월)</h3>
-          <BarChart :data="categoryFundingData" x-Label="카테고리명" y-Label="펀딩수" />
+          <BarChart :data="categoryFundingData" x-Label="카테고리명" y-Label="펀딩수" :useDoubleYAxis="true" />
         </div>
       </section>
     </main>
@@ -49,6 +52,7 @@
 <script>
 import LineChart from "@/components/LineChart.vue";
 import BarChart from "@/components/BarChart.vue";
+import PieChart from "@/components/PieChart.vue";
 import {dashboardApi} from '@/api/index.js';
 import { toRaw } from 'vue';
 
@@ -57,6 +61,7 @@ export default {
   components: {
     LineChart,
     BarChart,
+    PieChart
   },
 
   data() {
@@ -102,18 +107,25 @@ export default {
             },
           ],
         },
-        revenueData: {
-          labels: [],
-          datasets: [
-            {
-              label: "수익",
-              data: [],
-              borderColor: "orange",
-              backgroundColor: "rgba(255, 165, 0, 0.1)",
-              // fill: true,
-            },
-          ],
+        fundingStatusData: {
+          labels: ['성공', '미달성'],
+          datasets: [{
+            data: [300, 150, 100],
+            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+          }]
         },
+        // revenueData: {
+        //   labels: [],
+        //   datasets: [
+        //     {
+        //       label: "수익",
+        //       data: [],
+        //       borderColor: "orange",
+        //       backgroundColor: "rgba(255, 165, 0, 0.1)",
+        //       // fill: true,
+        //     },
+        //   ],
+        // },
         topFundingData: {
           labels: [],
           datasets: [
@@ -187,12 +199,13 @@ export default {
       this.loading = true
 
       // 여러 API 호출을 동시에 처리
-      const [generalStatsResponse, newUsersResponse, revenueResponse, popularFundingResponse, currentUsersResponse, categoryRevenueResponse] = await Promise.all([
+      const [generalStatsResponse, newUsersResponse, fundingStatusResponse, popularFundingResponse, categoryRevenueResponse] = await Promise.all([
         dashboardApi.getStats(),
         dashboardApi.getNewUsers(),
-        dashboardApi.getTotalRevenue(),
+        dashboardApi.getFundingStatus(),
+        // dashboardApi.getTotalRevenue(), revenueResponse
         dashboardApi.getPopularFunding(),
-        dashboardApi.getCurrentUsers(),
+        // dashboardApi.getCurrentUsers(), currentUsersResponse -- 빼기
         dashboardApi.getCategoryRevenue(),
 
       ]);
@@ -242,18 +255,34 @@ export default {
       };
 
       // 수익 데이터 설정
-      this.revenueData = toRaw({
-        labels: revenueResponse.data.labels,
-        datasets: [
-          {
-            label: "수익",
-            data: revenueResponse.data.revenue.map(revenue => revenue.count),  // revenue 데이터 매핑
-            borderColor: "orange",
-            backgroundColor: "rgba(255, 165, 0, 0.1)",
-            fill: true,
-          }
-        ]
-      });
+      // this.revenueData = toRaw({
+      //   labels: revenueResponse.data.labels,
+      //   datasets: [
+      //     {
+      //       label: "수익",
+      //       data: revenueResponse.data.revenue.map(revenue => revenue.count),  // revenue 데이터 매핑
+      //       borderColor: "orange",
+      //       backgroundColor: "rgba(255, 165, 0, 0.1)",
+      //       fill: true,
+      //     }
+      //   ]
+      // });
+      //펀딩 결과
+      // this.fundingStatusData.datasets[0].data = [
+      //   fundingStatusResponse.data.success,
+      //   fundingStatusResponse.data.failed,
+      // ];
+
+      this.fundingStatusData = {
+        ...this.fundingStatusData,
+        datasets: [{
+          ...this.fundingStatusData.datasets[0],
+          data: [fundingStatusResponse.data.success, fundingStatusResponse.data.failed]
+        }]
+      };
+
+      console.log("fundingstatus 확ㅇ니: ", fundingStatusResponse)
+
 
       // 스트리밍 데이터 설정
       this.topFundingData = toRaw({
@@ -275,34 +304,68 @@ export default {
           }
         ]
       });
+      //월별 회원 현황 NEED REFACTORING
+      const userGrowthData = {
+          labels: [
+            "2024-01", "2024-02", "2024-03", "2024-04", "2024-05", "2024-06",
+            "2024-07", "2024-08", "2024-09", "2024-10", "2024-11", "2024-12"
+          ],
+          datasets: [
+              {
+                  label: "매이커",
+                  data: [85, 92 , 108, 125, 143, 167, 189, 210, 235, 258, 275, 290],
+                  borderColor: "green",
+                  backgroundColor: "rgba(0, 255, 0, 0.1)",
+                  fill: true,
+              },
+              {
+                  label: "일반회원",
+                  data: [320, 345, 378, 412, 445, 482, 515, 548, 572, 585, 592, 598],
+
+                borderColor: "blue",
+                  backgroundColor: "rgba(0, 0, 255, 0.1)",
+                  fill: true,
+                },
+                {
+                  label: "전체",
+                  data: [405, 437, 486, 537, 588, 649, 704, 758, 807, 843, 867, 888],
+                  borderColor: "purple",
+                  backgroundColor: "rgba(128, 0, 128, 0.1)",
+                  fill: true,
+                }
+              ]
+      };
+      this.userGrowthData = userGrowthData;
+
+
 
       // 현재 사용자 통계 데이터 설정
-      this.userGrowthData = toRaw({
-        labels: currentUsersResponse.data.labels,
-        datasets: [
-          {
-            label: "매이커",
-            data: currentUsersResponse.data.makers.map(maker => maker.count),
-            borderColor: "green",
-            backgroundColor: "rgba(0, 255, 0, 0.1)",
-            fill: true,
-          },
-          {
-            label: "일반회원",
-            data: currentUsersResponse.data.users.map(user => user.count),
-            borderColor: "blue",
-            backgroundColor: "rgba(0, 0, 255, 0.1)",
-            fill: true,
-          },
-          {
-            label: "전체",
-            data: currentUsersResponse.data.total.map(total => total.count),
-            borderColor: "purple",
-            backgroundColor: "rgba(128, 0, 128, 0.1)",
-            fill: true,
-          }
-        ]
-      });
+      // this.userGrowthData = toRaw({
+      //   labels: currentUsersResponse.data.labels,
+      //   datasets: [
+      //     {
+      //       label: "매이커",
+      //       data: currentUsersResponse.data.makers.map(maker => maker.count),
+      //       borderColor: "green",
+      //       backgroundColor: "rgba(0, 255, 0, 0.1)",
+      //       fill: true,
+      //     },
+      //     {
+      //       label: "일반회원",
+      //       data: currentUsersResponse.data.users.map(user => user.count),
+      //       borderColor: "blue",
+      //       backgroundColor: "rgba(0, 0, 255, 0.1)",
+      //       fill: true,
+      //     },
+      //     {
+      //       label: "전체",
+      //       data: currentUsersResponse.data.total.map(total => total.count),
+      //       borderColor: "purple",
+      //       backgroundColor: "rgba(128, 0, 128, 0.1)",
+      //       fill: true,
+      //     }
+      //   ]
+      // });
 
 
       // 카테고리별 펀딩 수와 수익 데이터 설정
@@ -315,6 +378,7 @@ export default {
             backgroundColor: "rgba(54, 162, 235, 0.5)",
             borderColor: "rgba(54, 162, 235, 1)",
             borderWidth: 1,
+            yAxisID: 'y-axis-1'
           },
           {
             label: "펀딩 수익 (만원)",
@@ -322,6 +386,7 @@ export default {
             backgroundColor: "rgba(255, 206, 86, 0.5)",
             borderColor: "rgba(255, 206, 86, 1)",
             borderWidth: 1,
+            yAxisID: 'y-axis-2'
           },
         ],
       };
