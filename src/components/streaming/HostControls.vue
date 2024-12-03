@@ -77,21 +77,27 @@ const props = defineProps({
 
 const { isRecording, startRecording, stopRecording } = useScreenRecording();
 
+console.log("Aaaaaaaaaaaaaaaaaaaaaaaa", history.state.scheduleId)
+
 const handleRecording = async () => {
   if (isRecording.value) {
     stopRecording();
   } else {
-    await startRecording();
+    await startRecording(history.state.scheduleId);
   }
 };
 
 const handleToggleCamera = async () => {
   // localStream이 있을 때만(방송 중일 때만) 모달 표시
   if (props.localStream) {
-
-    await fetch(`api/schedule/update/104`,{
+    try {
+      await fetch(`/api/schedule/update/${history.state.scheduleId}`,{
       method: 'PATCH'
-    })
+      })
+    } catch (error) {
+      console.error('서버에서 처리가 불가합니다.', error);
+    }
+
 
     showEndModal.value = true;
   } else {

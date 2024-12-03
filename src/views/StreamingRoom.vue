@@ -74,13 +74,13 @@ import ViewerControls from '@/components/streaming/ViewerControls.vue'
 import ViewerList from '@/components/streaming/ViewerList.vue'
 import VideoPreview from '@/components/streaming/VideoPreview.vue'
 import RemoteMedia from '@/components/streaming/RemoteMedia.vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 
-const router = useRouter()
 
 const userName = ref('')
 const showHostEndedModal = ref(false)
 const countdown = ref(3)
+const router = useRouter()
 
 const {
   localVideoRef,
@@ -116,8 +116,18 @@ onMounted(async () => {
     if (socket.value.connected) {
       resolve()
     } else {
-      socket.value.on('connect', () => {
+      socket.value.on('connect', async () => {
         resolve()
+
+        if (userRole.value === 'maker') {
+          try {
+            await fetch(`/api/schedule/update/${history.state.scheduleId}`,{
+              method: 'PATCH'
+            })
+          } catch (error) {
+            console.error('서버에서 처리가 불가합니다.', error);
+          }
+        }
       })
     }
   })
