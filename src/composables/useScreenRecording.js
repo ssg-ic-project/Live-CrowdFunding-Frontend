@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 
-export const useScreenRecording = () => {
+export const useScreenRecording = (scheduleId) => {
   const mediaRecorder = ref(null)
   const recordedChunks = ref([])
   const isRecording = ref(false)
@@ -52,7 +52,7 @@ export const useScreenRecording = () => {
 
       const formData = new FormData()
       formData.append('file', file)
-      formData.append('scheduleId', '4') // scheduleId 추가
+      formData.append('scheduleId', '104') // scheduleId 추가
 
       const response = await fetch(`${VITE_API_SERVER_URI}/api/recordings`, {
         method: 'POST',

@@ -723,6 +723,16 @@ export default {
     async startBroadcast() {
       // 방송 시작 API 호출 로직은 나중에 구현
       console.log('방송 시작');
+      this.$router.push({
+              path: '/streaming',
+              query: { productId: this.$route.params.id },
+              state: {
+                userName: "aa",
+                userRole: "maker",
+                // roomId: roomId.value,
+                // socket: socket.value,
+              },
+            });
     },
   }
 }

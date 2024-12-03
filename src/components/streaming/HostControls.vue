@@ -89,7 +89,7 @@ const handleToggleCamera = async () => {
   // localStream이 있을 때만(방송 중일 때만) 모달 표시
   if (props.localStream) {
 
-    await fetch(`api/schedule/update/{scheduleId}`,{
+    await fetch(`api/schedule/update/104`,{
       method: 'PATCH'
     })
 
