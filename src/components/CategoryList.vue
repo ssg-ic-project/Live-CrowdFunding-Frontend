@@ -1,3 +1,4 @@
+<!-- CategoryList.vue -->
 <template>
   <div class="category-list">
     <ul class="categories">

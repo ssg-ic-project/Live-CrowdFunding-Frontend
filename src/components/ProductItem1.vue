@@ -1,4 +1,4 @@
-<!-- ProductItem.vue -->
+<!-- ProductItem1.vue -->
 <template>
   <div class="product-item" @click="handleClick">
     <div v-if="product.isLive" class="live-badge">LIVE</div>
@@ -42,16 +42,22 @@ export default {
   },
   methods: {
     handleClick() {
-      if (this.product.isLive) {
-        this.$router.push({
-          path: "/streaming",
-          query: { productId: this.product.id },
-        });
-      } else if (this.product.isVod) {
-        this.$router.push({
-          name: "VODRoom",
-          params: { streamId: this.product.id }, // scheduleId -> streamId로 변경
-        });
+      // 현재 라우트의 이름을 확인하는 부분이 추가됨
+      const currentRouteName = this.$route.name;
+
+      // Live나 Schedule 페이지일 때만 스트리밍/VOD 라우팅
+      if (currentRouteName === 'Live' || currentRouteName === 'Home') {
+        if (this.product.isLive) {
+          this.$router.push({
+            path: "/streaming",
+            query: { productId: this.product.id },
+          });
+        } else if (this.product.isVod) {
+          this.$router.push({
+            name: "VODRoom",
+            params: { streamId: this.product.id },
+          });
+        }
       } else {
         this.$router.push({
           name: "ProductDetail",
