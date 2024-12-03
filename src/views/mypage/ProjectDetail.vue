@@ -15,7 +15,7 @@
             검토받기
           </button>
         </template>
-        <template v-if="project?.showStatus === '펀딩중' && project.remainingLiveCount > 0">
+        <template v-if="project?.showStatus === '펀딩중' && project.remainingLiveCount >= 0 && project.isStreaming === 0 ">
           <!-- 예약하기 버튼 -->
           <button 
             v-if="[2, 3].includes(project.isStreaming)"
