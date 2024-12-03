@@ -1,3 +1,4 @@
+<!-- src\views\auth\Login.vue -->
 <template>
   <div class="login-container">
     <!-- 뒤로가기 버튼 -->
@@ -9,7 +10,7 @@
       <div class="logo">
         <router-link to="/">
           <img
-            src="../../assets/image/logo.png"
+            src="../../assets/image/logo.png"s
             alt="logo"
             class="logo-image"
           />
