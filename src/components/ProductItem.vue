@@ -1,4 +1,3 @@
-<!-- ProductItem.vue -->
 <template>
   <div class="product-item" @click="$emit('click', product)">
     <div v-if="product.isLive" class="live-badge">LIVE</div>
@@ -9,12 +8,13 @@
       <div class="achievement">{{ product.achievement }}%</div>
       <h3 class="title">{{ product.name }}</h3>
       <div class="footer">
-        <span class="stats-box category">{{ product.category }}</span>
+        <span :class="['stats-box', 'category', getCategoryClass]">{{ product.category }}</span>
         <span class="stats-box days">{{ product.remainingTime }}일 남음</span>
       </div>
     </div>
   </div>
 </template>
+
 <script>
 export default {
   name: "ProductItem",
@@ -28,6 +28,20 @@ export default {
       default: null,
     }
   },
+  computed: {
+    getCategoryClass() {
+      switch(this.product.category) {
+        case '생활 가전': return 'life';
+        case '주방 가전': return 'kitchen';
+        case '스마트 가전': return 'smart';
+        case 'DIY': return 'diy';
+        case '엔터테이먼트': return 'entertainment';
+        case '웨어러블': return 'wearable';
+        case '주변 기기': return 'peripheral';
+        default: return '';
+      }
+    }
+  },
   emits: ['click']
 };
 </script>
@@ -39,29 +53,15 @@ export default {
   background: white;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  cursor: pointer; /* 클릭 가능함을 표시 */
-  transition: transform 0.2s ease;
+  border: 1px solid rgba(109, 99, 255, 0.1);
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .product-item:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-.clickable {
-  cursor: pointer;
-}
-
-.live-badge:hover {
-  background: rgba(255, 0, 0, 1);
-}
-.product-item {
-  position: relative;
-  width: 100%;
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-color: #9E94F8;
+  background-color: rgba(109, 99, 255, 0.05);
 }
 
 .image-container {
@@ -86,7 +86,7 @@ export default {
 }
 
 .achievement {
-  color: #2b6cb0;
+  color: #6D63FF;
   font-size: 18px;
   font-weight: bold;
   margin-bottom: 8px;
@@ -111,21 +111,53 @@ export default {
   font-size: 12px;
   padding: 4px 8px;
   border-radius: 4px;
-  background: #f3f4f6;
-  color: #666;
+  color: #fff;
+}
+
+.days {
+  background: #6D63FF;
+  color: white;
+}
+
+.category.life { 
+  background: #ff6b6bd2; 
+}
+.category.kitchen { 
+  background: #4ecdc5c4; 
+}
+.category.smart { 
+  background: #45B7D1; 
+}
+.category.diy { 
+  background: #96CEB4; 
+}
+.category.entertainment { 
+  background: #FFEEAD; 
+  color: #666; 
+}
+.category.wearable { 
+  background: #D4A5A5; 
+}
+.category.peripheral { 
+  background: #9a348ead; 
 }
 
 .live-badge {
   position: absolute;
   top: 8px;
   left: 8px;
-  background: rgba(255, 0, 0, 0.8);
+  background: #fd0000ba;
   color: white;
-  padding: 2px 6px;
+  padding: 4px 8px;
   border-radius: 4px;
   z-index: 1;
   font-weight: bold;
-  font-size: 11px;
+  font-size: 12px;
+  transition: background-color 0.3s ease;
+}
+
+.live-badge:hover {
+  background: #9E94F8;
 }
 
 .product-link {

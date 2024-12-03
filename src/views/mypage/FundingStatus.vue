@@ -1,9 +1,9 @@
 <!-- src/views/mypage/FundingStatus.vue -->
+ 
 <template>
   <div class="funding-status-page">
     <h2>펀딩 진행 목록</h2>
     
-    <!-- 상태 필터 -->
     <div class="status-filter">
       <button 
         @click="changeFilter(1)"
@@ -25,12 +25,10 @@
       </button>
     </div>
     
-    <!-- 로딩 상태 표시 -->
     <div v-if="loading" class="loading-state">
       데이터를 불러오는 중...
     </div>
     
-    <!-- 프로젝트 목록 -->
     <div v-else class="projects-list">
       <div 
         v-for="project in projects" 
@@ -61,29 +59,29 @@
     </div>
 
     <div class="pagination" v-if="pageInfo">
-  <button 
-    :disabled="!pageInfo.hasPrev"
-    @click="changePage(pageInfo.start - 1)"
-  >
-    이전
-  </button>
-  
-    <template v-for="pageNum in (pageInfo.end - pageInfo.start + 1)" :key="pageNum">
       <button 
-        :class="{ active: pageInfo.currentPage === (pageInfo.start + pageNum - 1) }"
-        @click="changePage(pageInfo.start + pageNum - 1)"
+        :disabled="!pageInfo.hasPrev"
+        @click="changePage(pageInfo.start - 1)"
       >
-        {{ pageInfo.start + pageNum - 1 }}
+        이전
       </button>
-    </template>
-    
-    <button 
-      :disabled="!pageInfo.hasNext"
-      @click="changePage(pageInfo.end + 1)"
-    >
-      다음
-    </button>
-  </div>
+      
+      <template v-for="pageNum in (pageInfo.end - pageInfo.start + 1)" :key="pageNum">
+        <button 
+          :class="{ active: pageInfo.currentPage === (pageInfo.start + pageNum - 1) }"
+          @click="changePage(pageInfo.start + pageNum - 1)"
+        >
+          {{ pageInfo.start + pageNum - 1 }}
+        </button>
+      </template>
+      
+      <button 
+        :disabled="!pageInfo.hasNext"
+        @click="changePage(pageInfo.end + 1)"
+      >
+        다음
+      </button>
+    </div>
   </div>
 </template>
 
@@ -180,15 +178,17 @@ export default {
   }
 };
 </script>
+
 <style scoped>
 .funding-status-page {
   padding: 2rem;
   max-width: 1000px;
   margin: 0 auto;
+  background-color: #ffffff;
 }
 
 h2 {
-  color: #333333;
+  color: #6D63FF;
   margin-bottom: 2rem;
   font-size: 1.8rem;
   font-weight: bold;
@@ -198,7 +198,7 @@ h2 {
   display: flex;
   gap: 1rem;
   margin-bottom: 2rem;
-  border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid #9E94F8;
   padding-bottom: 0.5rem;
 }
 
@@ -214,7 +214,7 @@ h2 {
 }
 
 .status-filter button.active {
-  color: #FF5151;
+  color: #6D63FF;
   font-weight: 500;
 }
 
@@ -225,11 +225,11 @@ h2 {
   left: 0;
   width: 100%;
   height: 2px;
-  background-color: #FF5151;
+  background-color: #6D63FF;
 }
 
 .projects-container {
-  min-height: 600px; /* 최소 높이 설정 */
+  min-height: 600px;
   display: flex;
   flex-direction: column;
 }
@@ -243,24 +243,24 @@ h2 {
 
 .project-card {
   padding: 1.5rem;
-  border: 1px solid #dee2e6;
+  border: 1px solid #9E94F8;
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
   background-color: #ffffff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 4px rgba(109, 99, 255, 0.1);
 }
 
 .project-card:hover {
   transform: translateX(5px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-color: #FF5151;
+  box-shadow: 0 4px 8px rgba(109, 99, 255, 0.2);
+  border-color: #6D63FF;
 }
 
 .project-name {
   font-size: 1.3rem;
   margin-bottom: 1rem;
-  color: #333333;
+  color: #6D63FF;
   font-weight: 500;
 }
 
@@ -282,7 +282,7 @@ h2 {
 }
 
 .value {
-  color: #333333;
+  color: #6D63FF;
   font-weight: 500;
 }
 
@@ -294,32 +294,31 @@ h2 {
 }
 
 .status-badge.reviewing {
-  background-color: #FFF7B4;
+  background-color: #ffffff;
   color: #666666;
 }
 
 .status-badge.funding {
-  background-color: #FFD74E;
-  color: #333333;
+  background-color: #9E94F8;
+  color: #ffffff;
 }
 
 .status-badge.success {
-  background-color: #dcffe4;
-  color: #0a7724;
+  background-color: #6D63FF;
+  color: #ffffff;
 }
 
 .status-badge.failed {
-  background-color: #ffe8e8;
-  color: #d32f2f;
+  background-color: #FF9966;
+  color: #ffffff;
 }
 
 .funding-progress {
-  color: #FF5151;
+  color: #6D63FF;
   font-weight: 600;
   font-size: 1.1rem;
 }
 
-/* 페이지네이션 스타일 개선 */
 .pagination {
   display: flex;
   justify-content: center;
@@ -332,7 +331,7 @@ h2 {
 .pagination button {
   min-width: 40px;
   height: 40px;
-  border: 1px solid #dee2e6;
+  border: 1px solid #9E94F8;
   background-color: #ffffff;
   border-radius: 8px;
   color: #666666;
@@ -345,25 +344,24 @@ h2 {
 }
 
 .pagination button:hover:not(:disabled) {
-  background-color: #FFD74E;
-  color: #333333;
-  border-color: #FFD74E;
+  background-color: #9E94F8;
+  color: #ffffff;
+  border-color: #9E94F8;
 }
 
 .pagination button.active {
-  background-color: #FF5151;
+  background-color: #6D63FF;
   color: #ffffff;
-  border-color: #FF5151;
+  border-color: #6D63FF;
   font-weight: 500;
 }
 
 .pagination button:disabled {
-  background-color: #f8f9fa;
+  background-color: #ffffff;
   color: #adb5bd;
   cursor: not-allowed;
 }
 
-/* 로딩 상태 */
 .loading-state {
   text-align: center;
   padding: 2rem;

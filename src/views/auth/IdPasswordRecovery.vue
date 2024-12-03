@@ -161,6 +161,7 @@ export default {
 };
 </script>
 
+
 <style scoped>
 .recovery-container {
   display: flex;
@@ -168,13 +169,7 @@ export default {
   align-items: center;
   padding-top: 2rem;
   min-height: 100vh;
-  background-color: #FFF7B4;
-}
-
-.logo {
-  width: 10rem;
-  margin: 7rem auto 2rem auto; 
-  display: block; 
+  background-color: #ffffff;
 }
 
 .recovery-box {
@@ -182,15 +177,21 @@ export default {
   padding: 2rem;
   background-color: white;
   border-radius: 8px;
-  border: 1px solid #FFD74E;
-  box-shadow: 0 2px 10px rgba(255, 81, 81, 0.1);
+  border: 1px solid #9E94F8;
+  box-shadow: 0 2px 10px rgba(109, 99, 255, 0.1);
+}
+
+.logo {
+  width: 10rem;
+  margin: 7rem auto 2rem auto;
+  display: block;
 }
 
 .tabs {
   display: flex;
   justify-content: center;
   margin-bottom: 2rem;
-  border-bottom: 1px solid rgba(255, 215, 78, 0.3);
+  border-bottom: 1px solid rgba(109, 99, 255, 0.3);
   gap: 2rem;
 }
 
@@ -204,12 +205,12 @@ export default {
 }
 
 .tabs .active {
-  color: #FF5151;
-  border-bottom: 2px solid #FF5151;
+  color: #6D63FF;
+  border-bottom: 2px solid #6D63FF;
 }
 
 .tabs span:hover {
-  color: #FF5151;
+  color: #9E94F8;
 }
 
 .input-group {
@@ -226,21 +227,21 @@ export default {
 .input-group input {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #FFD74E;
+  border: 1px solid #9E94F8;
   border-radius: 4px;
   transition: all 0.3s ease;
 }
 
 .input-group input:focus {
   outline: none;
-  border-color: #FF5151;
-  box-shadow: 0 0 0 2px rgba(255, 81, 81, 0.1);
+  border-color: #6D63FF;
+  box-shadow: 0 0 0 2px rgba(109, 99, 255, 0.1);
 }
 
 .action-button {
   width: 100%;
   padding: 0.75rem;
-  background-color: #FF5151;
+  background-color: #6D63FF;
   color: white;
   border: none;
   border-radius: 4px;
@@ -251,30 +252,13 @@ export default {
 }
 
 .action-button:hover {
-  background-color: #ff3333;
+  background-color: #9E94F8;
 }
 
 .error-message {
-  color: #FF5151;
+  color: #ff4b4b;
   font-size: 0.875rem;
   margin-top: 0.5rem;
-}
-
-.links {
-  margin-top: 1.5rem;
-  font-size: 0.875rem;
-  text-align: center;
-}
-
-.links a {
-  color: #FF5151;
-  text-decoration: none;
-  transition: color 0.3s ease;
-  margin: 0 0.5rem;
-}
-
-.links a:hover {
-  color: #FFD74E;
 }
 
 .modal-overlay {
@@ -297,14 +281,14 @@ export default {
   text-align: center;
   width: 80%;
   max-width: 300px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  border: 1px solid #FFD74E;
+  box-shadow: 0 4px 20px rgba(109, 99, 255, 0.15);
+  border: 1px solid #9E94F8;
 }
 
 .modal-button {
   margin-top: 1.5rem;
   padding: 0.75rem 1.5rem;
-  background-color: #FF5151;
+  background-color: #6D63FF;
   color: white;
   border: none;
   border-radius: 4px;
@@ -314,6 +298,123 @@ export default {
 }
 
 .modal-button:hover {
-  background-color: #ff3333;
+  background-color: #9E94F8;
+}
+
+.links {
+  margin-top: 1.5rem;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.links a {
+  color: #6D63FF;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  margin: 0 0.5rem;
+}
+
+.links a:hover {
+  color: #9E94F8;
+}
+</style>
+
+<!-- ResetPassword.vue 스타일 -->
+<style scoped>
+.recovery-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 2rem;
+}
+
+.recovery-box {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  border: 1px solid #9E94F8;
+  box-shadow: 0 2px 10px rgba(109, 99, 255, 0.1);
+  width: 100%;
+  max-width: 400px;
+}
+
+.input-group {
+  margin-bottom: 1rem;
+}
+
+.input-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #9E94F8;
+  border-radius: 4px;
+  transition: border-color 0.3s ease;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #6D63FF;
+  box-shadow: 0 0 0 2px rgba(109, 99, 255, 0.1);
+}
+
+.submit-button {
+  width: 100%;
+  padding: 0.5rem;
+  background-color: #6D63FF;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 1rem;
+  text-align: center;
+  transition: background-color 0.3s ease;
+}
+
+.submit-button:hover {
+  background-color: #9E94F8;
+}
+
+.submit-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: #ff4b4b;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.status-message {
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin-top: 1rem;
+}
+
+.status-message.error {
+  background-color: #fee2e2;
+  color: #ff4b4b;
+}
+
+.status-message.success {
+  background-color: rgba(109, 99, 255, 0.1);
+  color: #6D63FF;
+}
+
+.password-rules {
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: rgba(109, 99, 255, 0.05);
+  border-radius: 4px;
+}
+
+.success-message {
+  text-align: center;
+  color: #6D63FF;
 }
 </style>

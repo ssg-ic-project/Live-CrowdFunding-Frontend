@@ -194,7 +194,7 @@ data() {
 .dashboard {
   display: flex;
   min-height: 100vh;
-  background-color: #f8f9fa;
+  background-color: #ffffff;
   width: 100%;
 }
 
@@ -286,7 +286,7 @@ header button:hover {
 }
 
 .report-list th {
-  background-color: #f8f9fa;
+  background-color: #ffffff;
   font-weight: 600;
   color: #444;
 }
@@ -368,7 +368,7 @@ header button:hover {
   height: 100%;
   color: #666;
   font-size: 1rem;
-  background-color: #f8f9fa;
+  background-color: #ffffff;
   border-radius: 8px;
 }
 

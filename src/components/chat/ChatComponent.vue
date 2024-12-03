@@ -320,7 +320,7 @@ onUnmounted(() => {
   flex-direction: column;
   height: 100%;
   max-height: 100%;
-  background-color: #f8f9fa;
+  background-color: #ffffff;
   border-radius: 8px;
   overflow: hidden;
 }
@@ -434,7 +434,7 @@ onUnmounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem;
-  background-color: #f8f9fa;
+  background-color: #ffffff;
   margin: 0.5rem 0;
   border-radius: 4px;
 }

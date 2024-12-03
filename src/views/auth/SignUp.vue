@@ -870,14 +870,13 @@ export default {
   },
 };
 </script>
-
 <style scoped>
 .signup-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #fff7b4;
+  background-color: #ffffff;
   position: relative;
   padding: 2rem 0;
 }
@@ -903,14 +902,14 @@ export default {
   text-align: center;
   max-width: 400px;
   width: 90%;
-  border: 1px solid #ffd74e;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border: 1px solid #9E94F8;
+  box-shadow: 0 4px 20px rgba(109, 99, 255, 0.15);
 }
 
 .modal-button {
   margin-top: 1.5rem;
   padding: 0.75rem 1.5rem;
-  background-color: #ff5151;
+  background-color: #6D63FF;
   color: white;
   border: none;
   border-radius: 4px;
@@ -920,7 +919,7 @@ export default {
 }
 
 .modal-button:hover {
-  background-color: #ff3333;
+  background-color: #9E94F8;
 }
 
 .back-button {
@@ -937,7 +936,7 @@ export default {
 
 .material-icons {
   font-size: 24px;
-  color: #ff5151;
+  color: #6D63FF;
 }
 
 .login-content {
@@ -958,9 +957,9 @@ export default {
   width: 100%;
   padding: 2rem;
   background-color: white;
-  border: 1px solid #ffd74e;
+  border: 1px solid #9E94F8;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(255, 81, 81, 0.1);
+  box-shadow: 0 2px 10px rgba(109, 99, 255, 0.1);
 }
 
 .type-selection {
@@ -979,12 +978,12 @@ export default {
   height: 150px;
   padding: 1rem;
   background-color: white;
-  border: 2px solid #ff5151;
+  border: 2px solid #6D63FF;
   border-radius: 12px;
   cursor: pointer;
   font-size: 1.1rem;
-  font-weight: bold; /* 글씨 굵기 추가 */
-  color: #ff5151; /* 텍스트 색상 설정 */
+  font-weight: bold;
+  color: #6D63FF;
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
@@ -993,18 +992,19 @@ export default {
 }
 
 .type-button:hover {
-  background-color: #ff5151;
+  background-color: #6D63FF;
   color: white;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 81, 81, 0.2); /* 그림자 효과 추가 */
+  box-shadow: 0 4px 12px rgba(109, 99, 255, 0.2);
 }
 
 h2 {
   color: #333;
   margin-bottom: 2rem;
   text-align: center;
-  font-weight: bold; /* 제목도 굵게 */
+  font-weight: bold;
 }
+
 .social-signup {
   margin-bottom: 2rem;
 }
@@ -1025,7 +1025,7 @@ h2 {
 .input-group select {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #ffd74e;
+  border: 1px solid #9E94F8;
   border-radius: 4px;
   font-size: 1rem;
   transition: all 0.3s ease;
@@ -1034,8 +1034,8 @@ h2 {
 .input-group input:focus,
 .input-group select:focus {
   outline: none;
-  border-color: #ff5151;
-  box-shadow: 0 0 0 2px rgba(255, 81, 81, 0.1);
+  border-color: #6D63FF;
+  box-shadow: 0 0 0 2px rgba(109, 99, 255, 0.1);
 }
 
 .email-verification,
@@ -1055,7 +1055,7 @@ h2 {
 .verify-button,
 .address-button {
   padding: 0.75rem 1rem;
-  background-color: #ff5151;
+  background-color: #6D63FF;
   color: white;
   border: none;
   border-radius: 4px;
@@ -1068,13 +1068,18 @@ h2 {
 
 .verify-button:hover:not(:disabled),
 .address-button:hover {
-  background-color: #ff3333;
+  background-color: #9E94F8;
+}
+
+.verify-button.verified {
+  background-color: #9E94F8;
+  cursor: not-allowed;
 }
 
 .signup-button {
   width: 100%;
   padding: 0.75rem;
-  background-color: #ff5151;
+  background-color: #6D63FF;
   color: white;
   border: none;
   border-radius: 4px;
@@ -1086,8 +1091,13 @@ h2 {
 }
 
 .signup-button:hover:not(:disabled) {
-  background-color: #ff3333;
+  background-color: #9E94F8;
   transform: translateY(-1px);
+}
+
+.signup-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
 }
 
 .social-login {
@@ -1133,31 +1143,26 @@ h2 {
 
 .category-item {
   padding: 0.5rem 1rem;
-  border: 2px solid #ffd74e;
+  border: 2px solid #9E94F8;
   border-radius: 20px;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .category-item:hover {
-  border-color: #ff5151;
+  border-color: #6D63FF;
 }
 
 .category-item.selected {
-  border-color: #ff5151;
-  background-color: #ff5151;
+  border-color: #6D63FF;
+  background-color: #6D63FF;
   color: white;
 }
 
 .error-message {
-  color: #ff5151;
+  color: #ff4b4b;
   font-size: 0.875rem;
   margin-top: 0.5rem;
-}
-
-.verify-button.verified {
-  background-color: #28a745;
-  cursor: not-allowed;
 }
 
 .verification-upload {
@@ -1173,19 +1178,19 @@ h2 {
 }
 
 .verification-badge.success {
-  background-color: #28a745;
+  background-color: #6D63FF;
   color: white;
 }
 
 input[type="file"] {
   padding: 0.5rem;
-  border: 1px solid #ffd74e;
+  border: 1px solid #9E94F8;
   border-radius: 4px;
   width: 100%;
 }
 
 input[type="file"]::-webkit-file-upload-button {
-  background: #ff5151;
+  background: #6D63FF;
   color: white;
   padding: 0.5rem 1rem;
   border: none;
@@ -1196,12 +1201,7 @@ input[type="file"]::-webkit-file-upload-button {
 }
 
 input[type="file"]::-webkit-file-upload-button:hover {
-  background: #ff3333;
-}
-
-.signup-button:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
+  background: #9E94F8;
 }
 
 @media (max-width: 480px) {

@@ -37,7 +37,7 @@ export default {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: #f8f9fa;
+  background-color: #ffffff;
 }
 
 .admin-main {
@@ -62,7 +62,7 @@ export default {
 
 .sidebar-container {
   width: 250px;
-  background-color: #f8f9fa;
+  background-color: #ffffff;
   flex-shrink: 0;
   border-right: 1px solid #dee2e6;
   margin-right: -1rem; /* 사이드바와 콘텐츠 사이 간격 축소 */
@@ -71,7 +71,7 @@ export default {
 .admin-content {
   flex: 1;
   padding: 1rem; /* padding 축소 */
-  background-color: #f8f9fa;
+  background-color: #ffffff;
   min-width: 0;
 }
 

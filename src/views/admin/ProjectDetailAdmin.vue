@@ -550,7 +550,7 @@ header button:hover {
 
 .info-item {
   padding: 1rem;
-  background: #f8f9fa;
+  background: #ffffff;
   border-radius: 4px;
 }
 
@@ -614,7 +614,7 @@ header button:hover {
   border: 1px solid #ddd;
   border-radius: 4px;
   margin-bottom: 0.5rem;
-  background: #f8f9fa;
+  background: #ffffff;
 }
 
 .doc-name {
@@ -776,7 +776,7 @@ header button:hover {
   max-height: 400px;
   overflow-y: auto;
   padding: 1rem;
-  background: #f8f9fa;
+  background: #ffffff;
   border-radius: 4px;
   margin-bottom: 1rem;
 }

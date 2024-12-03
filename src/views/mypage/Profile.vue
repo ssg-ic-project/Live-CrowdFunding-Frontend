@@ -1,11 +1,11 @@
 <template>
-  <div class="profile-page">
-    <h2>회원정보 관리</h2>
-    <div v-if="loading" class="loading">데이터를 불러오는 중입니다...</div>
-    <div v-else-if="error" class="error">
-      {{ error }}
-    </div>
-    <div v-else class="profile-container">
+<div class="profile-page">
+  <h2 class="page-title">회원정보 관리</h2>
+  <div v-if="loading" class="loading">데이터를 불러오는 중입니다...</div>
+  <div v-else-if="error" class="error">
+    {{ error }}
+  </div>
+  <div v-else class="profile-container">
       <!-- 기본 정보 표시 -->
       <div v-if="!isEditing" class="user-info">
         <div class="info-group">
@@ -332,45 +332,68 @@ export default {
   },
 };
 </script>
-
 <style scoped>
 .profile-page {
   padding: 2rem;
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
+  width: 100%;
 }
 
-h2 {
-  color: #333333;
+.page-title {
+  text-align: center;
+  color: #6D63FF;
   margin-bottom: 2rem;
-  font-weight: bold;
-  font-size: 1.8rem;
+  font-weight: 600;
+  font-size: 1.5rem;
+}
+
+.loading,
+.error {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
 }
 
 .profile-container {
   background-color: #ffffff;
   border-radius: 12px;
   padding: 2rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  width: 50%;
+  margin: 0 auto; /* 중앙 정렬을 위해 추가 */
+  border: 1px solid #9E94F8;
+  box-shadow: 0 2px 8px rgba(109, 99, 255, 0.1);
 }
 
-.info-group,
-.input-group {
+.info-group {
+  display: flex;
+  align-items: center;
   margin-bottom: 1.5rem;
+  gap: 2rem;
 }
 
 label {
-  display: block;
+  flex: 0 0 120px;
   font-weight: 600;
-  margin-bottom: 0.5rem;
   color: #333333;
   font-size: 1rem;
 }
 
-input {
-  width: 100%;
+.info-value {
+  flex: 1;
+  max-width: 400px; /* 모든 값 영역의 최대 너비 통일 */
   padding: 0.75rem;
-  border: 1px solid #dee2e6;
+  background-color: #ffffff;
+  border: 1px solid #9E94F8;
+  border-radius: 8px;
+  color: #333333;
+}
+
+input {
+  flex: 1;
+  max-width: 400px; /* input도 같은 너비로 통일 */
+  padding: 0.75rem;
+  border: 1px solid #9E94F8;
   border-radius: 8px;
   font-size: 1rem;
   transition: all 0.3s ease;
@@ -378,24 +401,69 @@ input {
 
 input:focus {
   outline: none;
-  border-color: #FF5151;
-  box-shadow: 0 0 0 3px rgba(255, 81, 81, 0.1);
+  border-color: #6D63FF;
+  box-shadow: 0 0 0 3px rgba(109, 99, 255, 0.1);
 }
 
 input:disabled {
-  background-color: #f8f9fa;
+  background-color: #ffffff;
 }
 
 .address-group {
+  flex: 1;
+  max-width: 400px; /* 주소 그룹도 같은 너비로 통일 */
   display: flex;
   gap: 1rem;
 }
 
 .address-group input {
   flex: 1;
+  max-width: none; /* 주소 입력창은 그룹 내에서 너비 제한 해제 */
 }
 
-/* 버튼 스타일 통일 */
+.address-button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  background-color: #9E94F8;
+  color: white;
+}
+
+.button-group {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  justify-content: center;
+}
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 2rem; /* 버튼 사이 간격 증가 */
+  margin-top: 2rem;
+}
+
+.edit-button, .delete-button {
+  width: 150px; /* 버튼 너비 축소 */
+  margin: 0; /* 기존 마진 제거 */
+}
+
+.form-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  justify-content: center;
+}
+
+.save-button, 
+.cancel-button {
+  width: 200px; /* 수정 폼의 버튼도 동일 너비 */
+  background-color: #6D63FF;
+  color: white;
+}
+
+.cancel-button {
+  background-color: #666666;
+}
+
 button {
   padding: 0.75rem 1.5rem;
   border: none;
@@ -406,51 +474,17 @@ button {
   transition: all 0.3s ease;
 }
 
-.edit-button {
-  background-color: #FF5151;
-  color: white;
-  width: 40%;
-  margin-top: 1rem;
-  margin-right: 1rem;
-}
-
-.delete-button {
-  background-color: #666666;
-  color: white;
-  width: 40%;
-  margin-top: 1rem;
-}
-
-.address-button {
-  background-color: #FFD74E;
-  color: #333333;
-  white-space: nowrap;
-}
-
-.form-buttons {
-  display: flex;
-  gap: 1rem;
-  margin-top: 2rem;
-}
-
-.save-button {
-  background-color: #FF5151;
-  color: white;
-  flex: 1;
-}
-
-.cancel-button {
-  background-color: #666666;
-  color: white;
-  flex: 1;
-}
-
 button:hover {
-  filter: brightness(110%);
-  transform: translateY(-1px);
+  background-color: #9E94F8;
 }
 
-/* 모달 스타일 개선 */
+button:disabled {
+  background-color: #e9ecef;
+  cursor: not-allowed;
+  color: #666;
+}
+
+/* 모달 스타일 */
 .password-modal {
   position: fixed;
   top: 0;
@@ -470,17 +504,20 @@ button:hover {
   border-radius: 12px;
   width: 90%;
   max-width: 400px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 16px rgba(109, 99, 255, 0.15);
+  border: 1px solid #9E94F8;
 }
 
 .modal-content h3 {
   margin-bottom: 1rem;
   color: #333333;
   font-weight: bold;
+  text-align: center;
 }
 
 .password-input {
   margin: 1rem 0;
+  max-width: 100%; /* 모달 내의 입력창은 모달 너비에 맞춤 */
 }
 
 .modal-buttons {
@@ -490,23 +527,15 @@ button:hover {
 }
 
 .confirm-button {
-  background-color: #FF5151;
+  background-color: #6D63FF;
   color: white;
   flex: 1;
 }
 
-/* 사용자 정보 표시 영역 */
-.user-info p {
-  padding: 0.75rem;
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  margin: 0;
-  color: #333333;
-  border: 1px solid #dee2e6;
-}
-
 /* 체크박스 스타일 */
 .notification-checkboxes {
+  flex: 1;
+  max-width: 400px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -521,17 +550,18 @@ button:hover {
 .checkbox-group input[type="checkbox"] {
   width: 18px;
   height: 18px;
-  border: 2px solid #FF5151;
+  border: 2px solid #6D63FF;
   border-radius: 4px;
   cursor: pointer;
 }
 
 .checkbox-group label {
+  flex: none;
   margin-bottom: 0;
   cursor: pointer;
 }
 
-/* 반응형 디자인 개선 */
+/* 반응형 디자인 */
 @media (max-width: 768px) {
   .profile-page {
     padding: 1rem;
@@ -541,23 +571,43 @@ button:hover {
     padding: 1.5rem;
   }
 
-  .edit-button,
-  .delete-button {
-    width: 100%;
-    margin: 0.5rem 0;
+  .info-group {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
   }
 
-  .form-buttons {
-    flex-direction: column;
+  label {
+    flex: none;
+  }
+
+  .info-value,
+  input,
+  .address-group,
+  .notification-checkboxes {
+    max-width: 100%;
+    width: 100%;
   }
 
   .address-group {
     flex-direction: column;
-    gap: 0.5rem;
   }
 
   .address-button {
     width: 100%;
+  }
+
+  .edit-button,
+  .delete-button,
+  .save-button,
+  .cancel-button {
+    width: 100%;
+    margin: 0.5rem 0;
+  }
+
+  .button-group,
+  .form-buttons {
+    flex-direction: column;
   }
 }
 </style>

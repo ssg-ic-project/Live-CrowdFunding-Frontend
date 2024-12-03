@@ -232,13 +232,18 @@ export default {
   flex-direction: column;
   align-items: center;
   padding-top: 2rem;
+  min-height: 100vh;
+  background-color: #ffffff;
 }
 
 .recovery-box {
   background-color: white;
   padding: 2rem;
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #9E94F8;
+  box-shadow: 0 2px 10px rgba(109, 99, 255, 0.1);
+  width: 100%;
+  max-width: 400px;
 }
 
 .input-group {
@@ -249,25 +254,39 @@ export default {
   display: block;
   font-weight: bold;
   margin-bottom: 0.5rem;
+  color: #333333;
 }
 
 .input-group input {
   width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
+  padding: 0.75rem;
+  border: 1px solid #9E94F8;
   border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #6D63FF;
+  box-shadow: 0 0 0 2px rgba(109, 99, 255, 0.1);
 }
 
 .submit-button {
   width: 100%;
-  padding: 0.5rem;
-  background-color: var(--primary-color);
+  padding: 0.75rem;
+  background-color: #6D63FF;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   margin-top: 1rem;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
   text-align: center;
+}
+
+.submit-button:hover {
+  background-color: #9E94F8;
 }
 
 .submit-button:disabled {
@@ -276,7 +295,7 @@ export default {
 }
 
 .error-message {
-  color: #dc2626;
+  color: #ff4b4b;
   font-size: 0.875rem;
   margin-top: 0.5rem;
 }
@@ -289,22 +308,54 @@ export default {
 
 .status-message.error {
   background-color: #fee2e2;
-  color: #dc2626;
+  color: #ff4b4b;
 }
 
 .status-message.success {
-  background-color: #dcfce7;
-  color: #16a34a;
+  background-color: rgba(109, 99, 255, 0.1);
+  color: #6D63FF;
 }
 
 .password-rules {
   margin: 1rem 0;
   padding: 1rem;
-  background-color: #f8fafc;
+  background-color: rgba(109, 99, 255, 0.05);
   border-radius: 4px;
+  color: #666;
 }
 
 .success-message {
   text-align: center;
+  color: #6D63FF;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-xl {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+
+.text-2xl {
+  font-size: 1.5rem;
+  line-height: 2rem;
+}
+
+.font-bold {
+  font-weight: bold;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+.mb-6 {
+  margin-bottom: 1.5rem;
+}
+
+.block {
+  display: block;
 }
 </style>

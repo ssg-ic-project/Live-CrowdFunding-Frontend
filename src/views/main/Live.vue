@@ -3,8 +3,8 @@
   <div class="broadcast-container">
     <!-- 상단 메뉴바 -->
     <div class="menu-bar">
-      <div 
-        v-for="menu in menus" 
+      <div
+        v-for="menu in menus"
         :key="menu.id"
         :class="['menu-item', { active: selectedMenu === menu.id }]"
         @click="selectedMenu = menu.id"
@@ -23,15 +23,18 @@
             v-for="live in currentLiveStreams"
             :key="live.projectId"
             :product="{
-              id: live.projectId,
-              image: live.imageUrl,
-              name: live.productName,
-              achievement: live.percentage,
-              isLive: true,
-              remainingTime: live.remainingTime,
-              category: live.classification,
+  id: live.projectId,
+  image: live.imageUrl,
+  name: live.productName, // product.name으로 참조되므로 일치시켜야 함
+  achievement: live.percentage,
+  isLive: true,
+  remainingTime: live.remainingTime,
+  category: live.classification,
+}"
+            :linkTo="{
+              name: 'Streaming',
+              params: { streamId: live.projectId },
             }"
-            :linkTo="{ name: 'Streaming', params: { streamId: live.projectId } }"
           />
         </div>
       </div>
@@ -44,14 +47,14 @@
             v-for="vod in pastLiveStreams"
             :key="vod.projectId"
             :product="{
-              id: vod.projectId,
-              image: vod.imageUrl,
-              name: vod.productName,
-              achievement: vod.percentage,
-              isVod: true,
-              remainingTime: vod.remainingTime,
-              category: vod.classification,
-            }"
+  id: vod.projectId,
+  image: vod.imageUrl,
+  name: vod.productName,
+  achievement: vod.percentage,
+  isVod: true,
+  remainingTime: vod.remainingTime,
+  category: vod.classification
+}"
             :linkTo="{ name: 'VODRoom', params: { streamId: vod.projectId } }"
           />
         </div>
@@ -61,33 +64,49 @@
       <div v-if="selectedMenu === 'schedule'" class="content-section">
         <h3>방송 편성표</h3>
         <div class="date-navigation">
-          <div 
-            v-for="date in dateRange" 
+          <div
+            v-for="date in dateRange"
             :key="date"
-            :class="['date-tab', { active: selectedDate === formatDateForCompare(date) }]"
+            :class="[
+              'date-tab',
+              { active: selectedDate === formatDateForCompare(date) },
+            ]"
             @click="selectedDate = formatDateForCompare(date)"
           >
             <div class="day-name">{{ formatDayName(date) }}</div>
             <div class="date-number">{{ formatDateForDisplay(date) }}</div>
           </div>
         </div>
-        
+
         <div v-if="selectedDateSchedules.length > 0" class="schedule-list">
-          <div v-for="schedule in selectedDateSchedules" :key="schedule.projectId" class="schedule-card">
+          <div
+            v-for="schedule in selectedDateSchedules"
+            :key="schedule.projectId"
+            class="schedule-card"
+          >
             <div class="thumbnail">
               <img :src="schedule.thumbnailUrl" :alt="schedule.productName" />
               <span class="broadcast-time">{{ schedule.time }}</span>
             </div>
-            
+
             <div class="schedule-info">
               <h4 class="product-name">{{ schedule.productName }}</h4>
               <p class="company-name">{{ schedule.makerName }}</p>
               <div class="price-info">
-                <p class="original-price">{{ formatPrice(schedule.originalPrice) }}원</p>
-                <p class="discounted-price">{{ formatPrice(schedule.discountedPrice) }}원</p>
-                <span class="discount-percentage">{{ schedule.percentage }}%</span>
+                <p class="original-price">
+                  {{ formatPrice(schedule.originalPrice) }}원
+                </p>
+                <p class="discounted-price">
+                  {{ formatPrice(schedule.discountedPrice) }}원
+                </p>
+                <span class="discount-percentage"
+                  >{{ schedule.percentage }}%</span
+                >
               </div>
-              <button @click="goToProduct(schedule.projectId)" class="product-button">
+              <button
+                @click="goToProduct(schedule.projectId)"
+                class="product-button"
+              >
                 상품 보러가기
               </button>
             </div>
@@ -103,31 +122,31 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue';
+import { ref, computed } from "vue";
 import ProductItem from "@/components/ProductItem1.vue";
 import axios from "axios";
-import { useRouter } from 'vue-router';
+import { useRouter } from "vue-router";
 
 export const getLiveStreams = () => {
   return axios.get("/api/project/live-vod");
 };
 
 export default {
-  name: 'Live',
-  
+  name: "Live",
+
   components: {
-    ProductItem
+    ProductItem,
   },
-  
+
   setup() {
     const router = useRouter();
     const menus = [
-      { id: 'live', name: 'LIVE' },
-      { id: 'vod', name: 'VOD' },
-      { id: 'schedule', name: '편성표' }
+      { id: "live", name: "LIVE" },
+      { id: "vod", name: "VOD" },
+      { id: "schedule", name: "편성표" },
     ];
-    
-    const selectedMenu = ref('live');
+
+    const selectedMenu = ref("live");
     const streams = ref([]);
     const schedules = ref([]);
     const selectedDate = ref(formatDateForCompare(new Date()));
@@ -145,18 +164,20 @@ export default {
     const dateRange = computed(() => {
       const dates = [];
       const today = new Date();
-      
+
       for (let i = 0; i < 7; i++) {
         const date = new Date(today);
         date.setDate(today.getDate() + i);
         dates.push(date);
       }
-      
+
       return dates;
     });
 
     const selectedDateSchedules = computed(() => {
-      return schedules.value.filter(schedule => schedule.date === selectedDate.value);
+      return schedules.value.filter(
+        (schedule) => schedule.date === selectedDate.value
+      );
     });
 
     // 데이터 로드 함수들
@@ -172,7 +193,7 @@ export default {
 
     const loadScheduleData = async () => {
       try {
-        const response = await axios.get('/api/schedule/chart');
+        const response = await axios.get("/api/schedule/chart");
         schedules.value = response.data;
       } catch (error) {
         console.error("스케줄 데이터를 불러오는데 실패했습니다:", error);
@@ -181,11 +202,11 @@ export default {
 
     // 유틸리티 함수들
     function formatDateForCompare(date) {
-      if (typeof date === 'string') {
+      if (typeof date === "string") {
         date = new Date(date);
       }
-      const month = (date.getMonth() + 1).toString().padStart(2, '0');
-      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, "0");
+      const day = date.getDate().toString().padStart(2, "0");
       return `${month}.${day}`;
     }
 
@@ -196,12 +217,12 @@ export default {
     }
 
     const formatDayName = (date) => {
-      const days = ['일', '월', '화', '수', '목', '금', '토'];
+      const days = ["일", "월", "화", "수", "목", "금", "토"];
       return days[date.getDay()];
     };
 
     const formatPrice = (price) => {
-      return new Intl.NumberFormat('ko-KR').format(price);
+      return new Intl.NumberFormat("ko-KR").format(price);
     };
 
     const goToProduct = (projectId) => {
@@ -211,7 +232,7 @@ export default {
     // 초기 데이터 로드
     loadStreamData();
     loadScheduleData();
-    
+
     return {
       menus,
       selectedMenu,
@@ -225,9 +246,9 @@ export default {
       formatDateForDisplay,
       formatDayName,
       formatPrice,
-      goToProduct
+      goToProduct,
     };
-  }
+  },
 };
 </script>
 
@@ -257,11 +278,11 @@ export default {
 }
 
 .menu-item:hover {
-  color: #FF5151;
+  color: #ff5151;
 }
 
 .menu-item.active {
-  color: #FF5151;
+  color: #ff5151;
   font-weight: 500;
 }
 
@@ -272,7 +293,7 @@ export default {
 
 h3 {
   margin-bottom: 1.5rem;
-  color: #FF5151;
+  color: #ff5151;
   font-weight: bold;
 }
 
@@ -290,7 +311,7 @@ h3 {
   background: white;
   padding: 1rem;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .date-tab {
@@ -308,7 +329,7 @@ h3 {
 }
 
 .date-tab.active {
-  background-color: #FF5151;
+  background-color: #ff5151;
   color: white;
 }
 
@@ -340,7 +361,7 @@ h3 {
 
 .schedule-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .thumbnail {
@@ -360,7 +381,7 @@ h3 {
   position: absolute;
   top: 10px;
   left: 10px;
-  background: #FF5151;
+  background: #ff5151;
   color: white;
   padding: 4px 8px;
   border-radius: 4px;
@@ -397,21 +418,21 @@ h3 {
 }
 
 .discounted-price {
-  color: #FF5151;
+  color: #ff5151;
   font-size: 1.1rem;
   font-weight: bold;
   margin: 0.25rem 0;
 }
 
 .discount-percentage {
-  color: #FF5151;
+  color: #ff5151;
   font-weight: bold;
   margin-left: 0.5rem;
 }
 
 .product-button {
   align-self: flex-start;
-  background-color: #FF5151;
+  background-color: #ff5151;
   color: white;
   border: none;
   padding: 0.5rem 1rem;
@@ -421,7 +442,7 @@ h3 {
 }
 
 .product-button:hover {
-  background-color: #FFD74E;
+  background-color: #ffd74e;
 }
 
 .no-content {
@@ -434,16 +455,16 @@ h3 {
   .broadcast-container {
     padding: 0.5rem;
   }
-  
+
   .menu-bar {
     gap: 1rem;
     padding: 0.5rem 0;
   }
-  
+
   .menu-item {
     font-size: 1rem;
   }
-  
+
   .grid-list {
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: 1rem;

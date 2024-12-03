@@ -213,7 +213,7 @@ const handleHostEndedClose = async () => {
   .streaming-area {
     grid-column: 1 / 8; /* 7칸 차지 */
     grid-row: 1 / 8; /* 7칸 차지 */
-    background-color: #f8f9fa;
+    background-color: #ffffff;
     border-radius: 0.5rem;
     padding: 1rem;
     overflow: hidden;
@@ -223,7 +223,7 @@ const handleHostEndedClose = async () => {
   .chat-area {
     grid-column: 8 / 13; /* 5칸 차지 */
     grid-row: 1 / 13; /* 전체 높이 */
-    background-color: #f8f9fa;
+    background-color: #ffffff;
     border-radius: 0.5rem;
     padding: 1rem;
     display: flex;
@@ -234,7 +234,7 @@ const handleHostEndedClose = async () => {
   .product-info-area {
     grid-column: 1 / 8; /* 7칸 차지 */
     grid-row: 8 / 13; /* 5칸 차지 */
-    background-color: #f8f9fa;
+    background-color: #ffffff;
     border-radius: 0.5rem;
     padding: 1rem;
     display: flex;

@@ -44,7 +44,7 @@ export default {
 
 <style scoped>
 .sidebar {
-  background-color: #f8f9fa;
+  background-color: #ffffff;
   padding: 1.5rem;
   height: 100%;
   min-height: calc(100vh - 4rem);
