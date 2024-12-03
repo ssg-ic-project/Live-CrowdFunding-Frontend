@@ -33,7 +33,31 @@
         <!-- 우측 패널: 프로젝트 정보 -->
         <div class="right-panel">
           <div class="project-info">
-            <h2>{{ project.productName }}</h2>
+
+
+<!--            <h2>{{ project.productName }}-->
+
+<!--&lt;!&ndash;            상태 확인하기&ndash;&gt;-->
+<!--            <span :class="['status-badge', getStatusClass(project.progressProjectStatus)]">-->
+<!--                {{ project.progressProjectStatus }}-->
+<!--              </span>-->
+<!--            </h2>-->
+
+            <div class="status-container">
+              <h2>{{ project.productName }}</h2>
+              <span class="category-badge">
+                <i class="fas fa-tag"></i>
+                {{ project.category.classification }}
+              </span>
+              &nbsp;
+              <span :class="['status-badge', getStatusClass(project.progressProjectStatus)]">
+                {{ project.progressProjectStatus }}
+              </span>
+
+            </div>
+
+
+
             
             <!-- 기본 정보 섹션 -->
             <div class="info-section">
@@ -239,6 +263,17 @@ export default {
     }
   },
   methods: {
+
+    getStatusClass(status) {
+      if (!status) return ''
+      switch(status) {
+        case '펀딩중': return 'status-funding';
+        case '성공': return 'status-success';
+        case '미달성': return 'status-fail';
+        default: return '';
+      }
+    },
+
     getDocumentViewerUrl(docUrl){
       return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(docUrl)}`;
     },
@@ -899,5 +934,70 @@ textarea:focus {
     flex: 1;
     text-align: center;
   }
+
+  /* 상태별 스타일 */
+
+  .status-badge.status-funding {
+    background-color: #e3f2fd;
+    color: #1976d2;
+    border: 1px solid #90caf9;
+  }
+
+  .status-badge.status-funding {
+    background-color: rgba(25, 118, 210, 0.1);
+    color: #1976D2;
+    border: 1px solid rgba(25, 118, 210, 0.3);
+  }
+
+
+  .status-badge.status-success i {
+    color: #2e7d32;
+  }
+  .status-badge.status-success {
+    background-color: rgba(46, 125, 50, 0.1);
+    color: #2E7D32;
+    border: 1px solid rgba(46, 125, 50, 0.3);
+  }
+  .status-badge.status-fail {
+    background-color: rgba(198, 40, 40, 0.1);
+    color: #C62828;
+    border: 1px solid rgba(198, 40, 40, 0.3);
+  }
+
+  .status-badge.status-fail i {
+    color: #c62828;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+
+  /*.category-badge {
+  //  background-color: #f3f4f6;
+  //  color: #666;
+  }*/
+
+  .category-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    background-color: #f3f4f6;
+    color: #666;
+  }
+
+
+
+
+
 }
 </style>

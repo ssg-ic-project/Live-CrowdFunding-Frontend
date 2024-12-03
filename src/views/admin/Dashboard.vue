@@ -23,23 +23,23 @@
       <section class="charts">
         <div class="chart">
           <h3>신규 가입자 현황</h3>
-          <LineChart :data="monthlySignUpData" />
+          <LineChart :data="monthlySignUpData" x-Label="연도-월" y-Label="인원수(명)" />
         </div>
         <div class="chart">
           <h3>월 수익</h3>
-          <LineChart :data="revenueData" />
+          <LineChart :data="revenueData" x-Label="연도-월" y-Label="수익(만원)"/>
         </div>
         <div class="chart">
           <h3>인기 펀딩 (전일)</h3>
-          <BarChart :data="topFundingData" />
+          <BarChart :data="topFundingData" x-Label="프로젝트명" y-Label="인원수(명)"/>
         </div>
         <div class="chart">
           <h3>월별 회원 현황</h3>
-          <LineChart :data="userGrowthData" />
+          <LineChart :data="userGrowthData" x-Label="연도-월" y-Label="인원수(명)" />
         </div>
         <div class="chart">
           <h3>분야별 펀딩 성과 (전월)</h3>
-          <BarChart :data="categoryFundingData" />
+          <BarChart :data="categoryFundingData" x-Label="카테고리명" y-Label="펀딩수" />
         </div>
       </section>
     </main>

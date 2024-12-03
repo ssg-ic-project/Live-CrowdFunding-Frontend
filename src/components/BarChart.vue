@@ -17,7 +17,7 @@ import {
 } from "chart.js";
 
 export default {
-  props: ["data"],
+  props: ["data", "xLabel", "yLabel"],
   mounted() {
     this.renderChart();
   },
@@ -72,6 +72,20 @@ export default {
               labels: {
                 padding: 20,
                 boxWidth: 40,
+              },
+            },
+          },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: this.xLabel,
+              },
+            },
+            y: {
+              title: {
+                display: true,
+                text: this.yLabel,
               },
             },
           },
