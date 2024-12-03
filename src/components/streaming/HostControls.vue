@@ -15,7 +15,7 @@
               {{ isRecording ? "녹화 중지" : "녹화 시작" }}
             </button>
             <button @click="handleToggleCamera" class="control-button">
-              {{ localStream ? "방송 종료" : "방송 계속하기" }}
+              {{ localStream ? "방송 종료" : "방송 시작하기" }}
             </button>
             <button @click="handleLeave" class="leave-button">방 나가기</button>
           </div>
@@ -85,9 +85,14 @@ const handleRecording = async () => {
   }
 };
 
-const handleToggleCamera = () => {
+const handleToggleCamera = async () => {
   // localStream이 있을 때만(방송 중일 때만) 모달 표시
   if (props.localStream) {
+
+    await fetch(`api/schedule/update/{scheduleId}`,{
+      method: 'PATCH'
+    })
+
     showEndModal.value = true;
   } else {
     // 방송 중이 아닐 때는 바로 이벤트 발생
