@@ -29,6 +29,7 @@
                   <p>{{ item.description }}</p>
                 </div>
               </template>
+              
             </div>
           </template>
           <MypageSidebar v-else class="sidebar" />

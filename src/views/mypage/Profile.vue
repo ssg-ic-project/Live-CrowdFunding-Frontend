@@ -66,57 +66,61 @@
 
       <!-- 수정 폼 -->
       <form v-if="isEditing" @submit.prevent="updateProfile" class="edit-form">
-        <div class="input-group">
-          <label>이름</label>
-          <p>{{ userData.name }}</p>
-        </div>
-        <div v-if="!isMaker" class="input-group">
-          <label>닉네임</label>
-          <input type="text" v-model="editUserData.nickname" />
-        </div>
-        <div class="input-group">
-          <label>전화번호</label>
-          <input
-            type="tel"
-            v-model="editUserData.phone"
-            pattern="[0-9]{3}-[0-9]{4}-[0-9]{4}"
-          />
-        </div>
-        <div class="input-group">
-          <label>이메일</label>
-          <p>{{ userData.email }}</p>
-        </div>
-        <div class="input-group">
-          <label>주소</label>
-          <div class="address-group">
-            <input type="text" v-model="editUserData.address" readonly />
-            <button type="button" @click="openAddressAPI" class="address-button">주소찾기</button>
-          </div>
-        </div>
-        <div class="input-group">
-          <label>상세주소</label>
-          <input type="text" v-model="editUserData.detailAddress" />
-        </div>
-        <div v-if="!isMaker" class="input-group">
-          <label>알림수신 동의</label>
-          <div class="notification-checkboxes">
-            <div class="checkbox-group">
-              <input
-                type="checkbox"
-                id="notification"
-                v-model="editUserData.notification"
-              />
-              <label for="notification">알림 수신 동의</label>
-            </div>
-          </div>
-        </div>
-        <div class="form-buttons">
-          <button type="submit" class="save-button">저장</button>
-          <button type="button" @click="cancelEdit" class="cancel-button">
-            취소
-          </button>
-        </div>
-      </form>
+ <!-- 기본 정보 표시 -->
+ <div class="info-group">
+   <label>이름</label>
+   <div class="info-value">{{ userData.name }}</div>
+ </div>
+ <div v-if="!isMaker" class="info-group">
+   <label>닉네임</label>
+   <input type="text" v-model="editUserData.nickname" />
+ </div>
+ <div class="info-group">
+   <label>전화번호</label>
+   <input
+     type="tel"
+     v-model="editUserData.phone"
+     pattern="[0-9]{3}-[0-9]{4}-[0-9]{4}"
+     placeholder="예: 010-1234-5678"
+   />
+ </div>
+ <div class="info-group">
+   <label>이메일</label>
+   <div class="info-value">{{ userData.email }}</div>
+ </div>
+ <div class="info-group">
+   <label>주소</label>
+   <div class="address-group">
+     <input type="text" v-model="editUserData.address" readonly placeholder="주소찾기를 클릭해주세요" />
+     <button type="button" @click="openAddressAPI" class="address-button">주소찾기</button>
+   </div>
+ </div>
+ <div class="info-group">
+   <label>상세주소</label>
+   <input type="text" v-model="editUserData.detailAddress" placeholder="상세주소를 입력해주세요" />
+ </div>
+ <div class="info-group">
+   <label>로그인 방법</label>
+   <div class="info-value">{{ userData.loginMethod ? "소셜 로그인" : "일반 로그인" }}</div>
+ </div>
+ <div v-if="!isMaker" class="info-group">
+   <label>알림수신 동의</label>
+   <div class="notification-checkboxes">
+     <div class="checkbox-group">
+       <input
+         type="checkbox"
+         id="notification"
+         v-model="editUserData.notification"
+       />
+       <label for="notification" class="checkbox-label">알림 수신 동의</label>
+     </div>
+   </div>
+ </div>
+ <div class="button-group">
+   <button type="submit" class="save-button">저장</button>
+   <button type="button" @click="cancelEdit" class="cancel-button">취소</button>
+ </div>
+</form>
     </div>
   </div>
 </template>
@@ -332,6 +336,7 @@ export default {
   },
 };
 </script>
+
 <style scoped>
 .profile-page {
   padding: 2rem;
@@ -360,7 +365,7 @@ export default {
   border-radius: 12px;
   padding: 2rem;
   width: 50%;
-  margin: 0 auto; /* 중앙 정렬을 위해 추가 */
+  margin: 0 auto;
   border: 1px solid #9E94F8;
   box-shadow: 0 2px 8px rgba(109, 99, 255, 0.1);
 }
@@ -369,7 +374,13 @@ export default {
   display: flex;
   align-items: center;
   margin-bottom: 1.5rem;
-  gap: 2rem;
+  width: 100%;
+}
+
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 label {
@@ -381,22 +392,27 @@ label {
 
 .info-value {
   flex: 1;
-  max-width: 400px; /* 모든 값 영역의 최대 너비 통일 */
+  width: 300px;
+  max-width: 300px;
+  padding: 0.75rem;
+  background-color: #f8f9fa; /* 연한 회색 배경 */
+  border: 1px solid #9E94F8;
+  border-radius: 8px;
+  color: #666666; /* 글자색을 좀 더 어둡게 */
+  font-size: 1rem;
+  position: relative; /* position 설정 */
+}
+
+.info-value, input {
+  flex: 1;
+  width: 300px;
+  max-width: 300px;
   padding: 0.75rem;
   background-color: #ffffff;
   border: 1px solid #9E94F8;
   border-radius: 8px;
   color: #333333;
-}
-
-input {
-  flex: 1;
-  max-width: 400px; /* input도 같은 너비로 통일 */
-  padding: 0.75rem;
-  border: 1px solid #9E94F8;
-  border-radius: 8px;
   font-size: 1rem;
-  transition: all 0.3s ease;
 }
 
 input:focus {
@@ -411,51 +427,56 @@ input:disabled {
 
 .address-group {
   flex: 1;
-  max-width: 400px; /* 주소 그룹도 같은 너비로 통일 */
+  width: 300px;
+  max-width: 300px;
   display: flex;
-  gap: 1rem;
+  gap: 0.5rem;
 }
 
 .address-group input {
-  flex: 1;
-  max-width: none; /* 주소 입력창은 그룹 내에서 너비 제한 해제 */
+  width: 220px;
+  max-width: 220px;
 }
 
 .address-button {
-  flex: 0 0 auto;
-  white-space: nowrap;
+  width: 80px;
+  padding: 0.75rem 0;
+  text-align: center;
   background-color: #9E94F8;
   color: white;
+  white-space: nowrap;
 }
 
 .button-group {
   display: flex;
-  gap: 1rem;
-  margin-top: 2rem;
   justify-content: center;
-}
-.button-group {
-  display: flex;
-  justify-content: center;
-  gap: 2rem; /* 버튼 사이 간격 증가 */
+  gap: 8rem; /* 버튼 사이 간격을 넓게 */
   margin-top: 2rem;
+  width: 100%;
 }
 
 .edit-button, .delete-button {
-  width: 150px; /* 버튼 너비 축소 */
-  margin: 0; /* 기존 마진 제거 */
+  width: 150px;
+  background-color: #6D63FF;
+  color: white;
+  margin: 0;
+}
+
+.delete-button {
+  background-color: #666666;
 }
 
 .form-buttons {
   display: flex;
-  gap: 1rem;
-  margin-top: 2rem;
   justify-content: center;
+  gap: 2rem;
+  margin-top: 2rem;
+  width: 100%;
 }
 
 .save-button, 
 .cancel-button {
-  width: 200px; /* 수정 폼의 버튼도 동일 너비 */
+  width: 150px;
   background-color: #6D63FF;
   color: white;
 }
@@ -506,36 +527,52 @@ button:disabled {
   max-width: 400px;
   box-shadow: 0 4px 16px rgba(109, 99, 255, 0.15);
   border: 1px solid #9E94F8;
+  text-align: center;
 }
 
 .modal-content h3 {
   margin-bottom: 1rem;
   color: #333333;
   font-weight: bold;
-  text-align: center;
 }
 
 .password-input {
-  margin: 1rem 0;
-  max-width: 100%; /* 모달 내의 입력창은 모달 너비에 맞춤 */
+  width: 80%;
+  margin: 1rem auto;
 }
 
 .modal-buttons {
   display: flex;
+  justify-content: center;
   gap: 1rem;
   margin-top: 1.5rem;
+}
+
+.modal-buttons button {
+  width: 120px;
 }
 
 .confirm-button {
   background-color: #6D63FF;
   color: white;
-  flex: 1;
+}
+
+/* 수정불가 표시 추가 */
+.info-value::after {
+  content: '수정불가';
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.8rem;
+  color: #999;
 }
 
 /* 체크박스 스타일 */
 .notification-checkboxes {
   flex: 1;
-  max-width: 400px;
+  width: 300px;
+  max-width: 300px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -562,12 +599,25 @@ button:disabled {
 }
 
 /* 반응형 디자인 */
+@media (max-width: 1200px) {
+  .profile-container {
+    width: 70%;
+  }
+}
+
+@media (max-width: 992px) {
+  .profile-container {
+    width: 80%;
+  }
+}
+
 @media (max-width: 768px) {
   .profile-page {
     padding: 1rem;
   }
 
   .profile-container {
+    width: 90%;
     padding: 1.5rem;
   }
 
@@ -585,29 +635,39 @@ button:disabled {
   input,
   .address-group,
   .notification-checkboxes {
-    max-width: 100%;
     width: 100%;
+    max-width: 100%;
   }
 
   .address-group {
     flex-direction: column;
   }
 
+  .address-group input {
+    width: 100%;
+    max-width: 100%;
+  }
+
   .address-button {
     width: 100%;
   }
 
-  .edit-button,
+  .button-group {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .save-button, 
+  .cancel-button {
+    width: 200px;
+  }
+
+  .edit-button, 
   .delete-button,
   .save-button,
   .cancel-button {
-    width: 100%;
-    margin: 0.5rem 0;
-  }
-
-  .button-group,
-  .form-buttons {
-    flex-direction: column;
+    width: 200px;
   }
 }
 </style>

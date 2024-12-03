@@ -135,9 +135,7 @@
         <nav class="navigation">
           <ul class="nav-list">
             <li><router-link to="/" class="nav-item">Home</router-link></li>
-            <li>
-              <router-link to="/about" class="nav-item">About Us</router-link>
-            </li>
+         
             <li>
               <router-link to="/live" class="nav-item live">
                 <img
@@ -442,8 +440,8 @@ export default {
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  margin-top: -2rem;
-}
+  margin-top: -1rem;
+  margin-bottom: -5rem;}
 
 .navigation {
   width: 100%;
@@ -465,6 +463,7 @@ export default {
   font-weight: 500;
   position: relative;
   padding: 0.5rem 0;
+  font-size: 120%;
 }
 
 .nav-item::after {

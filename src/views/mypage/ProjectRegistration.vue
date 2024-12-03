@@ -42,6 +42,7 @@
       @submit.prevent="submitProject"
       class="project-form"
     >
+      <!-- 기본 정보 섹션 -->
       <div class="form-section">
         <h3>기본 정보</h3>
         <!-- 선택된 요금제 정보 표시 -->
@@ -127,6 +128,65 @@
           />
         </div>
       </div>
+      
+  <!-- 필수 등록 서류 섹션 -->
+  <div class="form-section">
+    <h3>필수 등록 서류</h3>
+    <!-- 상품 기획서 -->
+    <div class="document-upload-group">
+      <label>상품 기획서</label>
+      <input
+        type="file"
+        @change="(e) => handleDocumentUpload('projectPlan', e)"
+        accept=".pdf,.doc,.docx"
+        required
+      />
+      <small v-if="uploadedDocuments.projectPlan">
+        {{ uploadedDocuments.projectPlan.name }}
+      </small>
+    </div>
+
+    <!-- 펀딩 기획서 -->
+    <div class="document-upload-group">
+      <label>펀딩 기획서</label>
+      <input
+        type="file"
+        @change="(e) => handleDocumentUpload('developmentPlan', e)"
+        accept=".pdf,.doc,.docx"
+        required
+      />
+      <small v-if="uploadedDocuments.developmentPlan">
+        {{ uploadedDocuments.developmentPlan.name }}
+      </small>
+    </div>
+
+    <!-- 개인정보 이용동의서 -->
+    <div class="document-upload-group">
+      <label>개인정보 이용동의서</label>
+      <input
+        type="file"
+        @change="(e) => handleDocumentUpload('agreement', e)"
+        accept=".pdf,.doc,.docx"
+        required
+      />
+      <small v-if="uploadedDocuments.agreement">
+        {{ uploadedDocuments.agreement.name }}
+      </small>
+    </div>
+
+    <!-- 추가 서류 -->
+    <div class="document-upload-group">
+      <label>추가 서류</label>
+      <input
+        type="file"
+        @change="(e) => handleDocumentUpload('additional', e)"
+        accept=".pdf,.doc,.docx"
+      />
+      <small v-if="uploadedDocuments.additional">
+        {{ uploadedDocuments.additional.name }}
+      </small>
+    </div>
+  </div>
 
       <div class="form-section">
         <h3>이미지 등록</h3>
@@ -178,65 +238,7 @@
           />
         </div>
       </div>
-      <!-- //여기 -->
-      <div class="form-section">
-        <h3>필수 등록 서류</h3>
-
-        <!-- 상품 기획서 -->
-        <div class="document-upload-group">
-          <label>상품 기획서</label>
-          <input
-            type="file"
-            @change="(e) => handleDocumentUpload('projectPlan', e)"
-            accept=".pdf,.doc,.docx"
-            required
-          />
-          <small v-if="uploadedDocuments.projectPlan">
-            {{ uploadedDocuments.projectPlan.name }}
-          </small>
-        </div>
-
-        <!-- 펀딩 기획서 -->
-        <div class="document-upload-group">
-          <label>펀딩 기획서</label>
-          <input
-            type="file"
-            @change="(e) => handleDocumentUpload('developmentPlan', e)"
-            accept=".pdf,.doc,.docx"
-            required
-          />
-          <small v-if="uploadedDocuments.developmentPlan">
-            {{ uploadedDocuments.developmentPlan.name }}
-          </small>
-        </div>
-
-        <!-- 개인정보 이용동의서 -->
-        <div class="document-upload-group">
-          <label>개인정보 이용동의서</label>
-          <input
-            type="file"
-            @change="(e) => handleDocumentUpload('agreement', e)"
-            accept=".pdf,.doc,.docx"
-            required
-          />
-          <small v-if="uploadedDocuments.agreement">
-            {{ uploadedDocuments.agreement.name }}
-          </small>
-        </div>
-
-        <!-- 추가 서류 -->
-        <div class="document-upload-group">
-          <label>추가 서류</label>
-          <input
-            type="file"
-            @change="(e) => handleDocumentUpload('additional', e)"
-            accept=".pdf,.doc,.docx"
-          />
-          <small v-if="uploadedDocuments.additional">
-            {{ uploadedDocuments.additional.name }}
-          </small>
-        </div>
-      </div>
+     
       <!-- 여기 -->
       <div class="form-buttons">
         <button type="button" class="cancel-btn" @click="cancelRegistration">
@@ -1056,12 +1058,17 @@ export default {
   },
 };
 </script>
-
 <style scoped>
 .project-registration-page {
   padding: 2rem;
-  max-width: 1200px;
+  max-width: 1600px; /* 최대 너비 증가 */
   margin: 0 auto;
+}
+
+.project-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
 }
 
 h2 {
@@ -1083,6 +1090,7 @@ h3 {
 /* 요금제 섹션 스타일 */
 .pricing-section {
   margin-bottom: 3rem;
+  width: 100%;
 }
 
 .pricing-plans {
@@ -1110,12 +1118,12 @@ h3 {
 
 .pricing-card:hover {
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-  border-color: #ffd74e;
+  border-color: #6d63ff;
 }
 
 .pricing-card.selected {
-  border: 2px solid #ff5151;
-  box-shadow: 0 0 0 2px rgba(255, 81, 81, 0.1);
+  border: 2px solid #6d63ff;
+  box-shadow: 0 0 0 2px rgba(109, 99, 255, 0.1);
 }
 
 .pricing-card h4 {
@@ -1128,7 +1136,7 @@ h3 {
 .plan-price {
   font-size: 1.8rem;
   font-weight: bold;
-  color: #ff5151;
+  color: #6d63ff;
   margin: 1.5rem 0;
 }
 
@@ -1151,7 +1159,7 @@ h3 {
   content: "✓";
   position: absolute;
   left: 0;
-  color: #ffd74e;
+  color: #9e94f8;
   font-weight: bold;
 }
 
@@ -1163,19 +1171,21 @@ h3 {
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s ease; /* transform 제거하고 background-color만 변경 */
+  transition: background-color 0.3s ease;
   position: absolute;
   bottom: 2rem;
-  left: 2rem; /* transform 대신 좌측 여백으로 조정 */
-  right: 2rem; /* 우측 여백 추가 */
+  left: 2rem;
+  right: 2rem;
+  background-color: #6d63ff;
+  color: white;
 }
 
 .select-plan-btn.selected {
-  background-color: #666666; /* 선택된 상태의 배경색 */
+  background-color: #9e94f8;
 }
 
 .select-plan-btn:not(.selected) {
-  background-color: #ff5151; /* 선택되지 않은 상태의 배경색 */
+  background-color: #6d63ff;
 }
 
 .select-plan-btn:hover {
@@ -1183,7 +1193,7 @@ h3 {
 }
 
 .next-step-btn {
-  background-color: #ff5151;
+  background-color: #6d63ff;
   color: white;
   border: none;
   border-radius: 8px;
@@ -1204,6 +1214,14 @@ h3 {
   padding: 2rem;
   margin-bottom: 2rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  flex: 1;
+  min-width: 400px;
+}
+
+/* 이미지 섹션은 전체 너비 사용 */
+.form-section:last-of-type {
+  flex-basis: 100%;
+  width: 100%;
 }
 
 .input-group {
@@ -1232,8 +1250,8 @@ input:focus,
 select:focus,
 textarea:focus {
   outline: none;
-  border-color: #ff5151;
-  box-shadow: 0 0 0 3px rgba(255, 81, 81, 0.1);
+  border-color: #6d63ff;
+  box-shadow: 0 0 0 3px rgba(109, 99, 255, 0.1);
 }
 
 textarea {
@@ -1286,11 +1304,12 @@ small {
   gap: 1rem;
   justify-content: center;
   margin-top: 2rem;
+  width: 100%;
 }
 
 .submit-btn,
 .confirm-btn {
-  background-color: #ff5151;
+  background-color: #6d63ff;
   color: white;
   border: none;
   border-radius: 8px;
@@ -1304,7 +1323,7 @@ small {
 
 .cancel-btn,
 .close-btn {
-  background-color: #666666;
+  background-color: #9e94f8;
   color: white;
   border: none;
   border-radius: 8px;
@@ -1345,7 +1364,7 @@ button:disabled {
   padding: 2.5rem;
   border-radius: 12px;
   width: 95%;
-  max-width: 800px; /* 모달 최대 너비 증가 */
+  max-width: 800px;
   text-align: center;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
@@ -1361,7 +1380,7 @@ button:disabled {
 
 .progress {
   height: 100%;
-  background-color: #ff5151;
+  background-color: #6d63ff;
   transition: width 0.3s ease;
 }
 
@@ -1374,8 +1393,8 @@ button:disabled {
 .check-icon {
   width: 60px;
   height: 60px;
-  background-color: #ffd74e;
-  color: #333333;
+  background-color: #9e94f8;
+  color: white;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -1385,7 +1404,7 @@ button:disabled {
 }
 
 .success {
-  color: #ff5151;
+  color: #6d63ff;
   font-size: 1.4rem;
   font-weight: bold;
   margin-bottom: 1rem;
@@ -1402,10 +1421,11 @@ button:disabled {
   color: #666666;
   margin-bottom: 1.5rem;
 }
+
 /* 결제 섹션 스타일 */
 .payment-section {
   width: 100%;
-  max-width: 450px; /* 결제 섹션 최대 너비 제한 */
+  max-width: 450px;
   margin: 0 auto;
   padding: 1rem 0;
 }
@@ -1420,13 +1440,9 @@ button:disabled {
 .payment-buttons {
   display: flex;
   gap: 1rem;
-  margin-top: 1rem;
+  margin-top: 1.5rem;
+  justify-content: center;
 }
-
-
-
-/* 모달 content 크기 조정 */
-
 
 /* 결제 위젯 커스텀 스타일 */
 :deep(#payment-method) {
@@ -1441,19 +1457,20 @@ button:disabled {
   padding: 0.5rem;
 }
 
-.payment-buttons {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1.5rem;
-  justify-content: center;
-}
-
-.payment-btn, .cancel-btn {
+.payment-btn,
+.cancel-btn {
   flex: 1;
-  max-width: 200px; /* 버튼 최대 너비 제한 */
+  max-width: 200px;
   padding: 0.8rem 1.5rem;
 }
+
 /* 반응형 디자인 */
+@media (max-width: 1200px) {
+  .form-section {
+    flex-basis: 100%;
+  }
+}
+
 @media (max-width: 768px) {
   .pricing-plans {
     grid-template-columns: 1fr;
@@ -1466,6 +1483,7 @@ button:disabled {
 
   .form-section {
     padding: 1.5rem;
+    min-width: 100%;
   }
 
   .image-preview {
