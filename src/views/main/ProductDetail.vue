@@ -390,7 +390,7 @@ incrementQuantity() {
   height: 0;
   padding-bottom: 62.5%; /* 16:10 비율 */
   overflow: hidden;
-  background-color: #f8f9fa;
+  background-color: #ffffff;
   border-radius: 8px;
   margin: 0; /* 마진 제거 */
 }
@@ -402,7 +402,7 @@ incrementQuantity() {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  background-color: #f8f9fa;
+  background-color: #ffffff;
 }
 
 .single-image {
@@ -411,7 +411,7 @@ incrementQuantity() {
   height: 0;
   padding-bottom: 62.5%;
   overflow: hidden;
-  background-color: #f8f9fa;
+  background-color: #ffffff;
   border-radius: 8px;
   margin: 0; /* 마진 제거 */
 }
@@ -580,7 +580,7 @@ incrementQuantity() {
 .funding-days-left {
   font-size: 0.95rem;
   padding: 0.5rem 1rem;
-  background-color: #f8f9fa;
+  background-color: #ffffff;
   border-radius: 4px;
   display: inline-flex;
   align-items: center;

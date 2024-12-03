@@ -88,18 +88,26 @@ export default {
 
 <style scoped>
 .sidebar {
-  background-color: #f8f9fa;
+  background-color: #ffffff;
   padding: 1.5rem;
   height: 100%;
   min-height: calc(100vh - 4rem);
-  border-right: 1px solid #dee2e6;
+  border-right: 1px solid #9E94F8;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 250px;
+  overflow-y: auto;
+  z-index: 100;
+  transition: all 0.3s ease;
 }
 
 h3 {
   font-size: 1.8rem;
   margin-bottom: 2rem;
   text-align: center;
-  color: #000;
+  color: #6D63FF;
+  font-weight: 600;
 }
 
 .category {
@@ -109,9 +117,10 @@ h3 {
 .category h4 {
   font-size: 1.4rem;
   margin-bottom: 0.75rem;
-  border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid #9E94F8;
   padding-bottom: 0.5rem;
-  color: #000;
+  color: #6D63FF;
+  font-weight: 500;
 }
 
 .submenu {
@@ -128,42 +137,68 @@ h3 {
   text-decoration: none;
   font-size: 1rem;
   display: block;
-  padding: 0.5rem 1rem;
-  transition: all 0.3s;
-  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  transition: all 0.3s ease;
+  border-radius: 6px;
+  border: 1px solid transparent;
 }
 
 .submenu li.active > a {
-  background-color: #FF5151;
+  background-color: #6D63FF;
   color: #ffffff;
   font-weight: 500;
+  border-color: #6D63FF;
+  box-shadow: 0 2px 4px rgba(109, 99, 255, 0.2);
 }
 
 .submenu a:hover:not(.active) {
-  background-color: #FFD74E;
-  color: #333333;
+  background-color: #9E94F8;
+  color: #ffffff;
+  transform: translateX(5px);
 }
 
-/* 메뉴 아이템 스타일 */
 .menu-item {
   background-color: #ffffff;
   padding: 2rem;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #9E94F8;
+  box-shadow: 0 2px 4px rgba(109, 99, 255, 0.1);
 }
 
 .menu-item:hover {
-  background-color: #FFD74E;
+  background-color: rgba(109, 99, 255, 0.05);
   transform: translateY(-5px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  border-color: #6D63FF;
+  box-shadow: 0 4px 8px rgba(109, 99, 255, 0.15);
 }
 
 @media (max-width: 768px) {
   .sidebar {
     min-height: auto;
     padding: 1rem;
+    position: static;
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #9E94F8;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .category h4 {
+    font-size: 1.2rem;
+  }
+
+  .submenu a {
+    padding: 0.5rem 1rem;
+  }
+
+  .menu-item {
+    padding: 1.5rem;
   }
 }
 </style>

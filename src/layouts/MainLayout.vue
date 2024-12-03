@@ -36,6 +36,7 @@ export default {
 .main-content {
   flex: 1;
   width: 100%;
+  background-color: #ffffff;
 }
 
 .content-wrapper {

@@ -144,7 +144,7 @@ export default {
   }
 };
 </script>
-
+<!-- MyPage.vue styles -->
 <style scoped>
 .mypage-container {
   padding: 2rem;
@@ -152,7 +152,6 @@ export default {
   margin: 0 auto;
 }
 
-/* 초기 메뉴 그리드 스타일 */
 .menu-grid {
   text-align: center;
 }
@@ -170,7 +169,7 @@ export default {
 .menu-section h3 {
   font-size: 1.5rem;
   margin-bottom: 1rem;
-  color: #333;
+  color: #6D63FF;
 }
 
 .menu-items {
@@ -181,27 +180,27 @@ export default {
 }
 
 .menu-item {
-  background-color: #f8f9fa;
+  background-color: #ffffff;
   padding: 2rem;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
+  border: 1px solid #9E94F8;
 }
 
 .menu-item:hover {
-  background-color: #e9ecef;
+  background-color: rgba(109, 99, 255, 0.05);
   transform: translateY(-2px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(109, 99, 255, 0.1);
+  border-color: #6D63FF;
 }
 
-/* 콘텐츠 컨테이너 스타일 */
 .content-container {
   display: flex;
   gap: 2rem;
   position: relative;
 }
 
-/* 사이드바 애니메이션 */
 .slide-enter-active,
 .slide-leave-active {
   transition: transform 0.3s ease;
@@ -212,37 +211,35 @@ export default {
   transform: translateX(-100%);
 }
 
-/* 사이드바 스타일 */
 .sidebar {
   width: 250px;
-  background-color: #f8f9fa;
+  background-color: #ffffff;
   padding: 1.5rem;
-  border-right: 1px solid #dee2e6;
+  border-right: 1px solid #9E94F8;
   height: 100vh;
   position: fixed;
   left: 0;
   top: 0;
 }
 
-/* 메인 콘텐츠 영역 */
 .main-content {
   flex: 1;
-  margin-left: 250px; /* 사이드바 너비만큼 여백 */
+  margin-left: 250px;
   transition: margin-left 0.3s ease;
 }
 
 .main-content h1 {
   font-size: 2rem;
   margin-bottom: 2rem;
-  color: #333;
+  color: #6D63FF;
 }
 
-/* 기존 스타일 유지 */
 .category h4 {
   font-size: 1.4rem;
   margin-bottom: 0.75rem;
-  border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid #9E94F8;
   padding-bottom: 0.5rem;
+  color: #6D63FF;
 }
 
 .submenu {
@@ -264,9 +261,95 @@ export default {
   border-radius: 4px;
 }
 
-.submenu li.active > a,
+.submenu li.active > a {
+  background-color: #6D63FF;
+  color: #ffffff;
+}
+
 .submenu a:hover {
-  color: #000;
-  background-color: #e9ecef;
+  background-color: #9E94F8;
+  color: #ffffff;
+}
+</style>
+
+<!-- MypageSidebar.vue styles -->
+<style scoped>
+.sidebar {
+  background-color: #ffffff;
+  padding: 1.5rem;
+  height: 100%;
+  min-height: calc(100vh - 4rem);
+  border-right: 1px solid #9E94F8;
+}
+
+h3 {
+  font-size: 1.8rem;
+  margin-bottom: 2rem;
+  text-align: center;
+  color: #6D63FF;
+}
+
+.category {
+  margin-bottom: 1.5rem;
+}
+
+.category h4 {
+  font-size: 1.4rem;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid #9E94F8;
+  padding-bottom: 0.5rem;
+  color: #6D63FF;
+}
+
+.submenu {
+  list-style: none;
+  padding-left: 0;
+}
+
+.submenu li {
+  margin-bottom: 0.75rem;
+}
+
+.submenu a {
+  color: #495057;
+  text-decoration: none;
+  font-size: 1rem;
+  display: block;
+  padding: 0.5rem 1rem;
+  transition: all 0.3s;
+  border-radius: 4px;
+}
+
+.submenu li.active > a {
+  background-color: #6D63FF;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.submenu a:hover:not(.active) {
+  background-color: #9E94F8;
+  color: #ffffff;
+}
+
+.menu-item {
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(109, 99, 255, 0.1);
+}
+
+.menu-item:hover {
+  background-color: #9E94F8;
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(109, 99, 255, 0.15);
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    min-height: auto;
+    padding: 1rem;
+  }
 }
 </style>

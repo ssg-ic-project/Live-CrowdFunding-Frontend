@@ -133,19 +133,16 @@ export default {
 };
 </script>
 
+
 <style scoped>
 .dashboard {
   display: flex;
   min-height: 100vh;
-  background-color: #f4f6f9;
+  background-color: #ffffff;
+  width: 100%;
 }
 
-.content {
-  flex: 1;
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
+
 
 .header {
   display: flex;
@@ -156,7 +153,7 @@ export default {
 
 h2 {
   margin: 0;
-  color: #333;
+  color: #6D63FF;
   font-size: 1.5rem;
   font-weight: 600;
 }
@@ -166,26 +163,36 @@ h2 {
   font-size: 1.1rem;
 }
 
+.content {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1200px; /* 5개 카드가 들어갈 수 있도록 너비 조정 */
+  margin: 0 auto;
+  width: 100%;
+}
+
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  /* 5개 컬럼으로 고정 */
+  grid-template-columns: repeat(5, 1fr);
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
 
 .product-card {
-  border: 1px solid #eee;
+  border: 1px solid #9E94F8;
   border-radius: 8px;
   overflow: hidden;
   background: white;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 6px rgba(109, 99, 255, 0.1);
   cursor: pointer;
 }
 
 .product-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(109, 99, 255, 0.2);
+  border-color: #6D63FF;
 }
 
 .image-container {
@@ -224,7 +231,7 @@ h2 {
   border-radius: 50%;
   width: 30px;
   height: 30px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(109, 99, 255, 0.1);
   transition: transform 0.2s ease;
 }
 
@@ -242,7 +249,7 @@ h2 {
 }
 
 .achievement {
-  color: #ff5151;
+  color: #6D63FF;
   font-size: 0.85rem;
   font-weight: bold;
   margin-bottom: 0.5rem;
@@ -273,7 +280,7 @@ h2 {
 .price {
   font-weight: bold;
   font-size: 1.1rem;
-  color: #333;
+  color: #6D63FF;
   margin-top: 0.5rem;
 }
 
@@ -287,7 +294,7 @@ h2 {
 
 .pagination-btn {
   padding: 0.5rem 1rem;
-  background-color: #ff5151;
+  background-color: #6D63FF;
   color: white;
   border: none;
   border-radius: 4px;
@@ -298,14 +305,13 @@ h2 {
 }
 
 .pagination-btn:disabled {
-  background-color: #ffe3e3;
+  background-color: rgba(109, 99, 255, 0.3);
   cursor: not-allowed;
   color: #666;
 }
 
 .pagination-btn:not(:disabled):hover {
-  background-color: #ffd74e;
-  color: #333333;
+  background-color: #9E94F8;
 }
 
 .page-info {
@@ -313,32 +319,15 @@ h2 {
   color: #666;
 }
 
-/* 스크롤바 스타일링 */
-.content {
-  scrollbar-width: thin;
-  scrollbar-color: #ff5151 #f4f6f9;
-}
-
-.content::-webkit-scrollbar {
-  width: 8px;
-}
-
-.content::-webkit-scrollbar-track {
-  background: #f4f6f9;
-}
-
-.content::-webkit-scrollbar-thumb {
-  background-color: #ff5151;
-  border-radius: 4px;
-}
-
-.content::-webkit-scrollbar-thumb:hover {
-  background-color: #ffd74e;
-}
-
 @media (max-width: 768px) {
   .content {
     padding: 1rem;
+  }
+
+  .product-grid {
+    /* 모바일에서는 2개씩 배치 */
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 1rem;
   }
 
   .product-grid {

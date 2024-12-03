@@ -1269,7 +1269,7 @@ textarea {
 
 input[type="file"] {
   padding: 0.5rem;
-  background-color: #f8f9fa;
+  background-color: #ffffff;
   border: 2px dashed #dee2e6;
   cursor: pointer;
 }
@@ -1353,7 +1353,7 @@ button:disabled {
 .progress-bar {
   width: 100%;
   height: 8px;
-  background-color: #f8f9fa;
+  background-color: #ffffff;
   border-radius: 4px;
   margin: 1.5rem 0;
   overflow: hidden;
@@ -1411,7 +1411,7 @@ button:disabled {
 }
 
 .payment-container {
-  background: #f8f9fa;
+  background: #ffffff;
   border-radius: 8px;
   padding: 1.5rem;
   margin: 1rem 0;

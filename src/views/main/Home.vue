@@ -148,26 +148,39 @@ export default {
   },
 };
 </script>
+
 <style scoped>
 .home {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+  background-color: #ffffff;
 }
 
 .main-content-grid {
   display: grid;
-  grid-template-columns: 1.5fr 1fr; /* 기존 2fr 1fr에서 수정 */
+  grid-template-columns: 1.5fr 1fr;
   gap: 20px;
   margin-bottom: 40px;
 }
 
 .live-section,
 .ranking-section {
-  background: #fff;
-  border-radius: 8px;
-  padding: 20px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
   height: 100%;
+  border: 1px solid rgba(109, 99, 255, 0.1);
+}
+
+.live-section h2,
+.ranking-section h2 {
+  color: #6D63FF;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #9E94F8;
+  padding-bottom: 8px;
 }
 
 .live-section .product-grid {
@@ -176,16 +189,36 @@ export default {
   gap: 15px;
 }
 
+.product-grid > div {
+  border-radius: 8px;
+  border: 1px solid rgba(109, 99, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.product-grid > div:hover {
+  transform: translateY(-2px);
+  border-color: #9E94F8;
+  background-color: rgba(109, 99, 255, 0.05);
+}
+
 .ranking-section .ranking-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
+  background-color: rgb(255, 255, 255);
 }
 
-.ai-recommendation-section .product-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 20px;
+.ranking-list > div {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(109, 99, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.ranking-list > div:hover {
+  transform: translateX(4px);
+  border-color: #9E94F8;
+  background-color: rgba(109, 99, 255, 0.05);
 }
 
 .full-width-banner {
@@ -193,19 +226,33 @@ export default {
   margin-left: 50%;
   transform: translateX(-50%);
   position: relative;
+  background: #ffffff;
+  padding: 20px 0;
+}
+
+.loading {
+  color: #6D63FF;
+  text-align: center;
+  font-size: 1.2rem;
+  padding: 20px;
+}
+
+.error {
+  color: #DC2626;
+  text-align: center;
+  padding: 20px;
+  background: #FEE2E2;
+  border-radius: 8px;
+  border: 1px solid #DC2626;
 }
 
 @media (max-width: 1024px) {
   .main-content-grid {
     grid-template-columns: 1.5fr 1fr;
   }
-
+  
   .live-section .product-grid {
     grid-template-columns: repeat(2, 1fr);
-  }
-
-  .ai-recommendation-section .product-grid {
-    grid-template-columns: repeat(4, 1fr);
   }
 }
 
@@ -213,19 +260,18 @@ export default {
   .main-content-grid {
     grid-template-columns: 1fr;
   }
-
-  .ai-recommendation-section .product-grid {
-    grid-template-columns: repeat(3, 1fr);
+  .home {
+    padding: 12px;
   }
 }
 
 @media (max-width: 480px) {
   .live-section .product-grid {
-    grid-template-columns: repeat(1, 1fr);
+    grid-template-columns: 1fr;
   }
-
-  .ai-recommendation-section .product-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .live-section,
+  .ranking-section {
+    padding: 16px;
   }
 }
 </style>

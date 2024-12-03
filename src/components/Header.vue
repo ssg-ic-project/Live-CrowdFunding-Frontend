@@ -310,40 +310,13 @@ export default {
 };
 </script>
 
+
 <style scoped>
 @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap");
 
-:root {
-  --primary-color: #ff4e50;
-  --secondary-color: #fc913a;
-  --text-color: #333333;
-  --background-color: #ffffff;
-  --hover-color: #ff6b6d;
-}
-
-.live {
-  display: flex;
-  align-items: center;
-  padding: 0.5rem;
-}
-
-.live-icon {
-  width: 70px;
-  height: auto;
-}
-
-.live::after {
-  display: none;
-}
-
-.live:hover {
-  transform: scale(1.1);
-  transition: transform 0.3s ease;
-}
-
 .header {
   font-family: "Noto Sans KR", sans-serif;
-  background-color: var(--background-color);
+  background-color: #ffffff;
   position: relative;
   z-index: 2;
   width: 100%;
@@ -374,7 +347,7 @@ export default {
   position: relative;
   display: flex;
   align-items: center;
-  background-color: #f5f5f5;
+  background-color: transparent;
   border-radius: 24px;
   padding: 0.5rem;
   width: 40px;
@@ -385,10 +358,17 @@ export default {
 .search-input-container {
   position: relative;
   flex-grow: 1;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
 }
 
 .search-visible {
   width: 250px;
+  background-color: rgba(158, 148, 248, 0.1);
+}
+
+.search-visible .search-input-container {
+  opacity: 1;
 }
 
 .search-input {
@@ -411,7 +391,7 @@ export default {
   position: absolute;
   top: 100%;
   left: 0;
-  color: #ff4e50;
+  color: #6D63FF;
   font-size: 0.8rem;
   margin-top: 4px;
   white-space: nowrap;
@@ -424,7 +404,7 @@ export default {
   justify-content: center;
   padding: 0.5rem;
   border-radius: 50%;
-  background-color: #f5f5f5;
+  background-color: rgba(158, 148, 248, 0.1);
   transition: all 0.3s ease;
   cursor: pointer;
   min-width: 40px;
@@ -437,18 +417,13 @@ export default {
 
 .search-icon:hover,
 .user-icon-link:hover {
-  background-color: #e0e0e0;
+  background-color: rgba(109, 99, 255, 0.1);
 }
 
 .search-icon-svg,
 .user-icon {
-  color: var(--text-color);
+  color: #6D63FF;
   transition: color 0.3s ease;
-}
-
-.search-icon:hover .search-icon-svg,
-.user-icon-link:hover .user-icon {
-  color: var(--primary-color);
 }
 
 .logo-section {
@@ -485,12 +460,13 @@ export default {
 }
 
 .nav-item {
-  color: var(--text-color);
+  color: #6D63FF;
   text-decoration: none;
   font-weight: 500;
   position: relative;
   padding: 0.5rem 0;
 }
+
 .nav-item::after {
   content: "";
   position: absolute;
@@ -498,7 +474,7 @@ export default {
   height: 2px;
   bottom: 0;
   left: 50%;
-  background-color: var(--primary-color);
+  background-color: #9E94F8;
   transition: all 0.3s ease-in-out;
   transform: translateX(-50%);
 }
@@ -507,7 +483,6 @@ export default {
   width: 100%;
 }
 
-/* Profile Container and Dropdown */
 .profile-container {
   position: relative;
 }
@@ -517,8 +492,9 @@ export default {
   top: 120%;
   right: 0;
   background-color: white;
+  border: 1px solid #9E94F8;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(109, 99, 255, 0.1);
   width: 180px;
   text-align: center;
   z-index: 1000;
@@ -530,7 +506,7 @@ export default {
   flex-direction: column;
   align-items: center;
   padding: 1rem;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid rgba(158, 148, 248, 0.2);
 }
 
 .profile-thumbnail {
@@ -539,29 +515,28 @@ export default {
   border-radius: 50%;
   margin-bottom: 0.5rem;
   object-fit: cover;
-  border: 2px solid var(--primary-color);
+  border: 2px solid #6D63FF;
 }
 
 .username {
   font-weight: 500;
-  color: var(--text-color);
+  color: #6D63FF;
 }
 
 .dropdown-item {
   display: block;
   padding: 0.75rem 1rem;
-  color: var(--text-color);
+  color: #333333;
   text-decoration: none;
   transition: all 0.2s ease;
   cursor: pointer;
 }
 
 .dropdown-item:hover {
-  background-color: rgba(255, 78, 80, 0.1);
-  color: var(--primary-color);
+  background-color: rgba(109, 99, 255, 0.1);
+  color: #6D63FF;
 }
 
-/* Category Dropdown */
 .category-container {
   position: relative;
 }
@@ -573,8 +548,9 @@ export default {
   transform-origin: top;
   transform: translateX(-50%) scaleY(0);
   background-color: white;
+  border: 1px solid #9E94F8;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(109, 99, 255, 0.1);
   padding: 0.5rem 0;
   min-width: 160px;
   margin-top: 0.5rem;
@@ -592,7 +568,7 @@ export default {
 .category-item {
   display: block;
   padding: 0.75rem 1.5rem;
-  color: var(--text-color);
+  color: #333333;
   text-decoration: none;
   transition: all 0.2s ease;
   text-align: center;
@@ -600,6 +576,31 @@ export default {
   transform: translateY(-10px);
   opacity: 0;
   animation: slideDown 0.3s ease forwards;
+}
+
+.category-item:hover {
+  background-color: rgba(109, 99, 255, 0.1);
+  color: #6D63FF;
+}
+
+.live {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+}
+
+.live-icon {
+  width: 70px;
+  height: auto;
+}
+
+.live::after {
+  display: none;
+}
+
+.live:hover {
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
 }
 
 @keyframes slideDown {
@@ -636,12 +637,6 @@ export default {
   animation-delay: 0.4s;
 }
 
-.category-item:hover {
-  background-color: rgba(255, 78, 80, 0.1);
-  color: var(--primary-color);
-}
-
-/* Responsive Styles */
 @media (max-width: 768px) {
   .container {
     padding: 0 1rem;

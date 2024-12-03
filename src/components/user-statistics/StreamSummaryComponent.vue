@@ -121,7 +121,7 @@ onUnmounted(() => {
 }
 
 .stat-box {
-  background-color: #f8f9fa;
+  background-color: #ffffff;
   padding: 1rem;
   border-radius: 0.5rem;
 }

@@ -53,7 +53,6 @@ export default {
   },
 };
 </script>
-
 <style scoped>
 .category-list {
   text-align: center;
@@ -97,7 +96,7 @@ export default {
   justify-content: center;
   margin-bottom: 0.5rem;
   overflow: hidden;
-  box-shadow: 0 2px 5px rgba(231, 0, 0, 0.1);
+  box-shadow: 0 2px 5px rgba(109, 99, 255, 0.1);
 }
 
 .category-logo img {
@@ -117,6 +116,8 @@ export default {
   font-weight: bold;
   position: relative;
   display: inline-block;
+  color: #333333;
+  transition: color 0.3s ease;
 }
 
 .category-name::after {
@@ -126,10 +127,14 @@ export default {
   height: 2px;
   bottom: -4px;
   left: 0;
-  background-color: #000;
+  background-color: #9E94F8;
   transform: scaleX(0);
   transform-origin: center;
   transition: transform 0.3s ease-out;
+}
+
+.category-item:hover .category-name {
+  color: #6D63FF;
 }
 
 .category-item:hover .category-name::after {

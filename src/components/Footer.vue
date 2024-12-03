@@ -63,12 +63,11 @@ export default {
   name: "Footer",
 };
 </script>
-
 <style scoped>
 .footer {
   width: 100%;
-  background-color: #FFF7B4;  /* 밝은 배경 */
-  color: #333333;  /* 어두운 텍스트 */
+  background-color: #ffffff;
+  color: #333333;
   padding: 3rem 0 1rem;
 }
 
@@ -89,21 +88,22 @@ export default {
 }
 
 .footer-title {
-  color: #FF5151;  /* 제목에 포인트 컬러 */
+  color: #6D63FF;
   font-size: 1.5rem;
   margin-bottom: 1rem;
   font-weight: bold;
 }
 
-
 .footer-subtitle {
-  color: #FF5151;  /* 서브 제목도 포인트 컬러 */
+  color: #6D63FF;
   font-size: 1.1rem;
   margin-bottom: 1rem;
 }
+
 .footer-description {
   margin-bottom: 1.5rem;
   line-height: 1.5;
+  color: #666666;
 }
 
 .social-links {
@@ -112,12 +112,12 @@ export default {
 }
 
 .social-link {
-  color: #FF5151;  /* 소셜 링크도 포인트 컬러 */
+  color: #6D63FF;
   transition: color 0.3s ease;
 }
 
 .social-link:hover {
-  color: #FFD74E;  /* 호버 시 따뜻한 노란색 */
+  color: #9E94F8;
 }
 
 .footer-nav {
@@ -126,28 +126,35 @@ export default {
   gap: 0.5rem;
 }
 
-
 .footer-link {
-  color: #333333;  /* 기본 링크는 어두운 색상 */
+  color: #333333;
   text-decoration: none;
   transition: color 0.3s ease;
 }
 
 .footer-link:hover {
-  color: #FF5151;  /* 호버 시 포인트 컬러 */
+  color: #6D63FF;
+}
+
+.social-icon {
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .contact-info {
   font-style: normal;
   line-height: 1.6;
+  color: #666666;
 }
 
 .footer-bottom {
   margin-top: 3rem;
   padding-top: 1rem;
   text-align: center;
-  border-top: 1px solid rgba(255, 81, 81, 0.2);  /* 구분선 색상 변경 */
-  color: #666666;  /* 저작권 텍스트는 좀 더 연한 색상 */
+  border-top: 1px solid rgba(109, 99, 255, 0.2);
+  color: #666666;
 }
 
 @media (max-width: 768px) {
@@ -166,6 +173,10 @@ export default {
 
   .contact-info {
     text-align: center;
+  }
+
+  .footer-nav {
+    align-items: center;
   }
 }
 </style>

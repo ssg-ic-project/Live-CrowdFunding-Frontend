@@ -765,7 +765,7 @@ export default {
 }
 
 .back-btn {
-  background-color: #f8f9fa;
+  background-color: #ffffff;
   border: 1px solid #dee2e6;
   color: #495057;
 }
@@ -862,7 +862,7 @@ export default {
 }
 
 .stat-card {
-  background: #f8f9fa;
+  background: #ffffff;
   padding: 1.5rem;
   border-radius: 8px;
   text-align: center;
@@ -896,7 +896,7 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  background-color: #f8f9fa;
+  background-color: #ffffff;
   border-radius: 4px;
 }
 

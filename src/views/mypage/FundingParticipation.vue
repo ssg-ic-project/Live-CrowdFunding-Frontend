@@ -1,19 +1,20 @@
 <template>
   <div class="dashboard">
     <main class="content">
-      <!-- 헤더 -->
-      <div class="header">
-        <h2>펀딩 참여 내역</h2>
-        <div class="search-box">
-          <input 
-            type="text" 
-            v-model="searchQuery" 
-            placeholder="펀딩 내역 검색"
-            @input="handleSearch"
-          />
-          <button @click="handleSearch">검색</button>
-        </div>
+  <div class="header-container">
+    <div class="header">
+      <h2>펀딩 참여 내역</h2>
+      <div class="search-box">
+        <input 
+          type="text" 
+          v-model="searchQuery" 
+          placeholder="펀딩 내역 검색"
+          @input="handleSearch"
+        />
+        <button @click="handleSearch">검색</button>
       </div>
+    </div>
+  </div>
 
       <!-- 펀딩 목록 -->
       <section class="funding-list">
@@ -157,12 +158,21 @@ export default {
 .dashboard {
   display: flex;
   min-height: 100vh;
-  background-color: #f4f6f9;
+  background-color: #ffffff;
+  width: 100%;
 }
 
 .content {
   flex: 1;
   padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.header-container {
+  width: 60%;
+  margin: 0 auto;
 }
 
 .header {
@@ -170,11 +180,14 @@ export default {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
+  width: 100%;
 }
 
 .header h2 {
   margin: 0;
-  color: #333;
+  color: #6D63FF;
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 
 .search-box {
@@ -183,16 +196,23 @@ export default {
 }
 
 .search-box input {
-  padding: 0.5rem 1rem;
-  border: 1px solid #ddd;
+  padding: 0.75rem 1rem;
+  border: 1px solid #9E94F8;
   border-radius: 4px;
-  width: 200px;
+  width: 300px;
   font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: #6D63FF;
+  box-shadow: 0 0 0 2px rgba(109, 99, 255, 0.1);
 }
 
 .search-box button {
-  padding: 0.5rem 1rem;
-  background-color: #ff5151;
+  padding: 0.75rem 1.5rem;
+  background-color: #6D63FF;
   color: white;
   border: none;
   border-radius: 4px;
@@ -201,8 +221,7 @@ export default {
 }
 
 .search-box button:hover {
-  background-color: #ffd74e;
-  color: #333333;
+  background-color: #9E94F8;
 }
 
 .funding-list {
@@ -210,13 +229,14 @@ export default {
   flex-direction: column;
   gap: 1rem;
   margin-bottom: 2rem;
+  align-items: center; /* 카드들을 가운데 정렬 */
 }
 
 .project-card {
-  width: 100%;
+  width: 60%;
   background-color: #ffffff;
   border-radius: 12px;
-  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #9E94F8;
   overflow: hidden;
   cursor: pointer;
   transition: box-shadow 0.3s ease, transform 0.2s ease;
@@ -224,8 +244,9 @@ export default {
 }
 
 .project-card:hover {
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0px 4px 12px rgba(109, 99, 255, 0.15);
   transform: translateY(-2px);
+  border-color: #6D63FF;
 }
 
 .funding-date {
@@ -291,14 +312,13 @@ export default {
 }
 
 .category-badge {
-  background-color: #f3f4f6;
-  color: #666;
+  background-color: rgba(109, 99, 255, 0.1);
+  color: #6D63FF;
 }
 
 .status-badge.status-funding {
-  background-color: rgba(25, 118, 210, 0.1);
-  color: #1976D2;
-  border: 1px solid rgba(25, 118, 210, 0.3);
+  background-color: #6D63FF;
+  color: white;
 }
 
 .pagination {
@@ -311,7 +331,7 @@ export default {
 
 .pagination-btn {
   padding: 0.5rem 1rem;
-  background-color: #ff5151;
+  background-color: #6D63FF;
   color: white;
   border: none;
   border-radius: 4px;
@@ -322,21 +342,48 @@ export default {
 }
 
 .pagination-btn:disabled {
-  background-color: #ffe3e3;
+  background-color: rgba(109, 99, 255, 0.3);
   cursor: not-allowed;
   color: #666;
 }
 
 .pagination-btn:not(:disabled):hover {
-  background-color: #ffd74e;
-  color: #333333;
+  background-color: #9E94F8;
+}
+
+.content {
+  scrollbar-width: thin;
+  scrollbar-color: #6D63FF #f8f9fa;
+}
+
+.content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.content::-webkit-scrollbar-track {
+  background: #f8f9fa;
+}
+
+.content::-webkit-scrollbar-thumb {
+  background-color: #6D63FF;
+  border-radius: 4px;
+}
+
+.content::-webkit-scrollbar-thumb:hover {
+  background-color: #9E94F8;
 }
 
 @media (max-width: 768px) {
+  .header-container {
+    width: 100%;
+  }
   .header {
     flex-direction: column;
     gap: 1rem;
     align-items: stretch;
+  }
+  .project-card {
+    width: 100%; /* 모바일에서는 전체 너비 사용 */
   }
 
   .search-box {
@@ -355,27 +402,5 @@ export default {
     width: 100%;
     height: 200px;
   }
-}
-
-.content {
-  scrollbar-width: thin;
-  scrollbar-color: #ff5151 #f4f6f9;
-}
-
-.content::-webkit-scrollbar {
-  width: 8px;
-}
-
-.content::-webkit-scrollbar-track {
-  background: #f4f6f9;
-}
-
-.content::-webkit-scrollbar-thumb {
-  background-color: #ff5151;
-  border-radius: 4px;
-}
-
-.content::-webkit-scrollbar-thumb:hover {
-  background-color: #ffd74e;
 }
 </style>

@@ -24,12 +24,16 @@ export default {
     product: {
       type: Object,
       required: true,
-      validator: function(obj) {
-        return typeof obj.id !== 'undefined' &&
-               typeof obj.name !== 'undefined' &&
-               typeof obj.url !== 'undefined' &&
-               typeof obj.achievement !== 'undefined'
-      }
+      validator: function (obj) {
+        return (
+          typeof obj.id !== "undefined" &&
+          typeof obj.name !== "undefined" &&
+          typeof obj.image !== "undefined" && // url -> image로 변경
+          typeof obj.achievement !== "undefined" &&
+          typeof obj.category !== "undefined" &&
+          typeof obj.remainingTime !== "undefined"
+        );
+      },
     },
     rank: {
       type: Number,
@@ -39,21 +43,16 @@ export default {
   methods: {
     handleClick() {
       if (this.product.isLive) {
-        // 라이브 방송인 경우
         this.$router.push({
           path: "/streaming",
-          query: {
-            productId: this.product.id,
-          },
+          query: { productId: this.product.id },
         });
       } else if (this.product.isVod) {
-        // VOD인 경우
         this.$router.push({
-          name: 'VODRoom',
-          params: { streamId: this.product.id }
+          name: "VODRoom",
+          params: { streamId: this.product.id }, // scheduleId -> streamId로 변경
         });
       } else {
-        // 일반 상품인 경우
         this.$router.push({
           name: "ProductDetail",
           params: { productId: this.product.id },

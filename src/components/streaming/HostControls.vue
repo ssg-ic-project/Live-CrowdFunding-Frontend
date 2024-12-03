@@ -121,7 +121,7 @@ const confirmLeave = () => {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background-color: #f8f9fa;
+  background-color: #ffffff;
   border-radius: 0.5rem;
   padding: 1rem;
 }
@@ -263,7 +263,7 @@ const confirmLeave = () => {
 }
 
 .cancel-button {
-  background: #f8f9fa;
+  background: #ffffff;
   color: #333;
 }
 

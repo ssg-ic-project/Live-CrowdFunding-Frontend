@@ -115,7 +115,7 @@ onBeforeUnmount(() => {
 .vod-layout {
   width: 100%;
   min-height: 100vh;
-  background-color: #f8f9fa;
+  background-color: #ffffff;
   padding: 2rem;
 }
 

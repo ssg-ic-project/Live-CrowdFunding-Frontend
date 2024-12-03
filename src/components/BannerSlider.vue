@@ -158,7 +158,6 @@ onUnmounted(() => {
   window.removeEventListener('resize', updateTranslateX);
 });
 </script>
-
 <style scoped>
 .banner-wrapper {
   width: 100vw;
