@@ -301,12 +301,12 @@
         </div>
       </div>
     </div>
+    <UploadProgressModal 
+      :is-open="showUploadProgressModal"
+      :progress="uploadProgress"
+    />
   </div>
 
-  <UploadProgressModal 
-    :is-open="showUploadProgressModal"
-    :progress="uploadProgress"
-  />
 
   <!--  &lt;!&ndash; 토스페이먼츠 결제 위젯 &ndash;&gt;-->
   <!--  <div v-if="showPaymentTossWidgetModal">-->
