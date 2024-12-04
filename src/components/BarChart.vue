@@ -17,7 +17,7 @@ import {
 } from "chart.js";
 
 export default {
-  props: ["data", "xLabel", "yLabel"],
+  props: ["data", "xLabel", "yLabel", "useDoubleYAxis"],
   mounted() {
     this.renderChart();
   },
@@ -55,6 +55,49 @@ export default {
     },
     createChart(ctx, plugins) {
       Chart.register(...plugins);
+
+      const scalesOption = this.useDoubleYAxis ? {
+        'y-axis-1': {
+          type: 'linear',
+          position: 'left',
+          title: {
+            display: true,
+            text: '펀딩 수'
+          }
+        },
+        'y-axis-2': {
+          type: 'linear',
+          position: 'right',
+          title: {
+            display: true,
+            text: '펀딩 수익 (만원)'
+          },
+          grid: {
+            drawOnChartArea: false
+          },
+          display: true
+        },
+        x: {
+          title: {
+            display: true,
+            text: this.xLabel,
+          }
+        }
+      } : {
+        x: {
+          title: {
+            display: true,
+            text: this.xLabel,
+          }
+        },
+        y: {
+          title: {
+            display: true,
+            text: this.yLabel,
+          }
+        }
+      };
+
       this.chart = new Chart(ctx, {
         type: "bar",
         data: this.data,
@@ -75,20 +118,7 @@ export default {
               },
             },
           },
-          scales: {
-            x: {
-              title: {
-                display: true,
-                text: this.xLabel,
-              },
-            },
-            y: {
-              title: {
-                display: true,
-                text: this.yLabel,
-              },
-            },
-          },
+          scales: scalesOption
         },
       });
     },
