@@ -158,15 +158,28 @@ export default {
     const streams = ref([]);
     const schedules = ref([]);
     const selectedDate = ref(formatDateForCompare(new Date()));
+    const pastLiveStreams = ref([]);
 
     // LIVE/VOD 관련 computed
     const currentLiveStreams = computed(() => {
       return streams.value.filter((stream) => stream.isStreaming);
     });
 
-    const pastLiveStreams = computed(() => {
-      return streams.value.filter((stream) => !stream.isStreaming);
-    });
+    const getVodProjects = async () => {
+      const response = await fetch('/api/project/vod');
+
+      if (!response.ok) {
+        throw new Error('VOD 데이터를 불러오는데 실패했습니다.');
+      }
+
+      const data = await response.json();
+
+      pastLiveStreams.value = data;
+
+      console.log('VOD 데이터:', data);
+
+      return data;
+    };
 
     // 편성표 관련 computed
     const dateRange = computed(() => {
@@ -240,6 +253,7 @@ export default {
     // 초기 데이터 로드
     loadStreamData();
     loadScheduleData();
+    getVodProjects();
 
     return {
       menus,
@@ -261,6 +275,7 @@ export default {
 </script>
 
 <style scoped>
+
 .broadcast-container {
   width: 100%;
   max-width: 1200px;
