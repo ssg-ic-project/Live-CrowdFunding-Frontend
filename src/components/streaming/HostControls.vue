@@ -77,8 +77,6 @@ const props = defineProps({
 
 const { isRecording, startRecording, stopRecording } = useScreenRecording();
 
-console.log("Aaaaaaaaaaaaaaaaaaaaaaaa", history.state.scheduleId)
-
 const handleRecording = async () => {
   if (isRecording.value) {
     stopRecording();
@@ -115,38 +113,16 @@ const handleLeave = () => {
   showLeaveModal.value = true;
 };
 
-const confirmLeave = async () => {
-  // stopRecording을 Promise로 래핑
+const confirmLeave = () => {
   if (isRecording.value) {
-    await new Promise((resolve) => {
-      stopRecording();
-      resolve();
-    });
+    stopRecording();
   }
 
-  // socket.emit을 Promise로 래핑
-  await new Promise((resolve, reject) => {
-    props.socket.emit('end-stream', { roomId: props.roomId }, (response) => {
-      if (response?.error) {
-        reject(response.error);
-      } else {
-        resolve(response);
-      }
-    });
-  });
-  // props.socket.emit('end-stream', { roomId: props.roomId }) // props에서 socket과 roomId 사용
-  
-  // 'leave' 이벤트 emit을 Promise로 래핑
-  await new Promise((resolve) => {
-    emit('leave');
-    resolve();
-  });
-
+  props.socket.emit('end-stream', { roomId: props.roomId }) // props에서 socket과 roomId 사용
+  emit('leave');
   showLeaveModal.value = false;
 };
 </script>
-
-
 
 <!-- scoped는 해당 컴포넌트의 css가 다른 컴포넌트에 영향을 주지 않도록 한다.(scope) -->
 <!-- https://blog.jeongwoo.in/vue-js-scoped-css-1b77c9a1b8bb -->
