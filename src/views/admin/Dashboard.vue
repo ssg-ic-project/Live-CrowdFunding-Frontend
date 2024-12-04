@@ -28,7 +28,7 @@
         <div class="chart">
 <!--          <h3>월 수익</h3>-->
 <!--          <LineChart :data="revenueData" x-Label="연도-월" y-Label="수익(만원)"/>-->
-        <h3> 펀딩 성공 현황 </h3>
+        <h3> 펀딩 성공 현황 (전월)</h3>
           <PieChart :data="fundingStatusData" />
 
         </div>
