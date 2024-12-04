@@ -115,9 +115,33 @@ const handleLeave = () => {
   showLeaveModal.value = true;
 };
 
-const confirmLeave = () => {
-  props.socket.emit('end-stream', { roomId: props.roomId }) // props에서 socket과 roomId 사용
-  emit('leave');
+const confirmLeave = async () => {
+  // stopRecording을 Promise로 래핑
+  if (isRecording.value) {
+    await new Promise((resolve) => {
+      stopRecording();
+      resolve();
+    });
+  }
+
+  // socket.emit을 Promise로 래핑
+  await new Promise((resolve, reject) => {
+    props.socket.emit('end-stream', { roomId: props.roomId }, (response) => {
+      if (response?.error) {
+        reject(response.error);
+      } else {
+        resolve(response);
+      }
+    });
+  });
+  // props.socket.emit('end-stream', { roomId: props.roomId }) // props에서 socket과 roomId 사용
+  
+  // 'leave' 이벤트 emit을 Promise로 래핑
+  await new Promise((resolve) => {
+    emit('leave');
+    resolve();
+  });
+
   showLeaveModal.value = false;
 };
 </script>
