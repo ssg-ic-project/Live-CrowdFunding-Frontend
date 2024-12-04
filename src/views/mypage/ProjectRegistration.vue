@@ -1144,6 +1144,7 @@ export default {
   padding: 2rem;
   max-width: 1600px; /* 최대 너비 증가 */
   margin: 0 auto;
+  margin-left: 250px;
 }
 
 .project-form {
@@ -1166,6 +1167,10 @@ h3 {
   margin-bottom: 1.5rem;
   font-weight: 600;
   text-align: center;
+}
+
+h4 {
+  white-space: nowrap;
 }
 
 /* 요금제 섹션 스타일 */
@@ -1553,13 +1558,29 @@ button:disabled {
 }
 
 @media (max-width: 768px) {
+
+  .project-registration-page {
+    padding: 0;
+    margin: auto;
+    overflow-x: scroll;
+  }
+
   .pricing-plans {
+    display: flex;
+    box-sizing: border-box;
+    gap: 2px;
     grid-template-columns: 1fr;
+  }
+
+  h4 {
+    white-space: nowrap;
   }
 
   .pricing-card {
     min-height: auto;
+    padding: 1rem;
     padding-bottom: 5rem;
+    height: 530px;
   }
 
   .form-section {
