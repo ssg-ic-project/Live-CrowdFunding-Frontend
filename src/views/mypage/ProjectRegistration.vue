@@ -303,6 +303,11 @@
     </div>
   </div>
 
+  <UploadProgressModal 
+    :is-open="showUploadProgressModal"
+    :progress="uploadProgress"
+  />
+
   <!--  &lt;!&ndash; 토스페이먼츠 결제 위젯 &ndash;&gt;-->
   <!--  <div v-if="showPaymentTossWidgetModal">-->
   <!--    <h2>결제 수단</h2>-->
@@ -312,6 +317,7 @@
 
 <script>
 import axios from "axios";
+import UploadProgressModal from './UploadProgressModal.vue';
 import { ANONYMOUS, loadPaymentWidget } from "@tosspayments/payment-widget-sdk";
 
 export default {
@@ -386,6 +392,8 @@ export default {
         additional: null,
       },
       showReviewModal: false,
+      uploadProgress: 0,
+      showUploadProgressModal: false,
       showPaymentCompleteModal: false,
       reviewProgress: 0,
       reviewMessage: "프로젝트를 검토중입니다...",
@@ -546,6 +554,9 @@ export default {
 
     async registerProject() {
       try {
+        this.showUploadProgressModal = true;
+        this.uploadProgress = 0;
+
         // sessionStorage에서 데이터 복원
         const projectData = JSON.parse(sessionStorage.getItem("projectData"));
         const formDataUrl = sessionStorage.getItem("formDataUrl");
@@ -563,19 +574,27 @@ export default {
         originalFormData.append("temp", formDataBlob);
         // FormData 복원 로직...
 
-        // API 호출
+        // API 호출 with progress tracking
         await api.post("/api/project", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
+          },
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            this.uploadProgress = percentCompleted;
           },
         });
 
         // 저장된 데이터 삭제
         sessionStorage.removeItem("projectData");
         sessionStorage.removeItem("formDataUrl");
-
+        
+        this.showUploadProgressModal = false;
         this.showPaymentCompleteModal = true;
       } catch (error) {
+        this.showUploadProgressModal = false;
         console.error("프로젝트 등록 중 오류 발생:", error);
         alert("프로젝트 등록 중 오류가 발생했습니다.");
       }
