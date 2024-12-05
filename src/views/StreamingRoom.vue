@@ -33,10 +33,10 @@
       </div>
 
       <!-- 상품 정보 영역 -->
-      <div class="product-info-area">
+      <div class="product-info-area" @click="goToProductDetail">
         <div class="area-header">상품 정보</div>
         <div class="scrollable-content">
-          <product-info-component :roomId="roomId" />
+          <product-info-component :roomId="roomId"  />
           <div class="stream-summary-section">
             <h3 class="section-header">스트리밍 요약</h3>
             <stream-summary-component :roomId="roomId" :socket="socket" />
@@ -101,11 +101,20 @@ onMounted(async () => {
   if (!socket.value) {
     await initializeSocket()
   }
+  // 접근 경로에 따른 userRole 설정
+  if (router.currentRoute.value.name === 'home' || 
+      router.currentRoute.value.name === 'live') {
+    // 홈/라이브 메뉴에서 접근시 무조건 시청자 화면
+    userRole.value = 'user'
+  } else if (router.currentRoute.value.name === 'broadcast' || 
+             router.currentRoute.value.name === 'mypage') {
+    // 방송하기/마이페이지에서 접근시 localStorage 값 사용
+    userRole.value = localStorage.getItem('userType') || 'user'
+  } else {
+    // 기본값은 시청자 화면
+    userRole.value = 'user'
+  }
 
-  userName.value = localStorage.getItem('userName') || '손님';  
-  userRole.value = localStorage.getItem('userType') || 'user';
-
-  // 연결 완료를 기다림
   await new Promise(resolve => {
     if (socket.value.connected) {
       resolve()
@@ -187,6 +196,10 @@ const handleHostEndedClose = async () => {
   countdown.value = 3
   // await handleLeaveRoom()
 }
+const goToProductDetail = () => {
+  router.push(`/product/${history.state.productId}`)
+}
+
 </script>
 
 <style scoped>
@@ -197,6 +210,9 @@ const handleHostEndedClose = async () => {
   padding: 1rem;
   overflow: hidden;
   box-sizing: border-box;
+}
+.product-info-area:hover {
+  background-color: #f8f9fa;
 }
 
 .grid-container {
@@ -239,6 +255,8 @@ const handleHostEndedClose = async () => {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
   }
 }
 

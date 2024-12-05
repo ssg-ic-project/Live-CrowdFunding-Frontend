@@ -1,213 +1,3 @@
-<script setup>
-import { ref, onMounted, onUnmounted, nextTick } from 'vue'
-import { Client } from '@stomp/stompjs'
-
-const props = defineProps({
-  roomId: {
-    type: String,
-    required: true,
-  },
-  userName: {
-    type: String,
-    required: true,
-  },
-})
-
-const messages = ref([])
-const messageInput = ref('')
-const stompClient = ref(null)
-const messageContainer = ref(null)
-const connectionStatus = ref('disconnected')
-const isConnecting = ref(false)
-const blockedUsers = ref(new Set())
-const showReportModal = ref(false)
-const reportedMessage = ref(null)
-const reportReason = ref('')
-
-const VITE_API_SERVER_URI = import.meta.env.VITE_API_SERVER_URI
-
-const connect = () => {
-  isConnecting.value = true
-  connectionStatus.value = 'connecting'
-
-  const client = new Client({
-    brokerURL: import.meta.env.VITE_WEBSOCKET_URI,
-    debug: function (str) {
-      // console.log(str)
-    },
-    reconnectDelay: 5000,
-    heartbeatIncoming: 4000,
-    heartbeatOutgoing: 4000,
-  })
-
-  client.onConnect = () => {
-    isConnecting.value = false
-    connectionStatus.value = 'connected'
-    // console.log('Connected to WebSocket')
-
-    client.subscribe(`/sub/chat/${props.roomId}`, (message) => {
-      try {
-        const receivedMessage = JSON.parse(message.body)
-
-        // 차단된 사용자의 메시지는 표시하지 않음
-        if (!blockedUsers.value.has(receivedMessage.userName)) {
-          messages.value.push(receivedMessage)
-          scrollToBottom()
-        }
-      } catch (error) {
-        console.error('Error parsing message:', error)
-      }
-    })
-  }
-
-  client.onDisconnect = () => {
-    isConnecting.value = false
-    connectionStatus.value = 'disconnected'
-    // console.log('Disconnected from WebSocket')
-  }
-
-  client.onStompError = (frame) => {
-    isConnecting.value = false
-    connectionStatus.value = 'error'
-    console.error('STOMP error:', frame)
-  }
-
-  setTimeout(() => {
-    if (connectionStatus.value === 'connecting') {
-      client.deactivate()
-      connectionStatus.value = 'error'
-      isConnecting.value = false
-    }
-  }, 2000)
-
-  client.activate()
-  stompClient.value = client
-}
-
-const disconnect = () => {
-  if (stompClient.value?.connected) {
-    stompClient.value.deactivate()
-  }
-}
-
-const sendMessage = () => {
-  if (!messageInput.value.trim() || !stompClient.value?.connected) return
-
-  const message = {
-    roomId: props.roomId,
-    userName: props.userName,
-    content: messageInput.value,
-    timestamp: new Date().toISOString(),
-  }
-
-  stompClient.value.publish({
-    destination: `/pub/chat/message`,
-    body: JSON.stringify(message),
-  })
-
-  messageInput.value = ''
-}
-
-const scrollToBottom = () => {
-  if (messageContainer.value) {
-    setTimeout(() => {
-      messageContainer.value.scrollTop = messageContainer.value.scrollHeight
-    }, 50)
-  }
-}
-
-const loadChatHistory = async () => {
-  const response = await fetch(`${VITE_API_SERVER_URI}/api/chat/history/${props.roomId}`)
-  try {
-    if (response.ok) {
-      const history = await response.json()
-      // 차단된 사용자의 메시지를 필터링
-      messages.value = history.filter((msg) => !blockedUsers.value.has(msg.userName))
-      nextTick(() => {
-        scrollToBottom()
-      })
-    }
-  } catch (error) {
-    console.error('채팅 히스토리 로드 실패:', error)
-  }
-}
-// 사용자 차단 기능
-const blockUser = (userName) => {
-  if (userName === props.userName) return // 자기 자신은 차단할 수 없음
-  blockedUsers.value.add(userName)
-  // 차단된 사용자의 메시지를 현재 메시지 목록에서 제거
-  messages.value = messages.value.filter((msg) => !blockedUsers.value.has(msg.userName))
-  // localStorage에 차단 목록 저장
-  localStorage.setItem(`blockedUsers_${props.roomId}`, JSON.stringify([...blockedUsers.value]))
-}
-
-// 차단 해제 기능
-const unblockUser = (userName) => {
-  blockedUsers.value.delete(userName)
-  // localStorage 업데이트
-  localStorage.setItem(`blockedUsers_${props.roomId}`, JSON.stringify([...blockedUsers.value]))
-  // 채팅 히스토리 다시 로드
-  loadChatHistory()
-}
-
-// 신고 모달 표시
-const openReportModal = (message) => {
-  reportedMessage.value = message
-  showReportModal.value = true
-}
-
-// 메시지 신고 처리
-const submitReport = async () => {
-  if (!reportedMessage.value || !reportReason.value) return
-
-  try {
-    const response = await fetch('http://localhost:8080/api/chat/report', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        userId: 1,
-        projectId: 1,
-        reason: reportReason.value,
-        chatMessage: reportedMessage.value.content,
-      }),
-    })
-
-    if (response.ok) {
-      alert('신고가 접수되었습니다.')
-    } else {
-      throw new Error('신고 처리 실패')
-    }
-  } catch (error) {
-    console.error('메시지 신고 실패:', error)
-    alert('신고 처리 중 오류가 발생했습니다.')
-  } finally {
-    showReportModal.value = false
-    reportedMessage.value = null
-    reportReason.value = ''
-  }
-}
-
-// 차단된 사용자 목록 로드
-const loadBlockedUsers = () => {
-  const savedBlockedUsers = localStorage.getItem(`blockedUsers_${props.roomId}`)
-  if (savedBlockedUsers) {
-    blockedUsers.value = new Set(JSON.parse(savedBlockedUsers))
-  }
-}
-
-onMounted(() => {
-  // loadBlockedUsers()
-  loadChatHistory()
-  connect()
-})
-
-onUnmounted(() => {
-  disconnect()
-})
-</script>
-
 <template>
   <div class="chat-container">
     <div class="connection-status" :class="connectionStatus">
@@ -237,7 +27,7 @@ onUnmounted(() => {
           :key="message.timestamp"
           class="message-group"
           :class="{
-            'own-message-group': message.userName === props.userName,
+            'own-message-group': message.userName === userName,
           }"
         >
           <span class="timestamp">
@@ -246,7 +36,7 @@ onUnmounted(() => {
           <div
             class="message"
             :class="{
-              'own-message': message.userName === props.userName,
+              'own-message': message.userName === userName,
             }"
           >
             <div class="message-header">
@@ -255,10 +45,8 @@ onUnmounted(() => {
             <div class="message-content">
               {{ message.content }}
             </div>
-            <!-- 자신의 메시지가 아닌 경우에만 메뉴 버튼 표시 -->
-            <div v-if="message.userName !== props.userName" class="message-actions">
+            <div v-if="message.userName !== userName" class="message-actions">
               <button class="action-button" @click="openReportModal(message)">신고</button>
-              <!-- <button class="action-button" @click="blockUser(message.userName)">차단</button> -->
             </div>
           </div>
         </div>
@@ -266,6 +54,9 @@ onUnmounted(() => {
     </div>
 
     <div class="input-wrapper">
+      <div v-if="!isLoggedIn" class="login-warning">
+        로그인 후 이용하실 수 있습니다.
+      </div>
       <div class="input-container">
         <input
           v-model="messageInput"
@@ -273,12 +64,12 @@ onUnmounted(() => {
           @keyup.enter="sendMessage"
           placeholder="메시지를 입력하세요"
           class="message-input"
-          :disabled="connectionStatus !== 'connected'"
+          :disabled="connectionStatus !== 'connected' || !isLoggedIn"
         />
         <button
           @click="sendMessage"
           class="send-button"
-          :disabled="connectionStatus !== 'connected'"
+          :disabled="connectionStatus !== 'connected' || !isLoggedIn"
         >
           전송
         </button>
@@ -302,19 +93,222 @@ onUnmounted(() => {
         </div>
       </div>
     </div>
-
-    <!-- 차단 목록 관리 섹션 -->
-    <div v-if="blockedUsers.size > 0" class="blocked-users">
-      <h4>차단된 사용자</h4>
-      <div v-for="user in [...blockedUsers]" :key="user" class="blocked-user">
-        <span>{{ user }}</span>
-        <button @click="unblockUser(user)" class="unblock-button">차단 해제</button>
-      </div>
-    </div>
   </div>
 </template>
 
+<script setup>
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { Client } from '@stomp/stompjs'
+
+const props = defineProps({
+  roomId: {
+    type: String,
+    required: true,
+  },
+  socket: {
+    type: Object,
+    required: true,
+  }
+})
+
+const messages = ref([])
+const messageInput = ref('')
+const stompClient = ref(null)
+const messageContainer = ref(null)
+const connectionStatus = ref('disconnected')
+const isConnecting = ref(false)
+const showReportModal = ref(false)
+const reportedMessage = ref(null)
+const reportReason = ref('')
+
+// 로그인 상태와 사용자 이름 관리
+const isLoggedIn = ref(false)
+const userName = ref('')
+
+const VITE_API_SERVER_URI = import.meta.env.VITE_API_SERVER_URI
+
+onMounted(() => {
+  // 로컬 스토리지에서 이메일 확인
+  const userEmail = localStorage.getItem('userEmail')
+  if (userEmail) {
+    isLoggedIn.value = true
+    // 이메일에서 @ 앞부분만 추출하여 사용자 이름으로 설정
+    userName.value = userEmail.split('@')[0]
+  } else {
+    isLoggedIn.value = false
+    userName.value = '손님'
+  }
+  
+  loadChatHistory()
+  connect()
+})
+
+const connect = () => {
+  isConnecting.value = true
+  connectionStatus.value = 'connecting'
+
+  const client = new Client({
+    brokerURL: import.meta.env.VITE_WEBSOCKET_URI,
+    debug: function (str) {
+      // console.log(str)
+    },
+    reconnectDelay: 5000,
+    heartbeatIncoming: 4000,
+    heartbeatOutgoing: 4000,
+  })
+
+  client.onConnect = () => {
+    isConnecting.value = false
+    connectionStatus.value = 'connected'
+
+    client.subscribe(`/sub/chat/${props.roomId}`, (message) => {
+      try {
+        const receivedMessage = JSON.parse(message.body)
+        messages.value.push(receivedMessage)
+        scrollToBottom()
+      } catch (error) {
+        console.error('Error parsing message:', error)
+      }
+    })
+  }
+
+  client.onDisconnect = () => {
+    isConnecting.value = false
+    connectionStatus.value = 'disconnected'
+  }
+
+  client.onStompError = (frame) => {
+    isConnecting.value = false
+    connectionStatus.value = 'error'
+    console.error('STOMP error:', frame)
+  }
+
+  setTimeout(() => {
+    if (connectionStatus.value === 'connecting') {
+      client.deactivate()
+      connectionStatus.value = 'error'
+      isConnecting.value = false
+    }
+  }, 2000)
+
+  client.activate()
+  stompClient.value = client
+}
+
+const disconnect = () => {
+  if (stompClient.value?.connected) {
+    stompClient.value.deactivate()
+  }
+}
+
+const sendMessage = () => {
+  if (!messageInput.value.trim() || !stompClient.value?.connected || !isLoggedIn.value) return
+
+  const message = {
+    roomId: props.roomId,
+    userName: userName.value,
+    content: messageInput.value,
+    timestamp: new Date().toISOString(),
+  }
+
+  stompClient.value.publish({
+    destination: `/pub/chat/message`,
+    body: JSON.stringify(message),
+  })
+
+  messageInput.value = ''
+}
+
+const scrollToBottom = () => {
+  if (messageContainer.value) {
+    setTimeout(() => {
+      messageContainer.value.scrollTop = messageContainer.value.scrollHeight
+    }, 50)
+  }
+}
+
+const loadChatHistory = async () => {
+  try {
+    const response = await fetch(`${VITE_API_SERVER_URI}/api/chat/history/${props.roomId}`)
+    if (response.ok) {
+      const history = await response.json()
+      messages.value = history
+      nextTick(() => {
+        scrollToBottom()
+      })
+    }
+  } catch (error) {
+    console.error('채팅 히스토리 로드 실패:', error)
+  }
+}
+
+const openReportModal = (message) => {
+  if (!isLoggedIn.value) {
+    alert('신고하기는 로그인 후 이용하실 수 있습니다.')
+    return
+  }
+  reportedMessage.value = message
+  showReportModal.value = true
+}
+
+const submitReport = async () => {
+  if (!reportedMessage.value || !reportReason.value) return
+
+  try {
+    const response = await fetch(`${VITE_API_SERVER_URI}/api/chat/report`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userId: 1,
+        projectId: 1,
+        reason: reportReason.value,
+        chatMessage: reportedMessage.value.content,
+      }),
+    })
+
+    if (response.ok) {
+      alert('신고가 접수되었습니다.')
+    } else {
+      throw new Error('신고 처리 실패')
+    }
+  } catch (error) {
+    console.error('메시지 신고 실패:', error)
+    alert('신고 처리 중 오류가 발생했습니다.')
+  } finally {
+    showReportModal.value = false
+    reportedMessage.value = null
+    reportReason.value = ''
+  }
+}
+
+onUnmounted(() => {
+  disconnect()
+})
+</script>
+
 <style scoped>
+
+.login-warning {
+  color: #dc3545;
+  font-size: 0.9rem;
+  padding: 0.5rem;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: 100%;
+  background-color: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+
 .chat-container {
   display: flex;
   flex-direction: column;
