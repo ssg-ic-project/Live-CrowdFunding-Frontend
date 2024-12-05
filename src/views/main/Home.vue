@@ -20,7 +20,7 @@
       </section>
 
       <section class="ranking-section" v-if="!isLoading && !error">
-        <h2>실시간 인기 상품</h2>
+        <h2>HOT 인기 상품</h2>
         <div class="ranking-list">
           <RankingCard
             v-for="(product, index) in rankingProducts.slice(0, 10)"

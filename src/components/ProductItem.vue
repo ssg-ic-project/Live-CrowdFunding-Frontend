@@ -132,7 +132,7 @@ export default {
   background: #96CEB4; 
 }
 .category.entertainment { 
-  background: #FFEEAD; 
+  background: #33de91; 
   color: #666; 
 }
 .category.wearable { 
