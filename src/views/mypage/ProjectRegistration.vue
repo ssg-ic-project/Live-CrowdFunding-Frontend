@@ -419,7 +419,6 @@ export default {
     reviewSuccess: {
       async handler(newVal){
         if(newVal){
-          console.log('용빈별첨:와치중');
           await this.initTossPayments();
         }
       },
@@ -714,15 +713,73 @@ export default {
       return true;
     },
     async submitProject() {
-      console.log('용빈1:제출');
       if (!this.validateForm()) {
         return;
       }
 
+      try {
+        const documents = await this.processDocuments();
+        if (!documents) {
+          throw new Error('문서 처리 중 오류가 발생했습니다.');
+        }
       // 검토 모달 표시 및 검토 프로세스 시작
-      this.showReviewModal = true;
-      await this.startReview();
-      console.log('용빈2:리뷰완료');
+        this.showReviewModal = true;
+        await this.simulateReviewProcess();
+
+        const response = await axios.post('/api/proposals/analyze', documents);
+        const { proposalScore, rejectionReason } = response.data;
+
+        this.reviewComplete = true;
+        this.reviewSuccess = proposalScore >= 80;
+        
+        if (!this.reviewSuccess) {
+          this.rejectReason = rejectionReason;
+        }
+      } catch (error) {
+        console.error('프로젝트 제출 오류:', error);
+        alert('프로젝트 제출 중 오류가 발생했습니다.');
+        this.closeModal();
+      }
+
+    },
+
+    async processDocuments() {
+      try {
+        const projectText = await this.extractDocumentText(this.uploadedDocuments.projectPlan);
+        const fundingText = await this.extractDocumentText(this.uploadedDocuments.developmentPlan);
+        
+        return {
+          projectDocument: projectText,
+          fundingDocument: fundingText
+        };
+      } catch (error) {
+        console.error('문서 처리 오류:', error);
+        return null;
+      }
+    },
+
+    async extractDocumentText(file) {
+      if (file.type === 'text/plain') {
+        const text = await file.text();
+        return this.processTextContent(text);
+      }
+      
+      if (file.type.includes('word') || file.type.includes('docx')) {
+        const arrayBuffer = await file.arrayBuffer();
+        const result = await window.mammoth.extractRawText({ arrayBuffer });
+        return this.processTextContent(result.value);
+      }
+      
+      throw new Error(`지원하지 않는 파일 형식입니다: ${file.type}`);
+    },
+
+    async processTextContent(content) {
+      return content
+        .replace(/\r\n|\r|\n/g, '\n')
+        .replace(/[\u0000-\u0019]+/g, " ")
+        .replace(/\\/g, "\\\\")
+        .replace(/"/g, '\\"')
+        .trim();
     },
 
     // 파일 업로드 핸들러 수정
@@ -735,28 +792,6 @@ export default {
     },
 
     async simulateReviewProcess() {
-    },
-    startReview() {
-      let progress = 0;
-      this.currentMessageIndex = 0;
-
-      const interval = setInterval(() => {
-        progress += 1;
-        this.reviewProgress = progress;
-
-        if (
-            progress % 20 === 0 &&
-            this.currentMessageIndex < this.reviewMessages.length
-        ) {
-          this.reviewMessage = this.reviewMessages[this.currentMessageIndex];
-          this.currentMessageIndex++;
-        }
-
-        if (progress >= 100) {
-          clearInterval(interval);
-          this.completeReview();
-        }
-      }, 50);
     },
     completeReview() {
       this.reviewComplete = true;
@@ -801,7 +836,6 @@ export default {
 
   async confirmPayment() {
     console.log("탱큐 포 결제💸");
-    console.log('용빈5:결제뜨는 지 보기');
     const orderId = this.generateOrderId();
 
     if(this.paymentWidget){
@@ -815,7 +849,6 @@ export default {
           failUrl: `${window.location.origin}${this.$router.resolve({ name: 'PaymentFailBF' }).href}`
         };
 
-        console.log('용빈6:결제 요청 직전');
           // 결제 요청
           await this.paymentWidget.requestPayment(paymentConfig);
 
@@ -850,29 +883,39 @@ export default {
 
 
 </script>
-
 <style scoped>
 .project-registration-page {
   padding: 2rem;
-  max-width: 1200px;
+  max-width: 1600px; /* 최대 너비 증가 */
   margin: 0 auto;
+}
+
+.project-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
 }
 
 h2 {
   font-size: 1.8rem;
-  color: #333;
+  color: #333333;
   margin-bottom: 2rem;
+  font-weight: bold;
   text-align: center;
 }
 
 h3 {
   font-size: 1.4rem;
-  color: #333;
+  color: #333333;
   margin-bottom: 1.5rem;
+  font-weight: 600;
+  text-align: center;
 }
 
+/* 요금제 섹션 스타일 */
 .pricing-section {
   margin-bottom: 3rem;
+  width: 100%;
 }
 
 .pricing-plans {
@@ -883,76 +926,42 @@ h3 {
 }
 
 .pricing-card {
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  border: 1px solid #dee2e6;
+  border-radius: 12px;
   padding: 2rem;
   text-align: center;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
   background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 500px;
+  position: relative;
 }
 
 .pricing-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  border-color: #6d63ff;
 }
 
 .pricing-card.selected {
-  border: 2px solid #007bff;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
-}
-
-.selected-plan-info {
-  background-color: #f8f9fa;
-  padding: 1rem;
-  margin-bottom: 1.5rem;
-  border-radius: 4px;
-  border: 1px solid #e9ecef;
-}
-
-.selected-plan-info .plan-name,
-.selected-plan-info .plan-price {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-}
-
-.selected-plan-info .label {
-  color: #6c757d;
-  font-weight: 500;
-}
-
-.selected-plan-info .value {
-  color: #212529;
-  font-weight: 600;
-}
-
-.selected-plan-info .plan-price {
-  margin-bottom: 0;
+  border: 2px solid #6d63ff;
+  box-shadow: 0 0 0 2px rgba(109, 99, 255, 0.1);
 }
 
 .pricing-card h4 {
   font-size: 1.4rem;
-  color: #333;
+  color: #333333;
   margin-bottom: 1rem;
+  font-weight: 600;
 }
 
-.button-group {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  margin-top: 1rem;
-}
-
-.button-group .payment-btn,
-.button-group .cancel-btn {
-  flex: 1;
-  max-width: 150px;
-}
 .plan-price {
   font-size: 1.8rem;
   font-weight: bold;
-  color: #007bff;
+  color: #6d63ff;
   margin: 1.5rem 0;
 }
 
@@ -961,11 +970,12 @@ h3 {
   padding: 0;
   margin: 1.5rem 0;
   text-align: left;
+  flex-grow: 1;
 }
 
 .plan-features li {
   margin: 0.8rem 0;
-  color: #666;
+  color: #666666;
   padding-left: 1.5rem;
   position: relative;
 }
@@ -974,50 +984,69 @@ h3 {
   content: "✓";
   position: absolute;
   left: 0;
-  color: #28a745;
+  color: #9e94f8;
+  font-weight: bold;
 }
 
 .select-plan-btn {
-  width: 100%;
+  width: calc(100% - 4rem);
   padding: 0.8rem;
   border: none;
-  border-radius: 4px;
-  background-color: #007bff;
-  color: white;
+  border-radius: 8px;
   font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s ease;
+  position: absolute;
+  bottom: 2rem;
+  left: 2rem;
+  right: 2rem;
+  background-color: #6d63ff;
+  color: white;
+}
+
+.select-plan-btn.selected {
+  background-color: #9e94f8;
+}
+
+.select-plan-btn:not(.selected) {
+  background-color: #6d63ff;
 }
 
 .select-plan-btn:hover {
-  background-color: #0056b3;
+  filter: brightness(110%);
 }
 
 .next-step-btn {
-  display: block;
-  margin: 2rem auto 0;
-  padding: 1rem 2rem;
-  background-color: #28a745;
+  background-color: #6d63ff;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
+  padding: 1rem 3rem;
   font-size: 1.1rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s ease;
+  display: block;
+  margin: 3rem auto 0;
 }
 
-.next-step-btn:disabled {
-  background-color: #6c757d;
-  cursor: not-allowed;
-}
-
+/* 폼 섹션 스타일 */
 .form-section {
   background: white;
-  border: 1px solid #eee;
-  border-radius: 8px;
+  border: 1px solid #dee2e6;
+  border-radius: 12px;
   padding: 2rem;
   margin-bottom: 2rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  flex: 1;
+  min-width: 400px;
+}
+
+/* 이미지 섹션은 전체 너비 사용 */
+.form-section:last-of-type {
+  flex-basis: 100%;
+  width: 100%;
 }
 
 .input-group {
@@ -1028,7 +1057,7 @@ label {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
-  color: #333;
+  color: #333333;
 }
 
 input,
@@ -1036,24 +1065,26 @@ select,
 textarea {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
   font-size: 1rem;
-  transition: border-color 0.3s;
+  transition: all 0.3s ease;
 }
 
 input:focus,
 select:focus,
 textarea:focus {
   outline: none;
-  border-color: #007bff;
+  border-color: #6d63ff;
+  box-shadow: 0 0 0 3px rgba(109, 99, 255, 0.1);
 }
 
 textarea {
-  height: 150px;
+  min-height: 150px;
   resize: vertical;
 }
 
+/* 이미지 업로드 영역 */
 .image-upload-group {
   margin-bottom: 2rem;
 }
@@ -1063,63 +1094,83 @@ textarea {
   height: 200px;
   object-fit: cover;
   margin-top: 1rem;
-  border-radius: 4px;
-  border: 1px solid #ddd;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
 }
 
 .image-previews {
   display: flex;
   gap: 1rem;
+  flex-wrap: wrap;
   margin-top: 1rem;
-  overflow-x: auto;
-  padding-bottom: 1rem;
 }
 
+/* 문서 업로드 영역 */
 .document-upload-group {
   margin-bottom: 1.5rem;
 }
 
 input[type="file"] {
   padding: 0.5rem;
-  border: 1px dashed #ddd;
-  background-color: #f8f9fa;
+  background-color: #ffffff;
+  border: 2px dashed #dee2e6;
+  cursor: pointer;
 }
 
+small {
+  display: block;
+  margin-top: 0.5rem;
+  color: #666666;
+}
+
+/* 버튼 스타일 */
 .form-buttons {
   display: flex;
   gap: 1rem;
   justify-content: center;
-  margin-top: 3rem;
+  margin-top: 2rem;
+  width: 100%;
+}
+
+.submit-btn,
+.confirm-btn {
+  background-color: #6d63ff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.8rem 2.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 150px;
 }
 
 .cancel-btn,
-.submit-btn {
-  padding: 0.75rem 2.5rem;
+.close-btn {
+  background-color: #9e94f8;
+  color: white;
   border: none;
-  border-radius: 4px;
-  font-size: 1.1rem;
+  border-radius: 8px;
+  padding: 0.8rem 2.5rem;
+  font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.3s ease;
+  min-width: 150px;
 }
 
-.cancel-btn {
-  background-color: #6c757d;
-  color: white;
+button:hover:not(:disabled) {
+  filter: brightness(110%);
+  transform: translateY(-1px);
 }
 
-.submit-btn {
-  background-color: #007bff;
-  color: white;
+button:disabled {
+  background-color: #dee2e6;
+  cursor: not-allowed;
 }
 
-.cancel-btn:hover {
-  background-color: #5a6268;
-}
-
-.submit-btn:hover {
-  background-color: #0056b3;
-}
-
+/* 모달 스타일 */
 .modal {
   position: fixed;
   top: 0;
@@ -1135,127 +1186,39 @@ input[type="file"] {
 
 .modal-content {
   background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 500px;
+  padding: 2.5rem;
+  border-radius: 12px;
+  width: 95%;
+  max-width: 800px;
   text-align: center;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
 .progress-bar {
   width: 100%;
-  height: 10px;
-  background-color: #e9ecef;
-  border-radius: 5px;
+  height: 8px;
+  background-color: #ffffff;
+  border-radius: 4px;
   margin: 1.5rem 0;
   overflow: hidden;
 }
 
 .progress {
   height: 100%;
-  background-color: #007bff;
+  background-color: #6d63ff;
   transition: width 0.3s ease;
 }
 
-.review-result {
-  margin-top: 1.5rem;
-}
-
-.success {
-  color: #28a745;
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-}
-
-.failure {
-  color: #dc3545;
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-}
-
-.reject-reason {
-  color: #666;
-  margin-bottom: 1.5rem;
-}
-
-.payment-btn,
-.close-btn {
-  padding: 0.75rem 2rem;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.payment-btn {
-  background-color: #28a745;
-  color: white;
-}
-
-.close-btn {
-  background-color: #6c757d;
-  color: white;
-}
-
-.payment-btn:hover {
-  background-color: #218838;
-}
-
-.close-btn:hover {
-  background-color: #5a6268;
-}
-
-@media (max-width: 768px) {
-  .pricing-plans {
-    grid-template-columns: 1fr;
-  }
-
-  .form-buttons {
-    flex-direction: column;
-  }
-
-  .cancel-btn,
-  .submit-btn {
-    width: 100%;
-  }
-
-  .image-preview {
-    width: 150px;
-    height: 150px;
-  }
-}
-
-@media (max-width: 480px) {
-  .project-registration-page {
-    padding: 1rem;
-  }
-
-  .form-section {
-    padding: 1rem;
-  }
-
-  h2 {
-    font-size: 1.5rem;
-  }
-
-  h3 {
-    font-size: 1.2rem;
-  }
-}
-
+/* 결제 완료 모달 */
 .payment-complete {
   text-align: center;
-  padding: 1rem;
+  padding: 2rem;
 }
 
 .check-icon {
   width: 60px;
   height: 60px;
-  background-color: #28a745;
+  background-color: #9e94f8;
   color: white;
   border-radius: 50%;
   display: flex;
@@ -1265,28 +1228,110 @@ input[type="file"] {
   margin: 0 auto 1.5rem;
 }
 
-.payment-complete h3 {
-  color: #28a745;
+.success {
+  color: #6d63ff;
+  font-size: 1.4rem;
+  font-weight: bold;
   margin-bottom: 1rem;
 }
 
-.payment-complete p {
-  color: #666;
+.failure {
+  color: #dc3545;
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.reject-reason {
+  color: #666666;
   margin-bottom: 1.5rem;
 }
 
-.confirm-btn {
-  padding: 0.75rem 2rem;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s;
+/* 결제 섹션 스타일 */
+.payment-section {
+  width: 100%;
+  max-width: 450px;
+  margin: 0 auto;
+  padding: 1rem 0;
 }
 
-.confirm-btn:hover {
-  background-color: #218838;
+.payment-container {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1rem 0;
+}
+
+.payment-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  justify-content: center;
+}
+
+/* 결제 위젯 커스텀 스타일 */
+:deep(#payment-method) {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+:deep(#agreement) {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 0.5rem;
+}
+
+.payment-btn,
+.cancel-btn {
+  flex: 1;
+  max-width: 200px;
+  padding: 0.8rem 1.5rem;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1200px) {
+  .form-section {
+    flex-basis: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .pricing-plans {
+    grid-template-columns: 1fr;
+  }
+
+  .pricing-card {
+    min-height: auto;
+    padding-bottom: 5rem;
+  }
+
+  .form-section {
+    padding: 1.5rem;
+    min-width: 100%;
+  }
+
+  .image-preview {
+    width: 150px;
+    height: 150px;
+  }
+
+  .form-buttons {
+    flex-direction: column;
+  }
+
+  .submit-btn,
+  .cancel-btn,
+  .confirm-btn,
+  .close-btn {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .next-step-btn {
+    width: 100%;
+    padding: 0.8rem;
+    font-size: 1rem;
+  }
 }
 </style>
