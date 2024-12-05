@@ -107,6 +107,20 @@
         </div>
       </div>
 
+      <div class="section" v-if="project?.showStatus === '펀딩중'">
+        <h3>방송 예약 정보</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">예약 상태</span>
+            <span class="value">{{ project.scheduleId ? '예약완료' : '미예약' }}</span>
+          </div>
+          <div class="info-item" v-if="project.scheduleId">
+            <span class="label">예약된 방송 일시</span>
+            <span class="value">{{ formatDateTime(project.scheduleDate) }}</span>
+          </div>
+        </div>
+      </div>
+
       <!-- 등록된 서류 섹션 -->
       <div class="section">
         <h3>등록된 서류</h3>
@@ -428,6 +442,19 @@ export default {
       // 상세 이미지 제거
       this.editProject.contentImage = null;
       this.contentImageFile = null;
+    },
+
+    formatDateTime(dateTime) {
+      if (!dateTime) return '-';
+      const date = new Date(dateTime);
+      return date.toLocaleString('ko-KR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
     },
 
     formatPrice(price) {

@@ -1,13 +1,14 @@
-<!-- src/layouts/MyPageLayout.vue -->
 <template>
   <div class="mypage-layout">
     <Header />
     <div class="mypage-main">
       <div class="content-wrapper">
         <div class="mypage-container">
-          <MypageSidebar />
-          <div class="mypage-content">
-            <router-view />
+          <MypageSidebar class="sidebar" />
+          <div class="main-content">
+            <div class="menu-grid">
+              <router-view />
+            </div>
           </div>
         </div>
       </div>
@@ -27,7 +28,6 @@ export default {
   },
 };
 </script>
-
 
 <style scoped>
 .mypage-layout {
@@ -56,43 +56,6 @@ export default {
   margin-top: 2rem;
 }
 
-.menu-grid {
-  width: 100%;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 2rem;
-  padding: 1rem;
-}
-
-.menu-item {
-  background-color: #ffffff;
-  padding: 2rem;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: 1px solid #9E94F8;
-  box-shadow: 0 2px 4px rgba(109, 99, 255, 0.1);
-}
-
-.menu-item:hover {
-  background-color: rgba(109, 99, 255, 0.05);
-  transform: translateY(-5px);
-  border-color: #6D63FF;
-  box-shadow: 0 4px 8px rgba(109, 99, 255, 0.15);
-}
-
-.menu-item h3 {
-  color: #6D63FF;
-  margin-bottom: 1rem;
-  font-size: 1.25rem;
-  font-weight: 500;
-}
-
-.menu-item p {
-  color: #666666;
-  font-size: 0.95rem;
-}
-
 .sidebar {
   flex-shrink: 0;
   width: 220px;
@@ -103,6 +66,14 @@ export default {
 .main-content {
   flex: 1;
   min-width: 0;
+}
+
+.menu-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  padding: 1rem;
 }
 
 @media (max-width: 768px) {
@@ -121,18 +92,6 @@ export default {
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     padding: 0.5rem;
   }
-
-  .menu-item {
-    padding: 1.5rem;
-  }
-
-  .menu-item h3 {
-    font-size: 1.1rem;
-  }
-
-  .menu-item p {
-    font-size: 0.9rem;
-  }
 }
 
 @media (max-width: 480px) {
@@ -142,10 +101,6 @@ export default {
 
   .menu-grid {
     grid-template-columns: 1fr;
-  }
-
-  .menu-item {
-    padding: 1rem;
   }
 }
 </style>
