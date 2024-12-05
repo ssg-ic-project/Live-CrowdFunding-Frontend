@@ -129,6 +129,82 @@
         </div>
       </div>
 
+      
+  <!-- 필수 등록 서류 섹션 -->
+  <div class="form-section">
+    <h3>필수 등록 서류</h3>
+    
+    <!-- 상품 기획서 -->
+    <div class="document-upload-group">
+      <div class="document-header">
+        <label>상품 기획서</label>
+        <a href="AAA.AA.AA/product-template" target="_blank" class="template-btn" type="button">
+          양식 다운로드
+        </a>
+      </div>
+      <input
+        type="file"
+        @change="(e) => handleDocumentUpload('projectPlan', e)"
+        accept=".pdf,.doc,.docx"
+        required
+      />
+      <small v-if="uploadedDocuments.projectPlan">
+        {{ uploadedDocuments.projectPlan.name }}
+      </small>
+    </div>
+
+    <!-- 펀딩 기획서 -->
+    <div class="document-upload-group">
+      <div class="document-header">
+        <label>펀딩 기획서</label>
+        <a href="AAA.AA.AA/funding-template" target="_blank" class="template-btn" type="button">
+          양식 다운로드
+        </a>
+      </div>
+      <input
+        type="file"
+        @change="(e) => handleDocumentUpload('developmentPlan', e)"
+        accept=".pdf,.doc,.docx"
+        required
+      />
+      <small v-if="uploadedDocuments.developmentPlan">
+        {{ uploadedDocuments.developmentPlan.name }}
+      </small>
+    </div>
+
+    <!-- 개인정보 이용동의서 -->
+    <div class="document-upload-group">
+      <div class="document-header">
+        <label>개인정보 이용동의서</label>
+        <a href="AAA.AA.AA/privacy-template" target="_blank" class="template-btn" type="button">
+          양식 다운로드
+        </a>
+      </div>
+      <input
+        type="file"
+        @change="(e) => handleDocumentUpload('agreement', e)"
+        accept=".pdf,.doc,.docx"
+        required
+      />
+      <small v-if="uploadedDocuments.agreement">
+        {{ uploadedDocuments.agreement.name }}
+      </small>
+    </div>
+
+    <!-- 추가 서류 -->
+    <div class="document-upload-group">
+      <label>추가 서류</label>
+      <input
+        type="file"
+        @change="(e) => handleDocumentUpload('additional', e)"
+        accept=".pdf,.doc,.docx"
+      />
+      <small v-if="uploadedDocuments.additional">
+        {{ uploadedDocuments.additional.name }}
+      </small>
+    </div>
+  </div>
+
       <div class="form-section">
         <h3>이미지 등록</h3>
         <div class="image-upload-group">
@@ -179,65 +255,7 @@
           />
         </div>
       </div>
-<!-- //여기 -->
-<div class="form-section">
-  <h3>필수 등록 서류</h3>
-  
-  <!-- 상품 기획서 -->
-  <div class="document-upload-group">
-    <label>상품 기획서</label>
-    <input
-      type="file"
-      @change="(e) => handleDocumentUpload('projectPlan', e)"
-      accept=".pdf,.doc,.docx"
-      required
-    />
-    <small v-if="uploadedDocuments.projectPlan">
-      {{ uploadedDocuments.projectPlan.name }}
-    </small>
-  </div>
-
-  <!-- 펀딩 기획서 -->
-  <div class="document-upload-group">
-    <label>펀딩 기획서</label>
-    <input
-      type="file"
-      @change="(e) => handleDocumentUpload('developmentPlan', e)"
-      accept=".pdf,.doc,.docx"
-      required
-    />
-    <small v-if="uploadedDocuments.developmentPlan">
-      {{ uploadedDocuments.developmentPlan.name }}
-    </small>
-  </div>
-
-  <!-- 개인정보 이용동의서 -->
-  <div class="document-upload-group">
-    <label>개인정보 이용동의서</label>
-    <input
-      type="file"
-      @change="(e) => handleDocumentUpload('agreement', e)"
-      accept=".pdf,.doc,.docx"
-      required
-    />
-    <small v-if="uploadedDocuments.agreement">
-      {{ uploadedDocuments.agreement.name }}
-    </small>
-  </div>
-
-  <!-- 추가 서류 -->
-  <div class="document-upload-group">
-    <label>추가 서류</label>
-    <input
-      type="file"
-      @change="(e) => handleDocumentUpload('additional', e)"
-      accept=".pdf,.doc,.docx"
-    />
-    <small v-if="uploadedDocuments.additional">
-      {{ uploadedDocuments.additional.name }}
-    </small>
-  </div>
-</div>
+      
 <!-- 여기 -->
       <div class="form-buttons">
         <button type="button" class="cancel-btn" @click="cancelRegistration">
@@ -951,8 +969,8 @@ export default {
 }
 
 .plan-image {
-  width: 80px;
-  height: 80px;
+  width: 100%;
+  height: auto;
   object-fit: contain;
   margin: 0 auto 1rem;
 }
@@ -1408,5 +1426,41 @@ small {
   .modal-content {
     padding: 1.5rem;
   }
+  .document-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .template-btn {
+    width: 100%;
+    text-align: center;
+  }
+  
 }
+.document-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.template-btn {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  color: #6d63ff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.template-btn:hover {
+  background-color: #e9ecef;
+  border-color: #6d63ff;
+  text-decoration: none;
+}
+
 </style>
