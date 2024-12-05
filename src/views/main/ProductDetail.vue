@@ -250,6 +250,7 @@ incrementQuantity() {
           },
         });
         this.product = response.data;
+        console.log("상품 정보:", this.product);
         this.isWishlisted = this.product.isLiked;
       } catch (error) {
         console.error("상품 정보 로딩 실패:", error);
