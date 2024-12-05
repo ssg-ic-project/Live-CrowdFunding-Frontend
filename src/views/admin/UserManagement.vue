@@ -155,10 +155,18 @@ export default {
         //
         // console.log("check check yejin users: ");
 
+        // if (response.data.pageInfoDTO) {
+        //   this.totalPages = response.data.pageInfoDTO.total;
+        //   // this.currentPage = response.data.pageInfoDTO.page;
+        // }
         if (response.data.pageInfoDTO) {
-          this.totalPages = response.data.pageInfoDTO.total;
+          // 전체 데이터 개수를 페이지당 아이템 수로 나누어 올림하여 총 페이지 수 계산
+          this.totalPages = Math.ceil(response.data.pageInfoDTO.total / 10);
           // this.currentPage = response.data.pageInfoDTO.page;
         }
+
+
+
       } catch (error) {
         console.error('사용자 조회 실패: ', error);
       }
