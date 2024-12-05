@@ -129,12 +129,12 @@ export default {
     };
 
     const handleProductClick = async (product) => {
-        // console.log("Clicked product:", product);  
+        // console.log("Clicked product:", product);
         if (product.isLive) {
           try {
             userName.value = localStorage.getItem('userName') || '손님';  
             userRole.value = localStorage.getItem('userRole') || 'user'; 
-            roomId.value = product.id.toString();
+            roomId.value = product.productId.toString();
             
             router.push({
               path: '/streaming',
