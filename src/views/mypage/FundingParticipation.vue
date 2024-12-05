@@ -99,6 +99,8 @@ export default {
             searchQuery: searchQuery.value || undefined
           }
         });
+
+        console.log('주문 내역:', response.data);
         
         orders.value = response.data.dataList;
         pageInfo.value = response.data.pageInfoDTO;

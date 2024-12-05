@@ -108,6 +108,12 @@ export default {
       const { id, scheduleId, url, productName, percentage, classification, remainingTime, isStreaming } = liveFundingData;
       
       if (isStreaming === 1) { // 방송 시작
+        // roomId 업데이트
+        roomId.value = id.toString();  // 상품 ID로 roomId 업데이트
+
+        console.log('라이브 상품 추가:', liveFundingData);
+        console.log('roomId:', roomId.value);
+
         // 새로운 라이브 상품 추가
         const newProduct = {
           id: scheduleId, // 스트리밍 접속을 위해 scheduleId를 id로 사용
@@ -120,6 +126,16 @@ export default {
           isLive: true
         };
         liveProducts.value = [newProduct, ...liveProducts.value];
+
+        // 스트리밍 페이지로 자동 라우팅
+        router.push({
+          path: '/streaming',
+          state: {
+            userName: localStorage.getItem('userName') || '손님',
+            userRole: localStorage.getItem('userRole') || 'user',
+            productId: roomId.value,
+          },
+        });
       } else if (isStreaming === 2) { // 방송 종료
         // 종료된 라이브 상품 제거
         liveProducts.value = liveProducts.value.filter(
@@ -134,7 +150,7 @@ export default {
           try {
             userName.value = localStorage.getItem('userName') || '손님';  
             userRole.value = localStorage.getItem('userRole') || 'user'; 
-            roomId.value = product.productId.toString();
+            roomId.value = product.productId.toString();  // 상품 ID로 roomId 업데이트
             
             router.push({
               path: '/streaming',
@@ -153,7 +169,7 @@ export default {
         } else {
           router.push({
             name: "ProductDetail",
-            params: { productId: roomId.value },
+            params: { productId: product.productId },
           });
         }
     };

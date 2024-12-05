@@ -66,7 +66,7 @@ const routes = [
      { path: 'schedule', name: 'Schedule', component: Schedule },
      { path: 'categorySearch', name: 'CategoryResults', component: CategoryResults},
      { path: 'search', name: 'SearchResults', component: SearchResults },
-     { path: 'product/:productId', name: 'ProductDetail', component: ProductDetail },
+     { path: 'product/:productId', name: 'ProductDetail', component: ProductDetail, props: true},
      { path: 'wishlist', name: 'WishlistMain', component: WishlistMain },
      { path: 'terms', name: 'Terms', component: Terms },
      { path: '/payment', name: 'Payment', component: Payment, props: true },
