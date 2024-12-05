@@ -732,7 +732,6 @@ export default {
         }
       // 검토 모달 표시 및 검토 프로세스 시작
         this.showReviewModal = true;
-        await this.simulateReviewProcess();
 
         const response = await axios.post('/api/proposals/analyze', documents);
         const { proposalScore, rejectionReason } = response.data;
@@ -799,20 +798,6 @@ export default {
       }
     },
 
-    async simulateReviewProcess() {
-    },
-    completeReview() {
-      this.reviewComplete = true;
-
-      this.reviewSuccess = Math.random() > 0.3;
-
-      if (!this.reviewSuccess) {
-        const reasons = [
-          "프로젝트 기획서의 내용이 부족합니다. 보완 후 다시 신청해주세요.",
-        ];
-        this.rejectReason = reasons[Math.floor(Math.random() * reasons.length)];
-      }
-    },
     async initTossPayments() {
       try {
 
