@@ -430,10 +430,8 @@ export default {
     '$route.query.showSuccessModal': {
       immediate: true,
       handler(newVal) {
-        console.log('showSuccessModal query param:', newVal);
-        console.log('all query params:', this.$route.query);
+
         if (newVal === 'true') {
-          console.log('모달 표시 시도');
           this.showPaymentCompleteModal = true;
         }
       }
@@ -449,14 +447,10 @@ export default {
     }
 
   },
-  created() {
-    console.log('Component created');
-    console.log('Route query:', this.$route.query);
-  },
-  mounted() {
-   console.log('Component mounted');
-   console.log('Route query:', this.$route.query);
- },
+
+  // async mounted() {
+  //   await this.initTossPayments()
+  // },
   methods: {
     async initIndexedDB() {
       return new Promise((resolve, reject) => {

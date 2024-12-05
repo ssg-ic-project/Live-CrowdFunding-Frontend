@@ -153,7 +153,7 @@ export default{
       }
 
       // API 호출
-      await axios.post("/api/project", formData, {
+      const response = await axios.post("/api/project", formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -163,17 +163,13 @@ export default{
       sessionStorage.removeItem('projectData');
       sessionStorage.removeItem('fileData');
 
-      this.isProjectRegistering = false;
       this.success = true;
       this.$router.push({
         name: 'ProjectRegistration',
-        query: { showSuccessModal: 'true', isRegistered: 'true'}
-      }).then(() => {
-        window.location.href = '/mypage/funding-status';
-});
+        query: { showSuccessModal: 'true' }
+      });
 
     } catch (error) {
-      this.isProjectRegistering = false;
       console.error('에러 발생:', error);
       this.error = error.message;
       this.errorDetail = JSON.stringify(error.response?.data || error, null, 2);
@@ -234,9 +230,7 @@ export default{
             showSuccessModal: 'true',
             registerProject: 'true'
           }
-        }).then(() => {
-  window.location.href = '/mypage/funding-status';
-});
+        });
       }
     }
   }
