@@ -16,6 +16,7 @@
           :class="{ selected: selectedPlan === plan.id }"
           @click="selectPlan(plan.id)"
         >
+          <img :src="plan.image" :alt="plan.name" class="plan-image" />
           <h4>{{ plan.name }}</h4>
           <div class="plan-price">{{ formatPrice(plan.price) }}</div>
           <ul class="plan-features">
@@ -313,6 +314,9 @@
 <script>
 import axios from 'axios';
 import {ANONYMOUS, loadPaymentWidget} from "@tosspayments/payment-widget-sdk";
+import basicPlanImage from '@/assets/image/icon/basic.png';
+import standardPlanImage from '@/assets/image/icon/standard.png';
+import premiumPlanImage from '@/assets/image/icon/premium.png';
 
 export default {
   name: "ProjectRegistration",
@@ -324,37 +328,41 @@ export default {
         {
           id: "1",
           name: "베이직 플랜",
-          price: 100000,
+          price: 4,
+          image: basicPlanImage,
           features: [
-            "기본 프로젝트 등록",
-            "1회 라이브 방송",
-            "기본 통계 제공",
-            "채팅 기능 제공",
+            "화상 미팅",
+            "홍보 가이드 제공",
+            "프로젝트 스토리 피드백",
           ],
         },
         {
           id: "2",
           name: "스탠다드 플랜",
-          price: 300000,
+          price: 8,
+          image: standardPlanImage,
           features: [
-            "프로젝트 우선 검토",
-            "3회 라이브 방송",
-            "상세 통계 제공",
-            "채팅 & 알림톡 기능",
-            "실시간 문의응대",
+            "실시간 방송 1회",
+            "화상 혹은 대면 미팅",
+            "홍보 가이드 제공",
+            "프로젝트 스토리 피드백",
+            "리워드 설계 아이디어 제공",
+            "리스트 예방을 위한 제안"
           ],
         },
         {
           id: "3",
           name: "프리미엄 플랜",
-          price: 500000,
+          price: 13,
+          image: premiumPlanImage,
           features: [
-            "VIP 프로젝트 등록",
-            "무제한 라이브 방송",
-            "프리미엄 통계 제공",
-            "모든 서비스 제공",
-            "전담 매니저 배정",
-            "우선 기술지원",
+            "배너 노출",
+            "실시간 방송 1회",
+            "화상 혹은 대면 미팅",
+            "홍보 가이드 제공",
+            "프로젝트 스토리 피드백",
+            "리워드 설계 아이디어 제공",
+            "리스크 예방을 위한 제안"
           ],
         },
       ],
@@ -411,13 +419,19 @@ export default {
     selectedPlanInfo() {
       return this.pricingPlans.find(plan => plan.id === this.selectedPlan) || {name: '-', price: 0};
     },
+    // formattedSelectedPrice() {
+    //   return this.selectedPlanInfo.price ?
+    //       new Intl.NumberFormat('ko-KR', {
+    //         style: 'currency',
+    //         currency: 'KRW'
+    //       }).format(this.selectedPlanInfo.price) : '0원';
+    // }
+
     formattedSelectedPrice() {
-      return this.selectedPlanInfo.price ?
-          new Intl.NumberFormat('ko-KR', {
-            style: 'currency',
-            currency: 'KRW'
-          }).format(this.selectedPlanInfo.price) : '0원';
+      return this.selectedPlanInfo.price ? `${this.selectedPlanInfo.price}%` : '0%';
     }
+
+
   },
 
   watch: {
@@ -594,12 +608,17 @@ export default {
       }
     },
     
+    // formatPrice(price) {
+    //   return new Intl.NumberFormat('ko-KR', {
+    //     style: 'currency',
+    //     currency: 'KRW'
+    //   }).format(price);
+    // },
     formatPrice(price) {
-      return new Intl.NumberFormat('ko-KR', {
-        style: 'currency',
-        currency: 'KRW'
-      }).format(price);
+      return price + '%';
     },
+
+
     selectPlan(planId) {
       this.selectedPlan = planId;
     },
@@ -1346,6 +1365,12 @@ button:disabled {
     width: 100%;
     padding: 0.8rem;
     font-size: 1rem;
+  }
+  .plan-image {
+    width: 100%;
+    height: 160px;
+    object-fit: contain;
+    margin-bottom: 1.5rem;
   }
 }
 </style>
