@@ -756,8 +756,9 @@ export default {
       // 방송 시작 API 호출 로직은 나중에 구현
       console.log('방송 시작');
       this.$router.push({
-        path: `/streaming/${this.$route.params.id}`,
+        path: `/streaming`,
         state: {
+          productId: this.$route.params.id,
           scheduleId: this.project.scheduleId,
           userName: "판매자",
           userRole: "maker"

@@ -101,14 +101,16 @@ onMounted(async () => {
   if (!socket.value) {
     await initializeSocket()
   }
-  // 접근 경로에 따른 userRole 설정
-  if (router.currentRoute.value.name === 'home' || 
-      router.currentRoute.value.name === 'live') {
-    // 홈/라이브 메뉴에서 접근시 무조건 시청자 화면
-    userRole.value = 'user'
-  } else if (router.currentRoute.value.name === 'broadcast' || 
-             router.currentRoute.value.name === 'mypage') {
-    // 방송하기/마이페이지에서 접근시 localStorage 값 사용
+
+  // 이전 경로에 mypage가 포함되어있는지 확인하는 함수
+  const isFromMyPage = () => {
+    const previousPath = history.state?.back || ''
+    return previousPath.includes('mypage')
+  }
+
+
+  if (isFromMyPage()) {  // mypage에서 왔는지 체크 추가
+    // 방송하기/마이페이지에서 접근하거나 mypage에서 돌아온 경우 localStorage 값 사용
     userRole.value = localStorage.getItem('userType') || 'user'
   } else {
     // 기본값은 시청자 화면

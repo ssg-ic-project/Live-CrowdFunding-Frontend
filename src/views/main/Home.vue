@@ -134,7 +134,7 @@ export default {
           try {
             userName.value = localStorage.getItem('userName') || '손님';  
             userRole.value = localStorage.getItem('userRole') || 'user'; 
-            roomId.value = product.productId.toString();
+            roomId.value = product.productId;
             
             router.push({
               path: '/streaming',
@@ -153,7 +153,7 @@ export default {
         } else {
           router.push({
             name: "ProductDetail",
-            params: { productId: roomId.value },
+            params: { productId: product.productId },
           });
         }
     };
