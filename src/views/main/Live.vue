@@ -44,7 +44,7 @@
         <h3>지난 라이브 방송 (VOD)</h3>
         <div class="grid-list">
           <ProductItem
-            v-for="vod in pastLiveStreams"
+            v-for="vod in currentVODStreams"
             :key="vod.projectId"
             :product="{
               id: vod.projectId,
@@ -162,7 +162,11 @@ export default {
 
     // LIVE/VOD 관련 computed
     const currentLiveStreams = computed(() => {
-      return streams.value.filter((stream) => stream.isStreaming);
+      return streams.value.filter((stream) => stream.isStreaming === 1);
+    });
+
+    const currentVODStreams = computed(() => {
+      return streams.value.filter((stream) => stream.isStreaming === 2);
     });
 
     const getVodProjects = async () => {
@@ -257,7 +261,7 @@ export default {
       selectedMenu,
       streams,
       currentLiveStreams,
-      pastLiveStreams,
+      currentVODStreams,
       dateRange,
       selectedDate,
       selectedDateSchedules,
