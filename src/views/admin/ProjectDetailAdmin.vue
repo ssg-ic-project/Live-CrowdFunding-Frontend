@@ -130,13 +130,14 @@
               <button class="action-button" @click="goBack">목록</button>
               <button
                 class="action-button approve-button"
-                :disabled="!allDocumentsReviewed"
+                :disabled="!allDocumentsReviewed || isProjectApproved"
                 @click="openApproveModal"
               >
                 승인
               </button>
               <button 
-                class="action-button reject-button" 
+                class="action-button reject-button"
+                :disabled="isProjectApproved"
                 @click="openRejectModal"
               >
                 반려
@@ -260,7 +261,11 @@ export default {
   computed: {
     allDocumentsReviewed() {
       return this.project.documents.every((doc) => doc.reviewed);
+    },
+    isProjectApproved(){
+      return this.project.reviewProjectStatus === '승인';
     }
+
   },
   methods: {
 
@@ -421,9 +426,11 @@ export default {
       try{
         const request = {
           status: '반려',
-          rejectionReason: this.rejectReason
+          rejectionReason: this.rejectReason,
+          managerId: localStorage.getItem("adminId")
         };
         await projectApi.updateApprovalStatus(this.project.id, request);
+        alert('반려 되었습니다');
         this.closeRejectModal();
         this.$router.push({name: 'ProjectManagement'});
       }catch(error){
