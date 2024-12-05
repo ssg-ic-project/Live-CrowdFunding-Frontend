@@ -66,11 +66,10 @@ export default {
     const { joinRoom, userName, userRole, roomId, socket, initializeSocket } = useStreaming();
 
     const connectWebSocket = () => {
-      console.log('웹소켓 연결 시도 URL:', 'wss://127.0.0.1:5173/ws');  // URL 확인용
       stompClient.value = new Client({
         brokerURL: 'ws://localhost:8080/ws',
         debug: function (str) {
-          console.log('STOMP: ' + str);
+          // console.log('STOMP: ' + str);
         },
         reconnectDelay: 5000,
         heartbeatIncoming: 4000,
@@ -83,12 +82,12 @@ export default {
           console.error('WebSocket 에러:', event);
         },
         onWebSocketClose: (event) => {
-          console.log('WebSocket 연결 종료:', event);
+          // console.log('WebSocket 연결 종료:', event);
         },
       });
 
       stompClient.value.onConnect = () => {
-        console.log('WebSocket 연결 성공');
+        // console.log('WebSocket 연결 성공');
         // 라이브 상품 업데이트를 구독
         stompClient.value.subscribe('/sub/live-products', (message) => {
           const liveFundingData = JSON.parse(message.body);
@@ -130,7 +129,7 @@ export default {
     };
 
     const handleProductClick = async (product) => {
-        console.log("Clicked product:", product);  
+        // console.log("Clicked product:", product);  
         if (product.isLive) {
           try {
             userName.value = localStorage.getItem('userName') || '손님';  
@@ -142,7 +141,7 @@ export default {
               state: {
                 userName: userName.value,
                 userRole: userRole.value,
-                productId: product.id,
+                productId: roomId.value,
                 // roomId: roomId.value,
                 // socket: socket.value,
               },
@@ -154,14 +153,14 @@ export default {
         } else {
           router.push({
             name: "ProductDetail",
-            params: { productId: product.id },
+            params: { productId: roomId.value },
           });
         }
     };
     const fetchMainPageData = async () => {
       try {
         const response = await axios.get('/api/project/main');
-        console.log('API Response:', response.data);
+        // console.log('API Response:', response.data);
         
         if (response.data.liveFundingProjects) {
           liveProducts.value = response.data.liveFundingProjects.map(project => ({

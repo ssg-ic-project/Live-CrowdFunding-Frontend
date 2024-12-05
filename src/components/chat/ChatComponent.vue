@@ -33,7 +33,7 @@ const connect = () => {
   const client = new Client({
     brokerURL: import.meta.env.VITE_WEBSOCKET_URI,
     debug: function (str) {
-      console.log(str)
+      // console.log(str)
     },
     reconnectDelay: 5000,
     heartbeatIncoming: 4000,
@@ -43,7 +43,7 @@ const connect = () => {
   client.onConnect = () => {
     isConnecting.value = false
     connectionStatus.value = 'connected'
-    console.log('Connected to WebSocket')
+    // console.log('Connected to WebSocket')
 
     client.subscribe(`/sub/chat/${props.roomId}`, (message) => {
       try {
@@ -63,7 +63,7 @@ const connect = () => {
   client.onDisconnect = () => {
     isConnecting.value = false
     connectionStatus.value = 'disconnected'
-    console.log('Disconnected from WebSocket')
+    // console.log('Disconnected from WebSocket')
   }
 
   client.onStompError = (frame) => {

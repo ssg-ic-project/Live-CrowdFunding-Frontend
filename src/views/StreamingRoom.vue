@@ -78,8 +78,6 @@ const showHostEndedModal = ref(false)
 const countdown = ref(3)
 const router = useRouter()
 
-console.log(history.state)
-
 const {
   localVideoRef,
   remoteMediaRef,

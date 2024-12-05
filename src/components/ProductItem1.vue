@@ -50,12 +50,12 @@ export default {
         if (this.product.isLive) {
           this.$router.push({
             path: "/streaming",
-            state: { productId: this.product.id },
+            state: { productId: this.product.id.toString() },
           });
         } else if (this.product.isVod) {
           this.$router.push({
             name: "VODRoom",
-            params: { streamId: this.product.id }, // scheduleId -> streamId로 변경
+            params: { streamId: this.product.id.toString() }, // scheduleId -> streamId로 변경
             query: {
               scheduleId: this.product.scheduleId, // scheduleId 추가
             },

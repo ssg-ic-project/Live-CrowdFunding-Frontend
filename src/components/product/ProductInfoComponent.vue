@@ -37,9 +37,9 @@ const getProduct = async () => {
   try {
     if (response.ok) {
       const project_info = await response.json()
-      console.log('상품 정보 로드 성공', project_info)
+      // console.log('상품 정보 로드 성공', project_info)
       product.value = project_info
-      console.log('product:', product.value.images[0].url)
+      // console.log('product:', product.value.images[0].url)
     }
   } catch (error) {
     console.error('채팅 히스토리 로드 실패:', error)

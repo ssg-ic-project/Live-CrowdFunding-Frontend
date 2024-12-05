@@ -128,7 +128,7 @@ export const useStreaming = (projectId) => {
 
       peers.value = peerIds.filter((id) => id !== socket.value.id)
 
-      console.log('Existing producers:', existingProducers)
+      // console.log('Existing producers:', existingProducers)
 
       for (const producerInfo of existingProducers) {
         await consume(producerInfo)
