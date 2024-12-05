@@ -258,20 +258,21 @@
         <div v-if="reviewComplete" class="review-result">
   <template v-if="reviewSuccess">
     <p class="success">승인되었습니다!</p>
-    <div class="button-group">
-      <!-- 토스페이먼츠 결제 위젯 -->
-
-      <div>
-        <h2>서비스 이용 기본료 결제💸</h2>
-        <div id="payment-method" ></div>
-        <div id="agreement"></div>
-      </div>
-
-      <button @click="handlePayment" class="payment-btn">
-        결제하기
-      </button>
-      <button @click="closeModal" class="cancel-btn">
+    
+    <!-- 토스페이먼츠 결제 부분 -->
+    <div class="payment-widget-container">
+      <h2>서비스 이용 기본료 결제💸</h2>
+      <div id="payment-method"></div>
+      <div id="agreement"></div>
+    </div>
+    
+    <!-- 버튼 그룹을 하단에 배치 -->
+    <div class="modal-footer">
+      <button @click="closeModal" class="modal-btn cancel-btn">
         취소
+      </button>
+      <button @click="handlePayment" class="modal-btn payment-btn">
+        결제하기
       </button>
     </div>
   </template>
@@ -898,15 +899,62 @@ export default {
 <style scoped>
 .project-registration-page {
   padding: 2rem;
-  max-width: 1600px; /* 최대 너비 증가 */
+  max-width: 1200px;
   margin: 0 auto;
-  margin-left: 250px;
 }
 
 .project-form {
   display: flex;
   flex-wrap: wrap;
   gap: 2rem;
+}
+
+.pricing-section {
+  margin-bottom: 2rem;
+  width: 100%;
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.pricing-plans {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.pricing-card {
+  border: 1px solid #dee2e6;
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  min-height: 450px;
+  position: relative;
+}
+
+.pricing-card:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  border-color: #6d63ff;
+}
+
+.pricing-card.selected {
+  border: 2px solid #6d63ff;
+  box-shadow: 0 0 0 2px rgba(109, 99, 255, 0.1);
+}
+
+.plan-image {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  margin: 0 auto 1rem;
 }
 
 h2 {
@@ -926,75 +974,34 @@ h3 {
 }
 
 h4 {
+  font-size: 1.2rem;
+  color: #333333;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
   white-space: nowrap;
 }
 
-/* 요금제 섹션 스타일 */
-.pricing-section {
-  margin-bottom: 3rem;
-  width: 100%;
-}
-
-.pricing-plans {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
-  margin: 2rem 0;
-}
-
-.pricing-card {
-  border: 1px solid #dee2e6;
-  border-radius: 12px;
-  padding: 2rem;
-  text-align: center;
-  cursor: pointer;
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
-  background: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 500px;
-  position: relative;
-}
-
-.pricing-card:hover {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-  border-color: #6d63ff;
-}
-
-.pricing-card.selected {
-  border: 2px solid #6d63ff;
-  box-shadow: 0 0 0 2px rgba(109, 99, 255, 0.1);
-}
-
-.pricing-card h4 {
-  font-size: 1.4rem;
-  color: #333333;
-  margin-bottom: 1rem;
-  font-weight: 600;
-}
-
 .plan-price {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   font-weight: bold;
   color: #6d63ff;
-  margin: 1.5rem 0;
+  margin: 1rem 0;
 }
 
 .plan-features {
   list-style: none;
-  padding: 0;
-  margin: 1.5rem 0;
+  padding: 0 0.5rem;
+  margin: 1rem 0;
   text-align: left;
   flex-grow: 1;
 }
 
 .plan-features li {
-  margin: 0.8rem 0;
+  margin: 0.5rem 0;
   color: #666666;
   padding-left: 1.5rem;
   position: relative;
+  font-size: 0.9rem;
 }
 
 .plan-features li::before {
@@ -1006,7 +1013,7 @@ h4 {
 }
 
 .select-plan-btn {
-  width: calc(100% - 4rem);
+  width: calc(100% - 3rem);
   padding: 0.8rem;
   border: none;
   border-radius: 8px;
@@ -1015,19 +1022,15 @@ h4 {
   cursor: pointer;
   transition: background-color 0.3s ease;
   position: absolute;
-  bottom: 2rem;
-  left: 2rem;
-  right: 2rem;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  right: 1.5rem;
   background-color: #6d63ff;
   color: white;
 }
 
 .select-plan-btn.selected {
   background-color: #9e94f8;
-}
-
-.select-plan-btn:not(.selected) {
-  background-color: #6d63ff;
 }
 
 .select-plan-btn:hover {
@@ -1045,10 +1048,20 @@ h4 {
   cursor: pointer;
   transition: all 0.3s ease;
   display: block;
-  margin: 3rem auto 0;
+  margin: 2rem auto 0;
 }
 
-/* 폼 섹션 스타일 */
+.basic-info-section,
+.document-section {
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  width: calc(50% - 1rem);
+}
+
 .form-section {
   background: white;
   border: 1px solid #dee2e6;
@@ -1060,7 +1073,6 @@ h4 {
   min-width: 400px;
 }
 
-/* 이미지 섹션은 전체 너비 사용 */
 .form-section:last-of-type {
   flex-basis: 100%;
   width: 100%;
@@ -1101,7 +1113,6 @@ textarea {
   resize: vertical;
 }
 
-/* 이미지 업로드 영역 */
 .image-upload-group {
   margin-bottom: 2rem;
 }
@@ -1122,7 +1133,6 @@ textarea {
   margin-top: 1rem;
 }
 
-/* 문서 업로드 영역 */
 .document-upload-group {
   margin-bottom: 1.5rem;
 }
@@ -1140,7 +1150,6 @@ small {
   color: #666666;
 }
 
-/* 버튼 스타일 */
 .form-buttons {
   display: flex;
   gap: 1rem;
@@ -1149,45 +1158,6 @@ small {
   width: 100%;
 }
 
-.submit-btn,
-.confirm-btn {
-  background-color: #6d63ff;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 0.8rem 2.5rem;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: 150px;
-}
-
-.cancel-btn,
-.close-btn {
-  background-color: #9e94f8;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 0.8rem 2.5rem;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: 150px;
-}
-
-button:hover:not(:disabled) {
-  filter: brightness(110%);
-  transform: translateY(-1px);
-}
-
-button:disabled {
-  background-color: #dee2e6;
-  cursor: not-allowed;
-}
-
-/* 모달 스타일 */
 .modal {
   position: fixed;
   top: 0;
@@ -1209,6 +1179,64 @@ button:disabled {
   max-width: 800px;
   text-align: center;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  position: relative;
+  padding-bottom: 6rem;
+}
+
+/* 결제 모달 관련 스타일 */
+.payment-widget-container {
+  padding: 1rem;
+  margin-bottom: 2rem;
+}
+
+.payment-widget-container h2 {
+  margin-bottom: 1.5rem;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding: 0 1rem;
+  width: 100%;
+  position: absolute;
+  bottom: 2rem;
+  left: 0;
+  box-sizing: border-box;
+}
+
+.modal-btn {
+  flex: 1;
+  padding: 1rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.modal-btn.cancel-btn {
+  background-color: #f1f3f5;
+  color: #495057;
+}
+
+.modal-btn.payment-btn {
+  background-color: #6d63ff;
+  color: white;
+}
+
+.modal-btn:hover {
+  transform: translateY(-1px);
+}
+
+.modal-btn.cancel-btn:hover {
+  background-color: #e9ecef;
+}
+
+.modal-btn.payment-btn:hover {
+  background-color: #5a52d5;
 }
 
 .progress-bar {
@@ -1226,7 +1254,6 @@ button:disabled {
   transition: width 0.3s ease;
 }
 
-/* 결제 완료 모달 */
 .payment-complete {
   text-align: center;
   padding: 2rem;
@@ -1264,7 +1291,6 @@ button:disabled {
   margin-bottom: 1.5rem;
 }
 
-/* 결제 섹션 스타일 */
 .payment-section {
   width: 100%;
   max-width: 450px;
@@ -1286,7 +1312,6 @@ button:disabled {
   justify-content: center;
 }
 
-/* 결제 위젯 커스텀 스타일 */
 :deep(#payment-method) {
   border: 1px solid #dee2e6;
   border-radius: 8px;
@@ -1299,48 +1324,46 @@ button:disabled {
   padding: 0.5rem;
 }
 
-.payment-btn,
-.cancel-btn {
-  flex: 1;
-  max-width: 200px;
-  padding: 0.8rem 1.5rem;
+.form-sections-container {
+  display: flex;
+  gap: 2rem;
+  width: 100%;
 }
 
-/* 반응형 디자인 */
 @media (max-width: 1200px) {
-  .form-section {
+  .form-section,
+  .basic-info-section,
+  .document-section {
     flex-basis: 100%;
+    width: 100%;
+  }
+
+  .form-sections-container {
+    flex-direction: column;
   }
 }
 
 @media (max-width: 768px) {
-
   .project-registration-page {
-    padding: 0;
+    padding: 1rem;
     margin: auto;
-    overflow-x: scroll;
   }
 
   .pricing-plans {
-    display: flex;
-    box-sizing: border-box;
-    gap: 2px;
     grid-template-columns: 1fr;
-  }
-
-  h4 {
-    white-space: nowrap;
+    gap: 1rem;
   }
 
   .pricing-card {
     min-height: auto;
     padding: 1rem;
-    padding-bottom: 5rem;
-    height: 530px;
+    padding-bottom: 4rem;
   }
 
-  .form-section {
-    padding: 1.5rem;
+  .form-section,
+  .basic-info-section,
+  .document-section {
+    padding: 1rem;
     min-width: 100%;
   }
 
@@ -1353,12 +1376,13 @@ button:disabled {
     flex-direction: column;
   }
 
-  .submit-btn,
-  .cancel-btn,
-  .confirm-btn,
-  .close-btn {
+  .modal-footer {
+    flex-direction: column;
+    padding: 1rem;
+  }
+
+  .modal-btn {
     width: 100%;
-    min-width: auto;
   }
 
   .next-step-btn {
@@ -1366,11 +1390,23 @@ button:disabled {
     padding: 0.8rem;
     font-size: 1rem;
   }
-  .plan-image {
-    width: 100%;
-    height: 160px;
-    object-fit: contain;
-    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 480px) {
+  .project-registration-page {
+    padding: 0.5rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  h3 {
+    font-size: 1.2rem;
+  }
+
+  .modal-content {
+    padding: 1.5rem;
   }
 }
 </style>
