@@ -66,21 +66,19 @@
 import ChatComponent from '@/components/chat/ChatComponent.vue'
 import ProductInfoComponent from '@/components/product/ProductInfoComponent.vue'
 import StreamSummaryComponent from '@/components/user-statistics/StreamSummaryComponent.vue'
-import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, onMounted, onBeforeUnmount, onBeforeMount } from 'vue'
 import { useStreaming } from '../composables/useStreaming'
-import RoomJoinForm from '@/components/streaming/RoomJoinForm.vue'
 import HostControls from '@/components/streaming/HostControls.vue'
 import ViewerControls from '@/components/streaming/ViewerControls.vue'
-import ViewerList from '@/components/streaming/ViewerList.vue'
 import VideoPreview from '@/components/streaming/VideoPreview.vue'
-import RemoteMedia from '@/components/streaming/RemoteMedia.vue'
-import { useRouter, useRoute } from 'vue-router'
-
+import { useRouter } from 'vue-router'
 
 const userName = ref('')
 const showHostEndedModal = ref(false)
 const countdown = ref(3)
 const router = useRouter()
+
+console.log(history.state)
 
 const {
   localVideoRef,
@@ -99,7 +97,7 @@ const {
   toggleCamera,
   initializeSocket,
   setRemoteMediaEl,
-} = useStreaming()
+} = useStreaming(history.state.productId)
 
 onMounted(async () => {
   if (!socket.value) {
@@ -108,8 +106,6 @@ onMounted(async () => {
 
   userName.value = localStorage.getItem('userName') || '손님';  
   userRole.value = localStorage.getItem('userType') || 'user';
-  console.log('userName:', userName.value)
-  console.log('userRole:', userRole.value)
 
   // 연결 완료를 기다림
   await new Promise(resolve => {
@@ -132,11 +128,6 @@ onMounted(async () => {
     }
   })
 
-  console.log('socket:', socket.value)
-
-  // 서버와 연결이 되어야 id가 할당됨
-
-  console.log('Socket id:', socket.value.id)
 
   socket.value.on('room-joined', async (response) => {
     if (response.error) {
@@ -147,7 +138,7 @@ onMounted(async () => {
     try {
       await setupRoom(response)
     } catch (error) {
-      console.error('Setup room error:', error)
+      // console.error('Setup room error:', error)
       alert('방 설정에 실패했습니다.')
     }
   })
@@ -165,7 +156,7 @@ onMounted(async () => {
       peerId: socket.value.id,
     })
   } catch (error) {
-    console.error('Failed to join room:', error)
+    // console.error('Failed to join room:', error)
     alert('방 입장에 실패했습니다.')
   }
 })

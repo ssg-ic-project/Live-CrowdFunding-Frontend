@@ -5,13 +5,13 @@ import { io } from 'socket.io-client'
 
 const SERVER_URL = import.meta.env.VITE_MEDIA_SERVER_URI
 
-export const useMediasoup = () => {
+export const useMediasoup = (projectId) => {
   const socket = ref(null)
   const device = ref(null)
   const sendTransport = ref(null)
   const recvTransport = ref(null)
   const joined = ref(false)
-  const roomId = ref('3')
+  const roomId = ref(projectId)
   const peers = ref([])
   const viewers = ref([])
   const localStream = ref(null)

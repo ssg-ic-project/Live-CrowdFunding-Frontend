@@ -50,7 +50,7 @@ export default {
         if (this.product.isLive) {
           this.$router.push({
             path: "/streaming",
-            query: { productId: this.product.id },
+            state: { productId: this.product.id },
           });
         } else if (this.product.isVod) {
           this.$router.push({

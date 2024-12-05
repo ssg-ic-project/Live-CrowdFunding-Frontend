@@ -139,10 +139,10 @@ export default {
             
             router.push({
               path: '/streaming',
-              query: { productId: product.id },
               state: {
                 userName: userName.value,
                 userRole: userRole.value,
+                productId: product.id,
                 // roomId: roomId.value,
                 // socket: socket.value,
               },

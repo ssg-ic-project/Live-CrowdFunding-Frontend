@@ -67,13 +67,17 @@
 
           <div class="funding-info">
             <div class="price-info">
-              <span class="funding-price">{{ product.price }}원</span>
-              <span v-if="product.discountPercentage" class="original-price">
-                {{  }}원
-              </span>
-              <span v-if="product.discountPercentage" class="discount-percentage">
-                {{ product.discountPercentage }}% 할인
-              </span>
+              <template v-if="product.isStreaming === 1">
+                <div class="price-wrapper">
+                  <span class="original-price">{{ product.price.toLocaleString() }}원</span>
+                  <span class="discount-percentage">{{ product.discountPercentage }}% 할인</span>
+                </div>
+                <span class="funding-price">{{ calculateDiscountedPrice }}원</span>
+              </template>
+              <!-- 라이브 방송 중이 아닐 때 -->
+              <template v-else>
+                <span class="funding-price">{{ product.price.toLocaleString() }}원</span>
+              </template>
             </div>
             <div class="funding-stats">
               <span class="funding-amount">목표 금액: {{ product.goalAmount.toLocaleString() }}원</span>
@@ -85,11 +89,20 @@
           <hr class="divider" />
 
           <div class="action-buttons">
-            <button @click="toggleWishlist" class="btn wishlist-btn" :class="{ active: isWishlisted }" aria-label="찜하기">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" :fill="isWishlisted ? '#ff4b4b' : 'none'" stroke="currentColor" stroke-width="2">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-              </svg>
-              <span class="wishlist-count">{{ product.likeCount }}</span>
+            <button @click="toggleWishlist" class="wishlist-btn" :class="{ active: isWishlisted }" aria-label="찜하기">
+              <div class="wishlist-content">
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  viewBox="0 0 24 24" 
+                  :fill="isWishlisted ? '#ff4b4b' : 'none'" 
+                  stroke="currentColor" 
+                  stroke-width="2"
+                  class="heart-icon"
+                >
+                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                </svg>
+                <span class="wishlist-count">{{ product.likeCount }}</span>
+              </div>
             </button>
 
             <div class="fund-container">
@@ -156,6 +169,20 @@ export default {
         return this.product.images[this.currentImageIndex];
       }
       return this.product.images[0];
+    },
+
+    calculateDiscountedPrice() {
+      if (!this.product || this.product.isStreaming !== 1) return this.product.price.toLocaleString();
+      const discountedPrice = this.product.price * (1 - this.product.discountPercentage / 100);
+      return Math.floor(discountedPrice).toLocaleString();
+    },
+
+    actualPrice() {
+      if (!this.product) return 0;
+      if (this.product.isStreaming === 1) {
+        return Math.floor(this.product.price * (1 - this.product.discountPercentage / 100));
+      }
+      return this.product.price;
     },
     
     daysLeft() {
@@ -250,6 +277,7 @@ incrementQuantity() {
           },
         });
         this.product = response.data;
+        console.log("상품 정보:", this.product);
         this.isWishlisted = this.product.isLiked;
       } catch (error) {
         console.error("상품 정보 로딩 실패:", error);
@@ -336,7 +364,7 @@ incrementQuantity() {
           userId: Number(userId),
           projectId: this.product.id,
           amount: this.selectedQuantity,
-          totalPrice: this.product.price * this.selectedQuantity,
+          totalPrice: this.actualPrice * this.selectedQuantity,
         };
 
         console.log("주문 생성 요청:", orderRequestDTO); // 요청 데이터 구조 확인용
@@ -566,6 +594,7 @@ incrementQuantity() {
   font-size: 2.2rem;
   font-weight: 700;
   color: #333;
+  display: block;
 }
 
 .funding-stats {
@@ -617,12 +646,28 @@ incrementQuantity() {
 }
 
 .wishlist-btn {
-  width: 48px;
-  height: 48px;
-  padding: 0;
+  width: auto;
+  height: auto;
+  padding: 8px 16px;
   background-color: white;
   border: 2px solid #ff4b4b;
+  border-radius: 20px;
   flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.wishlist-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.heart-icon {
+  width: 24px;
+  height: 24px;
+  stroke: #ff4b4b;
+  transition: all 0.3s ease;
 }
 
 .wishlist-btn svg {
@@ -634,12 +679,22 @@ incrementQuantity() {
 }
 
 .wishlist-btn.active {
-  background-color: #ff4b4b;
+  background-color: #fff1f1;
 }
 
 .wishlist-btn.active svg {
   stroke: white;
   fill: #ff4b4b;
+}
+
+.wishlist-btn.active .heart-icon {
+  fill: #ff4b4b;
+  stroke: #ff4b4b;
+}
+
+.wishlist-btn:hover {
+  transform: scale(1.05);
+  background-color: #fff1f1;
 }
 
 .live-btn,
@@ -808,11 +863,9 @@ wishlist-container {
 }
 
 .wishlist-count {
-  font-size: 0.9rem;
-  color: #666;
+  font-size: 0.8rem;
+  color: #ff4b4b;
   font-weight: 500;
-  min-width: 24px;
-  text-align: left;
 }
 
 .fund-container {
@@ -910,5 +963,24 @@ wishlist-container {
   flex: 1;
   display: flex;
   flex-direction: column;
+}
+
+.price-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.original-price {
+  font-size: 1.2rem;
+  color: #666;
+  text-decoration: line-through;
+}
+
+.discount-percentage {
+  font-size: 1.2rem;
+  color: #ff4b4b;
+  font-weight: 500;
 }
 </style>
