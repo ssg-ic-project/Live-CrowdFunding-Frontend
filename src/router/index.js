@@ -70,9 +70,7 @@ const routes = [
      { path: 'wishlist', name: 'WishlistMain', component: WishlistMain },
      { path: 'terms', name: 'Terms', component: Terms },
      { path: '/payment', name: 'Payment', component: Payment, props: true },
-      
-     // { path: 'streaming', component: StreamingRoom, props: true },
-      
+     { path: 'streaming', component: StreamingRoom, props: true },
      { path: 'vod/:streamId', name: 'VODRoom', component: VodRoom, props: true },
      { path: 'success-bf', name: 'PaymentSuccessBF', component: PaymentSuccessBF },
      { path: 'fail-bf', name: 'PaymentFailBF', component: PaymentFailBF },
