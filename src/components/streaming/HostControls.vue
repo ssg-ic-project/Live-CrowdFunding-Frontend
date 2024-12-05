@@ -106,6 +106,9 @@ const handleToggleCamera = async () => {
 
 const confirmEndStream = () => {
   emit('toggle-camera');
+
+  props.socket.emit('end-stream', { roomId: props.roomId }) // props에서 socket과 roomId 사용
+
   showEndModal.value = false;
 };
 
@@ -119,6 +122,7 @@ const confirmLeave = () => {
   }
 
   props.socket.emit('end-stream', { roomId: props.roomId }) // props에서 socket과 roomId 사용
+
   emit('leave');
   showLeaveModal.value = false;
 };
