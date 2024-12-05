@@ -67,7 +67,7 @@ export default {
 
     const connectWebSocket = () => {
       stompClient.value = new Client({
-        brokerURL: 'ws://localhost:8080/ws',
+        brokerURL: import.meta.env.VITE_WEBSOCKET_URI,
         debug: function (str) {
           // console.log('STOMP: ' + str);
         },
