@@ -297,8 +297,11 @@
         </div>
       </div>
     </div>
+    <UploadProgressModal 
+      :is-open="showUploadProgressModal"
+      :progress="uploadProgress"
+    />
   </div>
-
 <!--  &lt;!&ndash; 토스페이먼츠 결제 위젯 &ndash;&gt;-->
 <!--  <div v-if="showPaymentTossWidgetModal">-->
 <!--    <h2>결제 수단</h2>-->
@@ -382,6 +385,8 @@ export default {
         additional: null,
       },
       showReviewModal: false,
+      uploadProgress: 0,
+      showUploadProgressModal: false,
       showPaymentCompleteModal: false,
       reviewProgress: 0,
       reviewMessage: "프로젝트를 검토중입니다...",
@@ -554,6 +559,9 @@ export default {
 
     async registerProject() {
       try {
+        this.showUploadProgressModal = true;
+        this.uploadProgress = 0;
+
         // sessionStorage에서 데이터 복원
         const projectData = JSON.parse(sessionStorage.getItem('projectData'));
         const formDataUrl = sessionStorage.getItem('formDataUrl');
@@ -568,7 +576,7 @@ export default {
         originalFormData.append('temp', formDataBlob);
         // FormData 복원 로직...
 
-        // API 호출
+        // API 호출 with progress tracking
         await api.post("/api/project", formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
@@ -888,6 +896,7 @@ export default {
   padding: 2rem;
   max-width: 1600px; /* 최대 너비 증가 */
   margin: 0 auto;
+  margin-left: 250px;
 }
 
 .project-form {
@@ -910,6 +919,10 @@ h3 {
   margin-bottom: 1.5rem;
   font-weight: 600;
   text-align: center;
+}
+
+h4 {
+  white-space: nowrap;
 }
 
 /* 요금제 섹션 스타일 */
@@ -1297,13 +1310,29 @@ button:disabled {
 }
 
 @media (max-width: 768px) {
+
+  .project-registration-page {
+    padding: 0;
+    margin: auto;
+    overflow-x: scroll;
+  }
+
   .pricing-plans {
+    display: flex;
+    box-sizing: border-box;
+    gap: 2px;
     grid-template-columns: 1fr;
+  }
+
+  h4 {
+    white-space: nowrap;
   }
 
   .pricing-card {
     min-height: auto;
+    padding: 1rem;
     padding-bottom: 5rem;
+    height: 530px;
   }
 
   .form-section {

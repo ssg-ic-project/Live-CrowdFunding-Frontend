@@ -60,7 +60,7 @@ const routes = [
     path: '/',
     component: MainLayout,
     children: [
-      { path: '', name: 'Home', component: Home },
+     { path: '', name: 'Home', component: Home },
      { path: 'category', name: 'Category', component: Category },
      { path: 'live', name: 'Live', component: Live, props: true },
      { path: 'schedule', name: 'Schedule', component: Schedule },
