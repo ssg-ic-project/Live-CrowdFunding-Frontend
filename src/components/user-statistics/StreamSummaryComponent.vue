@@ -80,7 +80,7 @@ onMounted(() => {
 
   // 통계 업데이트 수신
   props.socket.on('room-stats-updated', (newStats) => {
-    console.log('room-stats-updated', newStats)
+    // console.log('room-stats-updated', newStats)
     // 기존 duration과 joinTime은 유지하면서 다른 통계만 업데이트
     stats.value = {
       ...stats.value,

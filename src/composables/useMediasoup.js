@@ -5,13 +5,13 @@ import { io } from 'socket.io-client'
 
 const SERVER_URL = import.meta.env.VITE_MEDIA_SERVER_URI
 
-export const useMediasoup = () => {
+export const useMediasoup = (projectId) => {
   const socket = ref(null)
   const device = ref(null)
   const sendTransport = ref(null)
   const recvTransport = ref(null)
   const joined = ref(false)
-  const roomId = ref('3')
+  const roomId = ref(projectId)
   const peers = ref([])
   const viewers = ref([])
   const localStream = ref(null)
@@ -55,7 +55,7 @@ export const useMediasoup = () => {
       socket.value = io(SERVER_URL)
 
       socket.value.on('connect', () => {
-        console.log('Connected to server:', socket.value.id)
+        // console.log('Connected to server:', socket.value.id)
       })
 
       socket.value.on('connect_error', (error) => {
@@ -79,7 +79,7 @@ export const useMediasoup = () => {
       })
 
       socket.value.on('producer-closed', async ({ producerId, peerId }) => {
-        console.log(`Producer ${producerId} from peer ${peerId} was closed`)
+        // console.log(`Producer ${producerId} from peer ${peerId} was closed`)
 
         // 해당 producer에 연결된 consumer 찾기
         const consumer = consumers.value.get(producerId)
@@ -99,7 +99,7 @@ export const useMediasoup = () => {
             mediaElement.remove()
           }
 
-          console.log(`Cleaned up consumer for producer ${producerId}`)
+          // console.log(`Cleaned up consumer for producer ${producerId}`)
         }
       })
 
@@ -318,7 +318,7 @@ export const useMediasoup = () => {
       )?.[0]
 
       if (existingConsumerId) {
-        console.log('Consumer already exists for producer:', producerId)
+        // console.log('Consumer already exists for producer:', producerId)
         return
       }
 
@@ -379,8 +379,6 @@ export const useMediasoup = () => {
 
   const renderRemoteMedia = async (consumer, consumerData) => {
     if (!remoteMediaEl.value) {
-      console.log(remoteMediaEl.value)
-
       console.warn('Remote media element not ready, retrying in 100ms...')
       setTimeout(() => {
         if (remoteMediaEl.value) {
@@ -488,7 +486,7 @@ export const useMediasoup = () => {
 
       // 서버로부터 producer 목록을 받아서 처리
       socket.value.on('producers-list', async ({ producers }) => {
-        console.log('Received producers list:', producers)
+        // console.log('Received producers list:', producers)
 
         for (const producer of producers) {
           const { producerId, peerId, kind } = producer

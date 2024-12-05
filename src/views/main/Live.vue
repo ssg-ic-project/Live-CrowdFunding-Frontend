@@ -176,8 +176,6 @@ export default {
 
       pastLiveStreams.value = data;
 
-      console.log('VOD 데이터:', data);
-
       return data;
     };
 
@@ -205,7 +203,6 @@ export default {
     const loadStreamData = async () => {
       try {
         const response = await getLiveStreams();
-        console.log("라이브 스트림 데이터:", response.data);
         streams.value = response.data;
       } catch (error) {
         console.error("라이브 스트림 데이터를 불러오는데 실패했습니다:", error);

@@ -1,7 +1,7 @@
 import { ref, watch, nextTick, onBeforeUnmount } from 'vue'
 import { useMediasoup } from './useMediasoup'
 
-export const useStreaming = () => {
+export const useStreaming = (projectId) => {
   const localVideoRef = ref(null)
   const remoteMediaRef = ref(null)
   const userName = ref('')
@@ -27,7 +27,7 @@ export const useStreaming = () => {
     cleanup,
     consume,
     setRemoteMediaEl,
-  } = useMediasoup()
+  } = useMediasoup(projectId)
 
   // 시청자 비디오 엘리먼트 연결
   watch(
@@ -128,7 +128,7 @@ export const useStreaming = () => {
 
       peers.value = peerIds.filter((id) => id !== socket.value.id)
 
-      console.log('Existing producers:', existingProducers)
+      // console.log('Existing producers:', existingProducers)
 
       for (const producerInfo of existingProducers) {
         await consume(producerInfo)
