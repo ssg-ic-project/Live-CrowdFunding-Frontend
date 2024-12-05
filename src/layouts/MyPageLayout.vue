@@ -1,10 +1,9 @@
-```vue
 <template>
-  <div class="mypage-layout">
-    <Header />
-    <div class="mypage-main">
+  <div class="page-layout">
+    <Header class="header" />
+    <div class="content-layout">
       <div class="content-wrapper">
-        <div class="mypage-container">
+        <main class="main-content">
           <template v-if="isMenuView">
             <div class="menu-grid">
               <template v-if="userType === 'maker'">
@@ -18,6 +17,7 @@
                   <p>{{ item.description }}</p>
                 </div>
               </template>
+
               <template v-else>
                 <div 
                   v-for="(item, index) in userMenuItems" 
@@ -29,18 +29,20 @@
                   <p>{{ item.description }}</p>
                 </div>
               </template>
-              
             </div>
           </template>
-          <MypageSidebar v-else class="sidebar" />
-          <div v-if="!isMenuView" class="main-content">
-            <router-view />
+          <div v-else class="content-with-sidebar">
+            <MypageSidebar class="sidebar" />
+            <div class="page-content">
+              <router-view />
+            </div>
           </div>
-        </div>
+        </main>
       </div>
     </div>
   </div>
 </template>
+
 
 <script>
 import { ref, onMounted } from 'vue';
@@ -117,31 +119,57 @@ export default {
 };
 </script>
 
-<style scoped>
-.mypage-layout {
+<style scoped>.page-layout {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   background-color: #ffffff;
+  position: relative;
 }
 
-.mypage-main {
+.header {
+  width: 100%;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+}
+
+.content-layout {
   flex: 1;
   width: 100%;
+  padding-top: 1rem;
+  position: relative;
 }
 
 .content-wrapper {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 20px;
-  width: 100%;
+  padding: 2rem 20px;
   box-sizing: border-box;
 }
 
-.mypage-container {
+.main-content {
+  width: 100%;
+}
+
+.content-with-sidebar {
   display: flex;
   gap: 2rem;
-  margin-top: 2rem;
+  position: relative;
+  width: 1400px
+}
+
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background-color: #ffffff;
+  border-right: 1px solid #9E94F8;
+  position: relative;
+}
+
+.page-content {
+  flex: 1;
+  min-width: 0;
 }
 
 .menu-grid {
@@ -181,22 +209,13 @@ export default {
   font-size: 0.95rem;
 }
 
-.sidebar {
-  flex-shrink: 0;
-  width: 220px;
-  background-color: #ffffff;
-  border-right: 1px solid #9E94F8;
-}
-
-.main-content {
-  flex: 1;
-  min-width: 0;
-}
-
 @media (max-width: 768px) {
-  .mypage-container {
+  .content-wrapper {
+    padding: 1rem 20px;
+  }
+  
+  .content-with-sidebar {
     flex-direction: column;
-    gap: 1rem;
   }
   
   .sidebar {
@@ -225,7 +244,7 @@ export default {
 
 @media (max-width: 480px) {
   .content-wrapper {
-    padding: 0 1rem;
+    padding: 1rem;
   }
 
   .menu-grid {

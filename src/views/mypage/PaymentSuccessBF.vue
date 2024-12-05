@@ -40,10 +40,25 @@ export default{
     }
   },
   methods: {
+    async getFromIndexedDB(fileId) {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open('ProjectDB', 1);
+        
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => {
+          const db = request.result;
+          const transaction = db.transaction(['files'], 'readonly');
+          const store = transaction.objectStore('files');
+          
+          const getRequest = store.get(fileId);
+          getRequest.onsuccess = () => resolve(getRequest.result?.files);
+          getRequest.onerror = () => reject(getRequest.error);
+        };
+      });
+    },
     async confirmPayment() {
       this.isLoading = true;
       try {
-        // 결제 승인 처리
         const requestData = {
           orderId: this.orderId,
           orderName: this.orderName,
@@ -52,18 +67,17 @@ export default{
         };
         await paymentApi.basicFee(requestData);
 
-        this.isProjectRegistering = true;
-
-        // 저장된 데이터 복원
+        // 결제 승인 처리
         const projectData = JSON.parse(sessionStorage.getItem('projectData'));
-        const fileData = JSON.parse(sessionStorage.getItem('fileData'));
+        const fileData = await this.getFromIndexedDB(projectData.fileId);
+        
+        if (!projectData || !fileData) {
+          throw new Error('프로젝트 데이터를 찾을 수 없습니다.');
+        }
 
         console.log('프로젝트 데이터:', projectData);
         console.log('파일 데이터:', fileData);
 
-        if (!projectData || !fileData) {
-          throw new Error('프로젝트 데이터를 찾을 수 없습니다.');
-        }
 
         // FormData 생성
         const formData = new FormData();
@@ -139,7 +153,7 @@ export default{
       }
 
       // API 호출
-      await axios.post("/api/project", formData, {
+      const response = await axios.post("/api/project", formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -149,15 +163,13 @@ export default{
       sessionStorage.removeItem('projectData');
       sessionStorage.removeItem('fileData');
 
-      this.isProjectRegistering = false;
       this.success = true;
       this.$router.push({
         name: 'ProjectRegistration',
-        query: { showSuccessModal: 'true', isRegistered: 'true'}
+        query: { showSuccessModal: 'true' }
       });
 
     } catch (error) {
-      this.isProjectRegistering = false;
       console.error('에러 발생:', error);
       this.error = error.message;
       this.errorDetail = JSON.stringify(error.response?.data || error, null, 2);

@@ -6,7 +6,7 @@
         <span class="count" v-if="pageInfo">(총 {{ pageInfo.totalElements }}개)</span>
       </div>
       <div class="product-grid">
-        <div v-for="project in projects" :key="project.id" class="product-card">
+        <div v-for="project in projects" :key="project.id" class="product-card" @click="goToProduct(project.id)">
           <div class="image-container">
             <img :src="project.thumbnailUrl" :alt="project.productName" />
             
@@ -57,6 +57,7 @@
 
 <script>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import axios from 'axios';
 
 export default {
@@ -68,9 +69,14 @@ export default {
     }
   },
   setup() {
+    const router = useRouter();
     const projects = ref([]);
     const pageInfo = ref(null);
     const pageSize = ref(12);
+
+    const goToProduct = (productId) => {
+      router.push(`/product/${productId}`);
+    };
 
     const fetchWishlist = async (page = 1) => {
       try {
@@ -127,7 +133,8 @@ export default {
       pageInfo,
       toggleWishlist,
       formatPrice,
-      changePage
+      changePage,
+      goToProduct
     };
   }
 };

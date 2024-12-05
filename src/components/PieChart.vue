@@ -5,17 +5,17 @@
 </template>
 
 <script>
-import { Chart, ArcElement, Tooltip, Legend } from "chart.js";
+import { Chart, PieController, ArcElement, Legend, Title, Tooltip} from 'chart.js';
 
 export default {
-  props: ["data"],
+  props: ['data'],
   mounted() {
     this.renderChart();
   },
   watch: {
     data() {
       this.renderChart();
-    },
+    }
   },
   methods: {
     renderChart() {
@@ -23,24 +23,33 @@ export default {
         this.chart.destroy();
       }
 
-      const ctx = this.$refs.pieChartCanvas.getContext("2d");
-      Chart.register(ArcElement, Tooltip, Legend);
+      const ctx = this.$refs.pieChartCanvas.getContext('2d');
+      const plugins = [ArcElement, PieController, Legend, Title, Tooltip];
+      this.createChart(ctx, plugins);
+    },
+    createChart(ctx, plugins) {
+      Chart.register(...plugins);
 
       this.chart = new Chart(ctx, {
-        type: "pie",
+        type: 'pie',
         data: this.data,
         options: {
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
             legend: {
-              position: "top",
-            },
-          },
-        },
+              position: 'right',
+              align: 'center',
+              labels: {
+                padding: 20,
+                boxWidth: 40
+              }
+            }
+          }
+        }
       });
-    },
-  },
+    }
+  }
 };
 </script>
 

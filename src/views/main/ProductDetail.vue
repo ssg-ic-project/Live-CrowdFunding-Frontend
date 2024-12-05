@@ -67,17 +67,21 @@
 
           <div class="funding-info">
             <div class="price-info">
-              <span class="funding-price">{{ product.price }}원</span>
-              <span v-if="product.discountPercentage" class="original-price">
-                {{  }}원
-              </span>
-              <span v-if="product.discountPercentage" class="discount-percentage">
-                {{ product.discountPercentage }}% 할인
-              </span>
+              <template v-if="product.isStreaming === 1">
+                <div class="price-wrapper">
+                  <span class="original-price">{{ product.price.toLocaleString() }}원</span>
+                  <span class="discount-percentage">{{ product.discountPercentage }}% 할인</span>
+                </div>
+                <span class="funding-price">{{ calculateDiscountedPrice }}원</span>
+              </template>
+              <!-- 라이브 방송 중이 아닐 때 -->
+              <template v-else>
+                <span class="funding-price">{{ product.price.toLocaleString() }}원</span>
+              </template>
             </div>
             <div class="funding-stats">
-              <span class="funding-amount">목표 금액: {{ product.goalAmount.toLocaleString() }}원</span>
-              <span class="funding-likes">관심: {{ product.likeCount }}명</span>
+              <span class="funding-amount">목표 금액: {{ product.goalAmount.toLocaleString() }}원 | </span>
+              <span class="funding-likes">관심: {{ product.likeCount }}명 | </span>
               <span class="funding-days-left">{{ daysLeft }}일 남음</span>
             </div>
           </div>
@@ -85,31 +89,60 @@
           <hr class="divider" />
 
           <div class="action-buttons">
-            <button @click="toggleWishlist" class="btn wishlist-btn" :class="{ active: isWishlisted }" aria-label="찜하기">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" :fill="isWishlisted ? '#ff4b4b' : 'none'" stroke="currentColor" stroke-width="2">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-              </svg>
-              <span class="wishlist-count">{{ product.likeCount }}</span>
-            </button>
+            <div class="button-row">
+              <!-- 첫번째 줄: 찜하기, LIVE/VOD, 펀딩하기 -->
+              <button @click="toggleWishlist" class="wishlist-btn" :class="{ active: isWishlisted }" aria-label="찜하기">
+                <div class="wishlist-content">
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    viewBox="0 0 24 24" 
+                    :fill="isWishlisted ? '#ff4b4b' : 'none'" 
+                    stroke="#ff4b4b" 
+                    stroke-width="2"
+                    class="heart-icon"
+                  >
+                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                  </svg>
+                  <span class="wishlist-count">{{ product.likeCount }}</span>
+                </div>
+              </button>
 
-            <div class="fund-container">
+              <!-- Live/VOD 버튼 -->
+              <template v-if="product.isStreaming === 0">
+                <button disabled class="btn stream-btn disabled-btn" aria-label="라이브 방송 준비중">
+                  LIVE
+                </button>
+              </template>
+              <template v-else-if="product.isStreaming === 1">
+                <button class="btn stream-btn live-btn" aria-label="라이브 방송 시청">
+                  LIVE
+                </button>
+              </template>
+              <template v-else-if="product.isStreaming === 2">
+                <button class="btn stream-btn vod-btn" aria-label="VOD 시청">
+                  VOD
+                </button>
+              </template>
+
+              <button @click="handleFunding" class="btn fund-btn">
+                펀딩하기
+              </button>
+            </div>
+
+            <div class="button-row">
+              <!-- 두번째 줄: 수량 선택, 총 가격 -->
               <div class="quantity-selector">
                 <button @click="decrementQuantity" :disabled="isDecrementDisabled" class="quantity-btn" aria-label="수량 감소">-</button>
                 <input type="number" v-model="selectedQuantity" @input="handleQuantityInput" min="1" max="100" class="quantity-input" />
                 <button @click="incrementQuantity" :disabled="isIncrementDisabled" class="quantity-btn" aria-label="수량 증가">+</button>
               </div>
-              <button @click="handleFunding" class="btn fund-btn fund-btn-full">
-                {{ selectedQuantity }}개 펀딩하기
-              </button>
+              <div class="total-price">
+                총 {{ (actualPrice * selectedQuantity).toLocaleString() }}원
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- 상세 설명 이미지 -->
-      <div v-if="product.contentImage" class="detailed-image-section">
-        <img :src="product.contentImage" :alt="`${product.productName} 상세 이미지`" class="product-detail-image" />
-      </div>
+        </div>    
+      </div>    
     </div>
   </div>
 </template>
@@ -156,6 +189,20 @@ export default {
         return this.product.images[this.currentImageIndex];
       }
       return this.product.images[0];
+    },
+
+    calculateDiscountedPrice() {
+      if (!this.product || this.product.isStreaming !== 1) return this.product.price.toLocaleString();
+      const discountedPrice = this.product.price * (1 - this.product.discountPercentage / 100);
+      return Math.floor(discountedPrice).toLocaleString();
+    },
+
+    actualPrice() {
+      if (!this.product) return 0;
+      if (this.product.isStreaming === 1) {
+        return Math.floor(this.product.price * (1 - this.product.discountPercentage / 100));
+      }
+      return this.product.price;
     },
     
     daysLeft() {
@@ -250,6 +297,7 @@ incrementQuantity() {
           },
         });
         this.product = response.data;
+        console.log("상품 정보:", this.product);
         this.isWishlisted = this.product.isLiked;
       } catch (error) {
         console.error("상품 정보 로딩 실패:", error);
@@ -336,7 +384,7 @@ incrementQuantity() {
           userId: Number(userId),
           projectId: this.product.id,
           amount: this.selectedQuantity,
-          totalPrice: this.product.price * this.selectedQuantity,
+          totalPrice: this.actualPrice * this.selectedQuantity,
         };
 
         console.log("주문 생성 요청:", orderRequestDTO); // 요청 데이터 구조 확인용
@@ -362,6 +410,7 @@ incrementQuantity() {
 </script>
 
 <style scoped>
+/* Product Detail Page Layout */
 .product-detail-page {
   max-width: 1200px;
   margin: 0 auto;
@@ -369,30 +418,32 @@ incrementQuantity() {
   padding-bottom: 60px;
   font-family: "Noto Sans KR", sans-serif;
 }
+
 .product-detail-container {
   display: flex;
   flex-wrap: wrap;
   gap: 2rem;
-  align-items: flex-start; /* stretch에서 flex-start로 변경 */
+  align-items: flex-start;
 }
 
+/* Image Section */
 .product-image-section {
   flex: 1;
   min-width: 300px;
   position: relative;
-  font-size: 0; /* 이미지 아래 여백 제거 */
-  line-height: 0; /* 이미지 아래 여백 제거 */
+  font-size: 0;
+  line-height: 0;
 }
 
 .image-slider {
   position: relative;
   width: 100%;
   height: 0;
-  padding-bottom: 62.5%; /* 16:10 비율 */
+  padding-bottom: 62.5%;
   overflow: hidden;
   background-color: #ffffff;
   border-radius: 8px;
-  margin: 0; /* 마진 제거 */
+  margin: 0;
 }
 
 .product-main-image {
@@ -413,18 +464,10 @@ incrementQuantity() {
   overflow: hidden;
   background-color: #ffffff;
   border-radius: 8px;
-  margin: 0; /* 마진 제거 */
+  margin: 0;
 }
 
-.product-info-section {
-  flex: 1;
-  min-width: 300px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: auto; /* height: 100%에서 auto로 변경 */
-}
-
+/* Slider Controls */
 .slider-button {
   position: absolute;
   top: 50%;
@@ -458,27 +501,14 @@ incrementQuantity() {
   background-color: rgba(0, 0, 0, 0.5);
 }
 
-.detailed-image-section {
-  margin-top: 2rem;
-  display: flex;
-  justify-content: center;
-}
-
-.product-detail-image {
-  width: 80%;
-  height: auto;
-  border-radius: 8px;
-  object-fit: cover;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
+/* Product Info Section */
 .product-info-section {
   flex: 1;
   min-width: 300px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 100%; /* 이미지 섹션과 동일한 높이 유지 */
+  height: 100%;
 }
 
 .top-info {
@@ -487,8 +517,8 @@ incrementQuantity() {
   align-items: flex-start;
   margin-bottom: 1rem;
   position: relative;
-  overflow: hidden; /* 추가 */
-  padding: 4px 0; /* 패딩 추가하여 상하 여백 확보 */
+  overflow: hidden;
+  padding: 4px 0;
 }
 
 .funding-percentage span {
@@ -512,6 +542,7 @@ incrementQuantity() {
   font-weight: 500;
 }
 
+/* Icons */
 .icons {
   display: flex;
   gap: 0.5rem;
@@ -535,6 +566,7 @@ incrementQuantity() {
   height: 20px;
 }
 
+/* Product Title and Description */
 .product-name {
   font-size: 2rem;
   margin: 0.5rem 0;
@@ -550,6 +582,7 @@ incrementQuantity() {
   line-height: 1.6;
 }
 
+/* Funding Info */
 .funding-info {
   display: flex;
   flex-direction: column;
@@ -566,46 +599,83 @@ incrementQuantity() {
   font-size: 2.2rem;
   font-weight: 700;
   color: #333;
+  display: block;
 }
 
-.funding-stats {
+.price-wrapper {
   display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  color: #666;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
-.funding-amount,
-.funding-participants,
-.funding-days-left {
-  font-size: 0.95rem;
-  padding: 0.5rem 1rem;
-  background-color: #ffffff;
-  border-radius: 4px;
-  display: inline-flex;
-  align-items: center;
+.original-price {
+  font-size: 1.2rem;
+  color: #666;
+  text-decoration: line-through;
+}
+
+.discount-percentage {
+  font-size: 1.2rem;
+  color: #ff4b4b;
   font-weight: 500;
 }
 
+.funding-stats {
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.funding-amount,
+.funding-likes,
+.funding-days-left {
+  width: 100%;
+  justify-content: center;
+}
+
+.funding-amount {
+  color: rgb(0, 0, 0);  /* 목표 금액은 녹색 계열 */
+}
+
+.funding-likes {
+  color: rgb(0, 0, 0)  /* 관심도는 빨간색 계열 */
+}
+
+.funding-days-left {
+  color: #dc3545;  /* 남은 일자는 파란색 계열 */
+}
+
+/* Divider */
 .divider {
   border: none;
   border-top: 1px solid #ddd;
   margin: 0.5rem 0;
 }
 
+/* Action Buttons */
 .action-buttons {
   display: flex;
+  flex-direction: column;
   gap: 1rem;
-  min-height: 48px;
   width: 100%;
   margin-top: 0.5rem;
-  margin-bottom: 0;
+}
+
+.button-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.button-row:first-child {
+  margin-bottom: 0.5rem;
 }
 
 .btn {
+  height: 48px;
   padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 1rem;
   transition: all 0.3s ease;
@@ -616,36 +686,72 @@ incrementQuantity() {
   font-weight: 500;
 }
 
+/* Wishlist Button */
 .wishlist-btn {
-  width: 48px;
   height: 48px;
+  width: 48px;
   padding: 0;
   background-color: white;
   border: 2px solid #ff4b4b;
+  border-radius: 8px;
   flex-shrink: 0;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.wishlist-btn svg {
-  width: 24px;
-  height: 24px;
-  stroke: #333;
-  fill: none;
-  stroke-width: 2;
+.wishlist-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.wishlist-btn.active {
-  background-color: #ff4b4b;
+.heart-icon {
+  width: 32px;
+  height: 32px;
+  stroke: #ff4b4b;
+  stroke-width: 1.5;
+  transition: all 0.3s ease;
 }
 
-.wishlist-btn.active svg {
-  stroke: white;
+.wishlist-count {
+  position: absolute;
+  font-size: 0.85rem;
+  color: #ff4b4b;
+  font-weight: 700;
+  z-index: 1;
+  line-height: 1;
+}
+
+.wishlist-btn.active .heart-icon {
   fill: #ff4b4b;
 }
 
-.live-btn,
-.vod-btn,
-.fund-btn {
-  flex: 1;
+.wishlist-btn.active .wishlist-count {
+  color: white;
+}
+
+.wishlist-btn:hover {
+  transform: scale(1.05);
+  background-color: #fff1f1;
+}
+
+/* Stream Button */
+.stream-btn {
+  padding: 0 24px;
+  min-width: 100px;
+  font-weight: 600;
+}
+
+.disabled-btn {
+  background-color: #6c757d;
+  color: white;
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .live-btn {
@@ -654,47 +760,93 @@ incrementQuantity() {
 }
 
 .vod-btn {
-  background-color: #6c757d;
+  background-color: #28a745;
   color: white;
 }
 
+/* Fund Button */
 .fund-btn {
+  flex: 1;
   background-color: #007bff;
   color: white;
+  padding: 0 24px;
 }
 
-.fund-btn-full {
-  flex: 1;
-  width: calc(100% - 64px);
-}
-
-.most-viewed-section {
-  margin-top: 3rem;
-}
-
-.most-viewed-section h2 {
-  margin-bottom: 1rem;
-  color: var(--primary-color);
-  font-weight: 700;
-  font-size: 1.5rem;
-}
-
-.product-list {
+/* Quantity Selector */
+.quantity-selector {
   display: flex;
-  gap: 1rem;
-  overflow-x: auto;
-  padding-bottom: 1rem;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: white;
+  border: 2px solid #e5e7eb;  /* 테두리 두께 증가 */
+  border-radius: 8px;  /* 라운드 값 증가 */
+  padding: 0.75rem;  /* 패딩 증가 */
+  min-width: 200px;  /* 최소 너비 설정 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);  /* 그림자 추가 */
 }
 
-.product-list::-webkit-scrollbar {
-  height: 8px;
+.quantity-btn {
+  width: 36px;  /* 크기 증가 */
+  height: 36px;  /* 크기 증가 */
+  border: 1px solid #e5e7eb;
+  background-color: #f8f9fa;  /* 배경색 추가 */
+  border-radius: 8px;  /* 라운드 값 증가 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.4rem;  /* 폰트 크기 증가 */
+  font-weight: 600;  /* 폰트 두께 증가 */
+  color: #333;
+  transition: all 0.2s;
 }
 
-.product-list::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.2);
-  border-radius: 4px;
+.quantity-btn:hover:not(:disabled) {
+  background-color: #e9ecef;
+  border-color: #dee2e6;
 }
 
+.quantity-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  background-color: #f1f3f5;
+}
+
+.quantity-input {
+  width: 70px;  /* 너비 증가 */
+  height: 36px;  /* 높이 증가 */
+  border: 2px solid #e5e7eb;  /* 테두리 두께 증가 */
+  border-radius: 8px;  /* 라운드 값 증가 */
+  text-align: center;
+  font-size: 1.1rem;  /* 폰트 크기 증가 */
+  font-weight: 600;  /* 폰트 두께 증가 */
+  color: #333;
+  -moz-appearance: textfield;
+}
+
+.quantity-input::-webkit-inner-spin-button,
+.quantity-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.quantity-input:focus {
+  outline: none;
+  border-color: #007bff;  /* 포커스 시 테두리 색상 변경 */
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);  /* 포커스 효과 추가 */
+}
+
+/* Total Price */
+.total-price {
+  flex: 1;
+  text-align: right;
+  font-size: 1.3rem;  /* 폰트 크기 증가 */
+  font-weight: 700;  /* 폰트 두께 증가 */
+  color: #333;
+  padding: 0.75rem;  /* 패딩 추가 */
+}
+
+/* Loading and Error States */
 .loading-spinner {
   display: flex;
   flex-direction: column;
@@ -742,11 +894,8 @@ incrementQuantity() {
   font-family: "Noto Sans KR", sans-serif;
 }
 
+/* Responsive Design */
 @media (max-width: 768px) {
-  .wishlist-container {
-    gap: 0.25rem;
-  }
-
   .product-detail-container {
     height: auto;
     flex-direction: column;
@@ -760,15 +909,6 @@ incrementQuantity() {
 
   .product-image-section {
     height: auto;
-  }
-
-  .product-list {
-    flex-wrap: nowrap;
-  }
-
-  .category-icons {
-    flex-direction: column;
-    align-items: flex-start;
   }
 
   .action-buttons {
@@ -786,9 +926,13 @@ incrementQuantity() {
     height: 40px;
   }
 
-  .wishlist-btn svg {
-    width: 20px;
-    height: 20px;
+  .heart-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .wishlist-count {
+    font-size: 0.75rem;
   }
 
   .funding-stats {
@@ -800,115 +944,5 @@ incrementQuantity() {
   .funding-days-left {
     width: 100%;
   }
-}
-wishlist-container {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.wishlist-count {
-  font-size: 0.9rem;
-  color: #666;
-  font-weight: 500;
-  min-width: 24px;
-  text-align: left;
-}
-
-.fund-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.quantity-selector {
-  display: flex;
-  gap: 0.5rem;
-  background-color: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  padding: 0.5rem;
-}
-
-.quantity-option {
-  flex: 1;
-  padding: 0.5rem;
-  border: none;
-  border-radius: 0.25rem;
-  background-color: transparent;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.quantity-option:hover {
-  background-color: #f3f4f6;
-}
-
-.quantity-option.active {
-  background-color: #007bff;
-  color: white;
-}
-
-.fund-btn-full {
-  width: 100%;
-}
-.quantity-selector {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background-color: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  padding: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.quantity-btn {
-  width: 32px;
-  height: 32px;
-  border: 1px solid #e5e7eb;
-  background-color: white;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 1.2rem;
-  transition: all 0.2s;
-}
-
-.quantity-btn:hover:not(:disabled) {
-  background-color: #f3f4f6;
-}
-
-.quantity-btn:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-.quantity-input {
-  width: 60px;
-  height: 32px;
-  border: 1px solid #e5e7eb;
-  border-radius: 4px;
-  text-align: center;
-  font-size: 1rem;
-}
-
-.quantity-input::-webkit-inner-spin-button,
-.quantity-input::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-.quantity-input {
-  -moz-appearance: textfield;
-}
-
-.fund-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
 }
 </style>
