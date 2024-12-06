@@ -6,7 +6,7 @@
       </div>
       <div class="controls-overlay">
         <div class="controls-bar">
-          <h3>관리자 화면</h3>
+          <h3>판매자 화면</h3>
           <div class="control-buttons">
             <button
               @click="handleRecording"
