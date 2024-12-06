@@ -139,6 +139,16 @@ export default {
             userRole.value = localStorage.getItem('userRole') || 'user'; 
             roomId.value = product.productId.toString();  // 상품 ID로 roomId 업데이트
             
+            router.push({
+              path: '/streaming',
+              state: {
+                userName: userName.value,
+                userRole: userRole.value,
+                productId: roomId.value,
+                // roomId: roomId.value,
+                // socket: socket.value,
+              },
+            });
           } catch (err) {
             console.error('스트리밍 참여 실패:', err);
             error.value = '스트리밍 참여 중 오류가 발생했습니다.';
